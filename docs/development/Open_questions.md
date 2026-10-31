@@ -7,3 +7,5 @@ Nguồn và cách phân biệt yêu cầu: xem [README](../README.md).
 - Quy tắc gán lô, chia một dòng đơn cho nhiều lô, trừ tồn và hủy/hoàn đơn.
 - Định nghĩa doanh số, trạng thái được tính, vùng của từng lô, và chính sách đánh giá/chứng nhận hết hạn.
 - Nguồn dữ liệu và ảnh mẫu hợp lệ; không trình bày dữ liệu hoặc chứng nhận giả lập như dữ liệu đã được xác minh thực tế.
+
+Backend đang tạm áp dụng các phương án trong [Design decisions](Design_decisions.md) cho những điểm trên; khi nhóm hoặc giảng viên chốt khác, cần cập nhật schema, code và tài liệu.

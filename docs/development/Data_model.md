@@ -29,3 +29,7 @@ Khóa ngoại liên kết các bản ghi hợp lệ; `UNIQUE` ngăn trùng mã l
 | `bao_cao_vi_pham` | ID, ID sản phẩm, ID lô, ID người báo, nội dung, URL ảnh, trạng thái. |
 
 Thông tin vùng nguyên liệu, người sản xuất và ảnh hiện trường của lô cũng phải được hệ thống quản lý theo yêu cầu chức năng, dù bảng lô gợi ý trong đề chưa liệt kê hết các trường này.
+
+## Schema đang triển khai
+
+`backend/db/schema.sql` hiện có 16 bảng: `vung_nguyen_lieu`, `nguoi_dung`, `nha_cung_cap`, `chung_nhan`, `san_pham`, `lo_san_xuat`, `buoc_truy_xuat`, `gio_hang`, `don_hang`, `chi_tiet_don`, `lich_su_trang_thai_don`, `danh_gia`, `anh_danh_gia`, `bao_cao_vi_pham`, `yeu_thich`, `theo_doi_nha_cung_cap`. Ngoài các cột đề gợi ý, lô có thêm `so_luong_con`, `vung_nguyen_lieu_id`, `nguoi_san_xuat` và `anh_hien_truong_url`. `chi_tiet_don` và `bao_cao_vi_pham` tham chiếu `(lo_id, san_pham_id)` để bảo đảm lô thuộc đúng sản phẩm. Lý do và các quy tắc đề xuất: [Design decisions](Design_decisions.md). ERD cho báo cáo vẫn cần vẽ từ schema này.

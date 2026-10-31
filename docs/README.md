@@ -21,6 +21,7 @@ Thư mục [development](development/) dành cho việc xác định và xây d�
 | [Testing](development/Testing.md) | Dữ liệu mẫu và các trường hợp kiểm thử hệ thống. |
 | [Plan](development/Plan.md) | Thứ tự phát triển đề xuất. |
 | [Open questions](development/Open_questions.md) | Các quyết định sản phẩm cần nhóm hoặc giảng viên xác nhận. |
+| [Design decisions](development/Design_decisions.md) | Các phương án đề xuất backend đang áp dụng (vai trò, duyệt, mã truy xuất, gán lô), chưa xác nhận. |
 
 ## Môn học và lớp
 
