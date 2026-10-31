@@ -85,4 +85,4 @@ Hai app không quyết định nghiệp vụ, vì backend kiểm tra mọi quy�
   - **Providers của app:** `ApiClient` (interceptor gắn token, timeout 90 giây) và `TokenStore` (`SharedPreferences`) theo Phụ lục 2. Nhận 401 thì đăng xuất về màn hình đăng nhập.
   - **Gọi API:** Fragment/Activity gọi qua repository, xử lý đủ đang tải / thành công / lỗi mạng.
   - **ViewModel:** C.1 không bắt buộc. Lab A2 giới thiệu ViewModel là thứ "sẽ dùng ở đồ án", còn A8 dùng để giữ trạng thái tab. Đề xuất: dùng ViewModel giữ danh sách tải từ API để khỏi gọi lại khi xoay; dữ liệu form đang nhập dở vẫn lưu bằng Bundle (`onSaveInstanceState`), vì ViewModel mất khi tiến trình bị hủy.
-- **Flutter:** `models/`, `repositories/`, `screens/`, `widgets/`. Một `ApiClient` dùng chung đọc token từ `shared_preferences`. Màn hình không gọi `http`/`dio` trực tiếp mà qua repository.
+- **Flutter:** `lib/data/` (`ApiClient` dùng chung, `TokenStore` trên `shared_preferences`, các `*_repository.dart`), `models/`, `screens/`, `widgets/`, `utils/`. Màn hình không gọi `http`/`dio` trực tiếp mà qua repository.

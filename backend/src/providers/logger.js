@@ -1,7 +1,7 @@
 'use strict';
 
-// Provider ghi log. TAG cần chứa mã nhóm khi đã biết (quy định học phần).
-const TAG = '[OCOP-API]';
+// Provider ghi log. TAG chứa mã nhóm "gugugaga" (quy định học phần).
+const TAG = '[GUGUGAGA-API]';
 
 const logger = {
   TAG,

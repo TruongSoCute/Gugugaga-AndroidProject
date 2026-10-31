@@ -25,7 +25,7 @@ Lab A10–A15 và F1–F8 chưa có slide trong repo. Các dòng ghi "chưa có 
 | 7 | ≥ 1 màn hình báo cáo có biểu đồ (MPAndroidChart hoặc tự vẽ) | A9–A12 | Chưa có slide về biểu đồ | Doanh số theo vùng, theo hạng sao, nhà cung cấp bán tốt nhất |
 | 8 | Đủ 3 trạng thái khi gọi API: đang tải / thành công / lỗi mạng | A7, A14 | **Phụ lục 2 mục 2.4** (A14 chưa có slide) | Mọi màn hình gọi API có `ProgressBar`, danh sách rỗng và thông báo lỗi |
 | 9 | Không mất dữ liệu form khi xoay màn hình | A2 | A2 (`onSaveInstanceState`, Bundle); A5, A6, A8 nhắc lại | Form tạo lô và form từ chối giữ dữ liệu khi xoay; thử thêm với "Don't keep activities" |
-| 10 | Tên app và TAG log chứa mã nhóm | A1 | A1 (TAG = mã lab + MSSV để lọc Logcat và chứng minh bài làm) | Tên app, package và `TAG` chứa mã nhóm khi biết |
+| 10 | Tên app và TAG log chứa mã nhóm | A1 | A1 (TAG = mã lab + MSSV để lọc Logcat và chứng minh bài làm) | `OCOP Admin Gugugaga`, `vn.edu.vhu.ltdd.gugugaga.admin`, `TAG = "GUGUGAGA_ADMIN"` |
 
 ## Gọi API: Phụ lục 2 (bắt buộc tự học, chưa có lab)
 
@@ -79,12 +79,10 @@ Lab A10–A15 và F1–F8 chưa có slide trong repo. Các dòng ghi "chưa có 
 
 **Áp dụng cho đề 5 (Đề xuất):**
 - **Tạo project:** project `admin-android/` theo đúng cấu hình trên.
-- **Tên app, package và TAG chứa mã nhóm** (đề E.4 dùng đây làm dấu hiệu đối chiếu chống sao chép):
-  - tên app: `OCOP Admin <mã nhóm>`;
-  - package theo mẫu của trường: `vn.edu.vhu.ltdd.<manhom>.admin`;
-  - `TAG = "<MANHOM>_ADMIN"`.
-
-  Mã nhóm chưa xác nhận nên các tên này cần chốt lại.
+- **Tên app, package và TAG chứa mã nhóm `gugugaga`** (đề E.4 dùng đây làm dấu hiệu đối chiếu chống sao chép):
+  - tên app: `OCOP Admin Gugugaga`;
+  - package theo mẫu của trường: `vn.edu.vhu.ltdd.gugugaga.admin`;
+  - `TAG = "GUGUGAGA_ADMIN"`.
 
 ## Lab A2: Vòng đời có việc, lưu trạng thái và Git
 
