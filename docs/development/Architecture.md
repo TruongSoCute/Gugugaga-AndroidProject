@@ -79,5 +79,10 @@ Khi gặp vi phạm, **sửa code cho đúng tầng**. Không nới quy tắc, k
 
 Hai app không quyết định nghiệp vụ, vì backend kiểm tra mọi quyền và trạng thái. Do đó app không cần tầng service.
 
-- **Android Java/XML:** `model/` (POJO), `data/` (Retrofit, repository), `ui/<miền>/` (ViewModel, Activity/Fragment/Adapter). `ApiClient`, interceptor gắn token và quản lý phiên (đăng xuất khi nhận 401) đóng vai trò Providers. Activity/Fragment không gọi Retrofit trực tiếp mà qua repository/ViewModel.
+- **Android Java/XML:** làm theo kỹ thuật đã học trong lab, xem [Labs Android](Labs_Android.md).
+  - **Màn hình:** một `MainActivity` chứa các Fragment và `BottomNavigationView` (A8). Chi tiết mở bằng `newInstance` + arguments và `addToBackStack`. Fragment trao đổi kết quả qua Fragment Result API.
+  - **Thư mục:** `model/` (lớp dữ liệu, tiền dùng `int`), `data/` (`ApiService` Retrofit, `ApiClient`, `TokenStore`, các repository mỏng bọc `ApiService`), `ui/<miền>/` (Fragment, Adapter RecyclerView + ViewHolder).
+  - **Providers của app:** `ApiClient` (interceptor gắn token, timeout 90 giây) và `TokenStore` (`SharedPreferences`) theo Phụ lục 2. Nhận 401 thì đăng xuất về màn hình đăng nhập.
+  - **Gọi API:** Fragment/Activity gọi qua repository, xử lý đủ đang tải / thành công / lỗi mạng.
+  - **ViewModel:** không bắt buộc. A8 nhắc tới ViewModel như phần nâng cao để giữ trạng thái tab.
 - **Flutter:** `models/`, `repositories/`, `screens/`, `widgets/`. Một `ApiClient` dùng chung đọc token từ `shared_preferences`. Màn hình không gọi `http`/`dio` trực tiếp mà qua repository.

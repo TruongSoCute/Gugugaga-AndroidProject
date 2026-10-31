@@ -4,7 +4,7 @@ Nguồn và cách phân biệt yêu cầu: xem [README](../README.md).
 
 `Android Admin / Flutter Client → REST API Express trên Render → PostgreSQL và Storage trên Supabase`. Hai app gọi cùng API và cùng dữ liệu; không xây hai ứng dụng dữ liệu tách biệt. Truy xuất QR là ngoại lệ công khai về đăng nhập, không phải ngoại lệ về nguồn dữ liệu.
 
-- Android Studio, Java, XML, minSdk 24; Retrofit 2 + Gson hoặc OkHttp.
+- Android Studio, Java, XML, minSdk 24; Retrofit 2 + Gson hoặc OkHttp. Kỹ thuật và quy ước giảng viên dạy trong lab, cùng cách gọi API theo Phụ lục 2: [Labs Android](Labs_Android.md).
 - Flutter 3.35+, Dart 3; `http` hoặc `dio`.
 - Node.js 20, Express 4, `pg` và SQL thuần; PostgreSQL Supabase; ảnh/tệp trên Supabase Storage, không lưu base64 trong CSDL.
 - JWT tự phát hành và bcrypt. Backend deploy Render. Nếu đổi công nghệ, tài liệu yêu cầu xin phép giảng viên trước tuần 9 kèm lý do.
