@@ -6,20 +6,33 @@ REST API Node.js/Express dùng chung cho app Admin Android và app Client Flutte
 
 ## Cấu trúc
 
+Backend chia theo **miền nghiệp vụ**. Mỗi miền gồm các tầng chỉ phụ thuộc theo một chiều; các mối quan tâm xuyên suốt đi vào qua **Providers**. Quy tắc này được kiểm tra bằng máy. Chi tiết và lý do: [Tech stack, mục Kiến trúc backend](../docs/development/Tech_stack.md#kiến-trúc-backend-đề-xuất).
+
 ```
 backend/
-  db/schema.sql      Tạo lại toàn bộ bảng (16 bảng, khóa ngoại, UNIQUE, CHECK, bật RLS)
-  db/seed.sql        Dữ liệu mẫu giả lập: 5 vùng, 12 NCC, 60 SP, 100 lô x 4 bước, 50 đơn
-  src/server.js      Khởi động server
-  src/app.js         Khai báo route và middleware
-  src/config.js      Đọc biến môi trường
-  src/db.js          Pool kết nối và hàm withTransaction
-  src/validator.js   Kiểm tra dữ liệu đầu vào
-  src/middleware/    auth.js (JWT + vai trò), errorHandler.js
-  src/routes/        auth, vung, nhaCungCap, sanPham, loSanXuat, truyXuat, health
-  scripts/db-reset.js Chạy schema.sql + seed.sql lên DATABASE_URL
-  test/              Kiểm thử tự động (node:test)
+  db/schema.sql, db/seed.sql   Bảng (16 bảng, khóa ngoại, UNIQUE, CHECK, RLS) và dữ liệu mẫu giả lập
+  src/
+    server.js, app.js, config.js   App Wiring: đọc cấu hình, tạo Providers, ghép các miền, gắn đường dẫn
+    providers/   db (pg, transaction), auth (JWT, vai trò), password (bcrypt), random (crypto), logger, http (lỗi)
+    utils/       errors, validator, sql (camel, phân trang...), http (bọc hàm async)
+    domains/
+      he-thong/      /health
+      tai-khoan/     /auth
+      danh-muc/      /vung-nguyen-lieu
+      nha-cung-cap/  /nha-cung-cap, /quan-tri/nha-cung-cap
+      san-pham/      /san-pham, /quan-tri/san-pham
+      truy-xuat/     /lo-san-xuat, /truy-xuat/:ma
+        types.js     kiểm tra dữ liệu vào, hằng trạng thái (hàm thuần)
+        repo.js      chỉ chứa SQL tham số hóa
+        service.js   quy tắc nghiệp vụ, transaction
+        routes.js    đọc request -> types -> service -> JSON
+        index.js     tạo service + router cho app.js
+  scripts/db-reset.js           Chạy schema.sql + seed.sql lên DATABASE_URL
+  scripts/check-architecture.js Kiểm tra quy tắc phụ thuộc giữa các tầng
+  test/                         Kiểm thử tự động (node:test)
 ```
+
+Khi thêm miền mới (ví dụ `don-hang`): tạo `domains/don-hang/{types,repo,service,routes,index}.js`, rồi ghép trong `app.js`. Nếu cần dữ liệu của miền khác, truyền service đó vào ở `app.js`; không `require` thẳng thư mục miền khác.
 
 ## Chạy trên máy cá nhân
 
@@ -63,7 +76,9 @@ Bộ kiểm thử dùng một CSDL **riêng**. Mỗi file test xóa và tạo l�
 TEST_DATABASE_URL=postgresql://user:pass@localhost:5432/ocop_test npm test
 ```
 
-Kết quả lần chạy gần nhất: 43/43 đạt trên PostgreSQL 16, Node.js 22.
+`npm test` gồm cả kiểm tra kiến trúc. Có thể chạy riêng phần này (không cần CSDL) bằng `npm run check:arch`.
+
+Kết quả lần chạy gần nhất: 45/45 đạt trên PostgreSQL 16, Node.js 22.
 
 ## Tài khoản thử nghiệm (từ seed.sql)
 
@@ -89,8 +104,9 @@ Không commit `.env`. Khóa `SUPABASE_SERVICE_KEY` chỉ khai báo trên Render,
 
 ## Giải thích nhanh để trình bày
 
-- **SQL tham số hóa:** mọi giá trị người dùng gửi lên đều được truyền qua `$1, $2…` và không ghép vào chuỗi SQL, nhờ đó tránh SQL injection. Các test có thử từ khóa `' OR 1=1 --`.
-- **Transaction:** khi tạo nhà cung cấp kèm chứng nhận, hoặc tạo lô kèm các bước, mọi lệnh `INSERT` nằm giữa `BEGIN` và `COMMIT`. Nếu một lệnh lỗi, `ROLLBACK` hoàn tác tất cả (xem `withTransaction` trong `src/db.js`).
+- **SQL tham số hóa:** mọi câu SQL nằm trong các file `repo.js`. Giá trị người dùng gửi lên đều được truyền qua `$1, $2…` và không ghép vào chuỗi SQL, nhờ đó tránh SQL injection. Các test có thử từ khóa `' OR 1=1 --`.
+- **Transaction:** khi tạo nhà cung cấp kèm chứng nhận, hoặc tạo lô kèm các bước, mọi lệnh `INSERT` nằm giữa `BEGIN` và `COMMIT`. Nếu một lệnh lỗi, `ROLLBACK` hoàn tác tất cả (xem `withTransaction` trong `src/providers/db.js`, được gọi ở tầng service).
+- **Phân tầng:** muốn biết SQL ở đâu thì xem `repo.js`; quy tắc nghiệp vụ ở `service.js`; quyền ở `providers/auth.js` và chỗ gắn `auth.nhanSu`/`auth.quanTri` trong `routes.js`.
 - **bcrypt:** CSDL chỉ lưu hash của mật khẩu. Khi đăng nhập, backend so sánh hash và không bao giờ trả hash về app.
 - **JWT:** token ký bằng `JWT_SECRET` và có hạn dùng. Mỗi request, middleware kiểm tra chữ ký và hạn của token, rồi đọc lại vai trò trong CSDL, nên sửa vai trò trong token cũng không có tác dụng.
 - **Mã truy xuất khó đoán:** mã có 80 bit ngẫu nhiên từ `crypto.randomBytes`, không phải số tăng dần, nên không ai dò được mã của lô khác.

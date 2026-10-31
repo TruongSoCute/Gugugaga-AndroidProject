@@ -108,4 +108,4 @@ Token hết hạn sau `JWT_EXPIRES_IN` (mặc định 8 giờ). Khi nhận 401, 
 
 ## Kiểm thử tự động
 
-`backend/test/` có 43 trường hợp chạy với CSDL PostgreSQL thật, xem [backend/README](../../backend/README.md). Các trường hợp bao gồm: `/health`; đăng nhập đúng/sai; thiếu token, token giả, token hết hạn; khách gọi API nhân sự bị 403; nhân viên duyệt bị 403; dữ liệu sai bị 400; rollback khi tạo nhà cung cấp lỗi; luồng duyệt → tạo hai lô cùng sản phẩm → quét từng mã không đăng nhập thấy đúng hành trình; mã không tồn tại trả 404; truy xuất không lộ dữ liệu nội bộ; ràng buộc mã trùng; seed đủ số lượng.
+`backend/test/` có 45 trường hợp (gồm 2 trường hợp kiểm tra kiến trúc phân tầng) chạy với CSDL PostgreSQL thật, xem [backend/README](../../backend/README.md). Các trường hợp bao gồm: `/health`; đăng nhập đúng/sai; thiếu token, token giả, token hết hạn; khách gọi API nhân sự bị 403; nhân viên duyệt bị 403; dữ liệu sai bị 400; rollback khi tạo nhà cung cấp lỗi; luồng duyệt → tạo hai lô cùng sản phẩm → quét từng mã không đăng nhập thấy đúng hành trình; mã không tồn tại trả 404; truy xuất không lộ dữ liệu nội bộ; ràng buộc mã trùng; seed đủ số lượng.
