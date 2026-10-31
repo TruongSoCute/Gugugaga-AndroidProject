@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/khoang_lg"
+    android:paddingTop="@dimen/khoang_sm"
+    android:paddingEnd="@dimen/khoang_lg">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/duyet_huong_dan" />
+
+    <!-- RadioButton phải nằm trong RadioGroup để loại trừ nhau (Lab A6). -->
+    <RadioGroup
+        android:id="@+id/rgHangSao"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rbSao3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/sao_3" />
+
+        <RadioButton
+            android:id="@+id/rbSao4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/sao_4" />
+
+        <RadioButton
+            android:id="@+id/rbSao5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/sao_5" />
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/tvLoiDuyet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/loi_chua_chon_sao"
+        android:textColor="?attr/colorError"
+        android:visibility="gone" />
+</LinearLayout>

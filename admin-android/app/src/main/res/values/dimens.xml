@@ -1,0 +1,7 @@
+<resources>
+    <dimen name="khoang_xs">4dp</dimen>
+    <dimen name="khoang_sm">8dp</dimen>
+    <dimen name="khoang_md">16dp</dimen>
+    <dimen name="khoang_lg">24dp</dimen>
+    <dimen name="chu_nho">12sp</dimen>
+</resources>

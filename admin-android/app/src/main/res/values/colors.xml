@@ -1,0 +1,11 @@
+<resources>
+    <color name="xanh_ocop">#1B6B3A</color>
+    <color name="xanh_ocop_nhat">#A7F0B8</color>
+    <color name="vang_cho_duyet">#8A5A00</color>
+    <color name="nen_cho_duyet">#FFE9C2</color>
+    <color name="xanh_da_duyet">#1B6B3A</color>
+    <color name="nen_da_duyet">#D6F5DE</color>
+    <color name="do_tu_choi">#A1271B</color>
+    <color name="nen_tu_choi">#FFDAD4</color>
+    <color name="nen_icon">#FFFFFF</color>
+</resources>

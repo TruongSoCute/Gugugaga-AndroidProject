@@ -1,0 +1,62 @@
+<resources>
+    <!-- Tên app chứa mã nhóm "gugugaga" (C.1 #10). -->
+    <string name="app_name">OCOP Admin Gugugaga</string>
+
+    <!-- Đăng nhập -->
+    <string name="dang_nhap_tieu_de">Quản trị sàn OCOP</string>
+    <string name="dang_nhap_phu_de">Đăng nhập bằng tài khoản quản trị hoặc nhân viên</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_mat_khau">Mật khẩu</string>
+    <string name="nut_dang_nhap">Đăng nhập</string>
+    <string name="loi_email_trong">Vui lòng nhập email</string>
+    <string name="loi_email_sai">Email chưa đúng định dạng, ví dụ ten@ocop.example</string>
+    <string name="loi_mat_khau_trong">Vui lòng nhập mật khẩu</string>
+    <string name="loi_tai_khoan_khach">Tài khoản khách không dùng được app quản trị. Hãy dùng app Client.</string>
+    <string name="thong_bao_het_phien">Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.</string>
+
+    <!-- Lỗi chung khi gọi API (Phụ lục 2) -->
+    <string name="loi_mang">Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.</string>
+    <string name="loi_may_chu">Lỗi máy chủ (mã %1$d). Vui lòng thử lại sau.</string>
+
+    <!-- Điều hướng -->
+    <string name="tab_san_pham">Sản phẩm</string>
+    <string name="tab_tai_khoan">Tài khoản</string>
+
+    <!-- Danh sách sản phẩm -->
+    <string name="loc_trang_thai">Lọc theo trạng thái</string>
+    <string name="danh_sach_trong">Không có sản phẩm nào ở trạng thái này.</string>
+    <string name="nut_thu_lai">Thử lại</string>
+    <string name="nut_duyet">Duyệt</string>
+    <string name="nut_tu_choi">Từ chối</string>
+    <string name="nut_huy">Hủy</string>
+    <string name="ncc_vung">%1$s · %2$s</string>
+    <string name="hang_sao">%1$d sao OCOP</string>
+    <string name="chua_xep_hang">Chưa xếp hạng</string>
+    <string name="ly_do_tu_choi">Lý do từ chối: %1$s</string>
+    <string name="trang_thai_cho_duyet">Chờ duyệt</string>
+    <string name="trang_thai_da_duyet">Đã duyệt</string>
+    <string name="trang_thai_tu_choi">Từ chối</string>
+    <string name="ncc_chua_duyet">Nhà cung cấp chưa được duyệt</string>
+
+    <!-- Hộp thoại duyệt / từ chối -->
+    <string name="duyet_tieu_de">Duyệt \"%1$s\"</string>
+    <string name="duyet_huong_dan">Chọn hạng OCOP cho sản phẩm:</string>
+    <string name="sao_3">3 sao</string>
+    <string name="sao_4">4 sao</string>
+    <string name="sao_5">5 sao</string>
+    <string name="loi_chua_chon_sao">Vui lòng chọn hạng 3, 4 hoặc 5 sao</string>
+    <string name="tu_choi_tieu_de">Từ chối \"%1$s\"</string>
+    <string name="hint_ly_do">Lý do từ chối</string>
+    <string name="loi_ly_do_trong">Vui lòng ghi lý do để nhà cung cấp biết cần sửa gì</string>
+    <string name="da_duyet">Đã duyệt \"%1$s\" hạng %2$d sao</string>
+    <string name="da_tu_choi">Đã từ chối \"%1$s\"</string>
+
+    <!-- Tài khoản -->
+    <string name="vai_tro_quan_tri">Quản trị</string>
+    <string name="vai_tro_nhan_vien">Nhân viên</string>
+    <string name="tai_khoan_vai_tro">Vai trò: %1$s</string>
+    <string name="tai_khoan_may_chu">Máy chủ: %1$s</string>
+    <string name="nhan_vien_chi_xem">Nhân viên chỉ xem danh sách; chỉ Quản trị được duyệt sản phẩm.</string>
+    <string name="nut_dang_xuat">Đăng xuất</string>
+    <string name="xac_nhan_dang_xuat">Bạn có chắc muốn đăng xuất?</string>
+</resources>
