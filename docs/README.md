@@ -16,7 +16,7 @@ Thư mục [development](development/) dành cho việc xác định và xây d�
 | [Product](development/Product.md) | Chức năng bắt buộc và phần mở rộng của hai ứng dụng. |
 | [Rule](development/Rule.md) | Quy tắc nghiệp vụ bắt buộc và các quy tắc đề xuất. |
 | [Tech stack](development/Tech_stack.md) | Kiến trúc, công nghệ và yêu cầu kỹ thuật của hai app. |
-| [Labs Android](development/Labs_Android.md) | Kiến thức Lab A5–A9 và Phụ lục 2 (Retrofit) áp dụng cho app Admin, đối chiếu từng yêu cầu C.1. |
+| [Labs Android](development/Labs_Android.md) | Kiến thức Lab A1–A9 và Phụ lục 2 (Retrofit) áp dụng cho app Admin, đối chiếu từng yêu cầu C.1. |
 | [Architecture](development/Architecture.md) | Kiến trúc mã nguồn phân tầng theo miền, quy tắc phụ thuộc được kiểm tra bằng máy (đề xuất). Đọc trước khi sửa code. |
 | [Data model](development/Data_model.md) | Các bảng, quan hệ và ràng buộc định hướng. |
 | [API](development/API.md) | Nhóm API chính theo đề, cần chi tiết hóa khi triển khai. |
