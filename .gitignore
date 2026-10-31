@@ -1,0 +1,29 @@
+# Bí mật: không commit
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Android
+*.iml
+.gradle/
+local.properties
+build/
+captures/
+*.jks
+*.keystore
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+
+# IDE / hệ điều hành
+.idea/
+.vscode/
+.DS_Store
