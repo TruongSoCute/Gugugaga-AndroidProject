@@ -16,6 +16,7 @@ Thư mục [development](development/) dành cho việc xác định và xây d�
 | [Product](development/Product.md) | Chức năng bắt buộc và phần mở rộng của hai ứng dụng. |
 | [Rule](development/Rule.md) | Quy tắc nghiệp vụ bắt buộc và các quy tắc đề xuất. |
 | [Tech stack](development/Tech_stack.md) | Kiến trúc, công nghệ và yêu cầu kỹ thuật của hai app. |
+| [Architecture](development/Architecture.md) | Kiến trúc mã nguồn phân tầng theo miền, quy tắc phụ thuộc được kiểm tra bằng máy (đề xuất). Đọc trước khi sửa code. |
 | [Data model](development/Data_model.md) | Các bảng, quan hệ và ràng buộc định hướng. |
 | [API](development/API.md) | Nhóm API chính theo đề, cần chi tiết hóa khi triển khai. |
 | [Testing](development/Testing.md) | Dữ liệu mẫu và các trường hợp kiểm thử hệ thống. |
@@ -32,4 +33,4 @@ Thư mục [course](course/) dành cho quy định học phần, mốc, chấm �
 | [Delivery](course/Delivery.md) | Mốc học phần, điểm, quy định nhóm và sản phẩm nộp. |
 | [Submission checklist](course/Submission_checklist.md) | Danh sách tự kiểm trước khi nộp và demo. |
 
-Bắt đầu bằng Goal và Product, sau đó đọc Rule và Tech stack trước khi thiết kế Data model và API. Cập nhật tài liệu khi nhóm chốt quyết định hoặc triển khai thay đổi.
+Bắt đầu bằng Goal và Product, sau đó đọc Rule và Tech stack trước khi thiết kế Data model và API. Đọc Architecture trước khi viết hoặc sửa code. Cập nhật tài liệu khi nhóm chốt quyết định hoặc triển khai thay đổi.

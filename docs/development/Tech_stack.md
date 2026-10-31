@@ -24,28 +24,6 @@ Theo mục C.3, mọi API yêu cầu đăng nhập phải qua middleware kiểm 
 
 Theo hướng dẫn nguồn, cấu hình `DATABASE_URL`, `JWT_SECRET`, `SUPABASE_URL` và `SUPABASE_SERVICE_KEY` bằng biến môi trường trên backend; khóa service role chỉ được giữ phía server. Không đưa `.env` vào Git. Nếu bí mật đã lộ trong lịch sử Git, cần thu hồi hoặc thay khóa tương ứng; chỉ xóa file không đủ. Render có thể cần thời gian khởi động sau khi ngủ và Supabase có thể bị tạm dừng khi không hoạt động; kiểm tra tình trạng thực tế trước buổi demo.
 
-## Kiến trúc backend (Đề xuất)
+## Kiến trúc mã nguồn
 
-Đề không quy định kiến trúc mã nguồn. Đây là lựa chọn của nhóm, cần cả nhóm thống nhất. Backend chia theo **miền nghiệp vụ** (`backend/src/domains/<miền>/`). Trong mỗi miền, code chỉ phụ thuộc theo một chiều: `types → config → repo → service → routes → index`. Các mối quan tâm xuyên suốt (CSDL, JWT/vai trò, bcrypt, sinh số ngẫu nhiên, log, xử lý lỗi HTTP) đi vào qua một cửa duy nhất là `providers/`. `app.js` (App Wiring) ghép Providers với các miền.
-
-| Tầng | Chứa gì | Được dùng |
-| --- | --- | --- |
-| `types` | Kiểm tra dữ liệu vào, hằng trạng thái; hàm thuần | `utils` |
-| `config` | Cấu hình riêng của miền, nếu có | `types`, `utils` |
-| `repo` | Chỉ câu SQL tham số hóa; nhận `q` là pool hoặc client transaction | `types`, `config`, `utils` |
-| `service` | Quy tắc nghiệp vụ, transaction, lỗi 404/409 | tầng trước, `utils`, `providers` |
-| `routes` | Runtime + UI của backend: đọc request, gắn quyền, gọi service, trả JSON | `types`, `service`, `utils`, `providers`, `express` (không gọi `repo`) |
-| `index` | Tạo service và router cho `app.js` | các tầng trong miền, `providers` |
-
-Quy tắc được **kiểm tra bằng máy**: `backend/scripts/check-architecture.js` chạy trong `npm test` và báo lỗi khi:
-- một tầng require tầng đứng sau nó, hoặc `routes` gọi thẳng `repo`;
-- một miền require miền khác (phụ thuộc giữa các miền phải truyền vào ở `app.js`);
-- `types`/`config`/`repo` dùng `providers`, hoặc `utils` phụ thuộc thứ gì khác ngoài `utils`;
-- `pg`, `jsonwebtoken`, `bcryptjs`, `crypto` được dùng ngoài đúng provider của nó;
-- có `require` động hoặc file nằm ngoài các vị trí trên.
-
-Lý do áp dụng: miền đơn hàng sắp làm có nhiều quy tắc (khóa dòng, trừ tồn, gán lô, chuyển trạng thái). Tách tầng giúp thành viên làm song song theo miền, ít xung đột, và dễ trả lời khi bảo vệ (SQL ở `repo`, quy tắc ở `service`, quyền ở `providers/auth`). Kiểm tra bằng máy giữ cho code do nhiều người và AI viết vẫn theo cùng một quy tắc.
-
-**Gợi ý cho hai app (Đề xuất, không kiểm tra bằng máy):** hai app không quyết định nghiệp vụ nên không cần tầng service.
-- Android dùng `model/`, `data/` (Retrofit, repository) và `ui/<miền>/` (ViewModel, Activity/Fragment/Adapter). `ApiClient`, interceptor gắn token và quản lý phiên đóng vai trò Providers.
-- Flutter dùng `models/`, `repositories/`, `screens/`, `widgets/` và một `ApiClient` dùng chung đọc token từ `shared_preferences`.
+Kiến trúc phân tầng của backend, các quy tắc phụ thuộc được kiểm tra bằng máy và gợi ý tổ chức hai app nằm trong [Architecture](Architecture.md).

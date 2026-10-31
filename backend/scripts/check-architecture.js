@@ -1,6 +1,7 @@
 'use strict';
 
 // Kiểm tra kiến trúc phân tầng bằng máy (chạy: npm run check:arch; cũng chạy trong npm test).
+// Tài liệu đầy đủ: docs/development/Architecture.md. Đổi quy tắc ở đây phải cập nhật tài liệu đó.
 //
 // Cấu trúc src/:
 //   app.js, server.js, config.js   App Wiring: ghép Providers với các miền
@@ -160,7 +161,7 @@ if (require.main === module) {
   const loi = kiemTraKienTruc(srcDir);
   if (loi.length) {
     for (const l of loi) console.error(`src/${l.file}:${l.dong}  [${l.ma}] ${l.thongDiep}`);
-    console.error(`\n${loi.length} vi phạm kiến trúc. Xem docs/development/Tech_stack.md mục Kiến trúc backend.`);
+    console.error(`\n${loi.length} vi phạm kiến trúc. Xem docs/development/Architecture.md.`);
     process.exit(1);
   }
   console.log('Kiến trúc hợp lệ: không có vi phạm.');

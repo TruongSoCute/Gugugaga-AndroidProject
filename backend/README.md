@@ -6,7 +6,7 @@ REST API Node.js/Express dùng chung cho app Admin Android và app Client Flutte
 
 ## Cấu trúc
 
-Backend chia theo **miền nghiệp vụ**. Mỗi miền gồm các tầng chỉ phụ thuộc theo một chiều; các mối quan tâm xuyên suốt đi vào qua **Providers**. Quy tắc này được kiểm tra bằng máy. Chi tiết và lý do: [Tech stack, mục Kiến trúc backend](../docs/development/Tech_stack.md#kiến-trúc-backend-đề-xuất).
+Backend chia theo **miền nghiệp vụ**. Mỗi miền gồm các tầng chỉ phụ thuộc theo một chiều; các mối quan tâm xuyên suốt đi vào qua **Providers**. Quy tắc này được kiểm tra bằng máy. Chi tiết và lý do: [Architecture](../docs/development/Architecture.md).
 
 ```
 backend/
