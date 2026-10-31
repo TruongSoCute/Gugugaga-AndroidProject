@@ -1,41 +1,50 @@
 'use strict';
 
+// App Wiring: nơi DUY NHẤT ghép Providers với các miền nghiệp vụ và gắn đường dẫn.
+// Phụ thuộc giữa các miền (vd: sản phẩm cần chứng nhận của nhà cung cấp) được truyền
+// vào ở đây, nên các miền không import trực tiếp lẫn nhau.
 const express = require('express');
 const cors = require('cors');
-const { errorHandler } = require('./middleware/errorHandler');
-const { HttpError } = require('./errors');
+const { createProviders } = require('./providers');
+const createHeThong = require('./domains/he-thong');
+const createTaiKhoan = require('./domains/tai-khoan');
+const createDanhMuc = require('./domains/danh-muc');
+const createNhaCungCap = require('./domains/nha-cung-cap');
+const createSanPham = require('./domains/san-pham');
+const createTruyXuat = require('./domains/truy-xuat');
 
-// Tạo ứng dụng Express từ pool CSDL và cấu hình (tách khỏi server.js để kiểm thử).
 function createApp({ pool, config }) {
-  const ctx = { pool, config };
-  const app = express();
+  const providers = createProviders({ pool, config });
 
+  const heThong = createHeThong(providers);
+  const taiKhoan = createTaiKhoan(providers);
+  const danhMuc = createDanhMuc(providers);
+  const nhaCungCap = createNhaCungCap(providers);
+  const sanPham = createSanPham(providers, { nhaCungCap: nhaCungCap.service });
+  const truyXuat = createTruyXuat(providers, { nhaCungCap: nhaCungCap.service });
+
+  const app = express();
   app.disable('x-powered-by');
   // Render đặt backend sau proxy HTTPS; cần để req.protocol trả "https".
   app.set('trust proxy', 1);
   app.use(cors());
   app.use(express.json({ limit: '100kb' }));
 
-  const nhaCungCap = require('./routes/nhaCungCap')(ctx);
-  const sanPham = require('./routes/sanPham')(ctx);
-
   app.get('/', (_req, res) => {
     res.json({ ten: 'OCOP API – đề 05', suKhoe: '/health', taiLieu: 'docs/development/API.md' });
   });
-  app.use('/health', require('./routes/health')(ctx));
-  app.use('/auth', require('./routes/auth')(ctx));
-  app.use('/vung-nguyen-lieu', require('./routes/vung')(ctx));
-  app.use('/nha-cung-cap', nhaCungCap.pub);
-  app.use('/san-pham', sanPham.pub);
-  app.use('/lo-san-xuat', require('./routes/loSanXuat')(ctx));
-  app.use('/truy-xuat', require('./routes/truyXuat')(ctx));
-  app.use('/quan-tri/nha-cung-cap', nhaCungCap.admin);
-  app.use('/quan-tri/san-pham', sanPham.admin);
+  app.use('/health', heThong.healthRouter);
+  app.use('/auth', taiKhoan.authRouter);
+  app.use('/vung-nguyen-lieu', danhMuc.vungRouter);
+  app.use('/nha-cung-cap', nhaCungCap.publicRouter);
+  app.use('/san-pham', sanPham.publicRouter);
+  app.use('/lo-san-xuat', truyXuat.loRouter);
+  app.use('/truy-xuat', truyXuat.publicRouter);
+  app.use('/quan-tri/nha-cung-cap', nhaCungCap.adminRouter);
+  app.use('/quan-tri/san-pham', sanPham.adminRouter);
 
-  app.use((req, _res, next) => {
-    next(new HttpError(404, 'KHONG_TIM_THAY_DUONG_DAN', `Không có API ${req.method} ${req.path}.`));
-  });
-  app.use(errorHandler);
+  app.use(providers.http.notFoundHandler);
+  app.use(providers.http.errorHandler);
   return app;
 }
 

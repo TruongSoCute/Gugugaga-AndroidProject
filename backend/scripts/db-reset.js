@@ -5,7 +5,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 require('dotenv').config({ quiet: true });
-const { createPool } = require('../src/db');
+const { createPool } = require('../src/providers/db');
 
 async function main() {
   if (!process.argv.includes('--yes')) {
