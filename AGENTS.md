@@ -2,7 +2,7 @@
 
 Danh mục tài liệu dự án: [docs/README.md](docs/README.md). Trước khi thiết kế hoặc thay đổi chức năng, đối chiếu yêu cầu trong [Product](docs/development/Product.md) và quy tắc trong [Rule](docs/development/Rule.md); tham khảo các tài liệu liên quan theo mục đích công việc. Khi yêu cầu chưa được giảng viên quy định, đánh dấu là đề xuất hoặc cần xác nhận; không trình bày giả định như yêu cầu chính thức.
 
-**Khi bắt đầu mỗi phiên làm việc, đọc [Architecture](docs/development/Architecture.md) trước khi đọc hoặc sửa code.** Mọi thay đổi phải theo kiến trúc và quy tắc trong tài liệu đó:
+**Khi bắt đầu mỗi phiên làm việc, đọc [Architecture](docs/development/Architecture.md) trước khi đọc hoặc sửa code.** Cách cài đặt, chạy và kiểm thử: [Setup](docs/development/Setup.md); quy trình nhóm: [Contributing](docs/development/Contributing.md). Mọi thay đổi phải theo kiến trúc và quy tắc trong tài liệu đó:
 
 - Backend chia theo miền `backend/src/domains/<miền>/`, mỗi miền chỉ phụ thuộc theo chiều `types → config → repo → service → routes → index`. SQL chỉ nằm trong `repo`; quy tắc nghiệp vụ và transaction nằm trong `service`; `routes` không gọi `repo`.
 - Mối quan tâm xuyên suốt chỉ đi vào qua `providers/`: CSDL (`pg`), JWT/vai trò, bcrypt, `crypto`, log, lỗi HTTP. Miền không require miền khác; phụ thuộc giữa các miền truyền vào ở `app.js`. `utils/` chỉ chứa hàm thuần.

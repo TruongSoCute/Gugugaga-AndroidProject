@@ -4,6 +4,8 @@
 
 Bắt đầu từ [danh mục tài liệu dự án](docs/README.md) để xem mục tiêu, chức năng, quy tắc, công nghệ và yêu cầu nộp bài. [AGENTS.md](AGENTS.md) ghi các quy tắc làm việc trong repository.
 
+**Thành viên mới:** đọc theo thứ tự [Setup](docs/development/Setup.md) (cài đặt và chạy), [Architecture](docs/development/Architecture.md) (hệ thống được tổ chức thế nào), [Contributing](docs/development/Contributing.md) (quy trình làm việc nhóm), rồi [việc tiếp theo](docs/development/Plan.md#trạng-thái-hiện-tại-và-việc-tiếp-theo).
+
 ## Hệ thống đang chạy
 
 - **API:** https://ocop-backend.onrender.com — kiểm tra sức khỏe: https://ocop-backend.onrender.com/health

@@ -6,6 +6,13 @@
 
 Các mục ghi **Bắt buộc** hoặc nói rõ là yêu cầu từ đề dựa trên tài liệu giảng viên. Các mục ghi **Đề xuất** là phương án để nhóm thảo luận, chưa phải yêu cầu chính thức. Các quyết định sản phẩm chưa chốt được ghi trong [Open questions](development/Open_questions.md).
 
+## Thành viên mới bắt đầu ở đây
+
+1. [Setup](development/Setup.md): cài đặt, chạy backend và hai app, chạy kiểm thử, địa chỉ môi trường đang chạy, tài khoản thử nghiệm.
+2. [Architecture](development/Architecture.md): sơ đồ hệ thống, đường đi của một yêu cầu, bản đồ miền, quy tắc tầng được máy kiểm tra.
+3. [Contributing](development/Contributing.md): chia việc, Git, cách thêm một chức năng từ backend tới app, kiểm tra trước khi push.
+4. [Plan](development/Plan.md#trạng-thái-hiện-tại-và-việc-tiếp-theo): đã làm gì, việc tiếp theo nên nhận.
+
 ## Phát triển hệ thống
 
 Thư mục [development](development/) dành cho việc xác định và xây dựng sản phẩm. Yêu cầu kỹ thuật trong đó vẫn bao gồm các điều bắt buộc từ đề.
@@ -20,11 +27,13 @@ Thư mục [development](development/) dành cho việc xác định và xây d�
 | [Data model](development/Data_model.md) | Các bảng, quan hệ, ràng buộc định hướng và sơ đồ ERD (Mermaid). |
 | [API](development/API.md) | Nhóm API chính theo đề, cần chi tiết hóa khi triển khai. |
 | [Testing](development/Testing.md) | Dữ liệu mẫu và các trường hợp kiểm thử hệ thống. |
-| [Plan](development/Plan.md) | Thứ tự phát triển đề xuất. |
+| [Plan](development/Plan.md) | Thứ tự phát triển đề xuất; trạng thái hiện tại và việc tiếp theo. |
 | [Open questions](development/Open_questions.md) | Các quyết định sản phẩm cần nhóm hoặc giảng viên xác nhận. |
 | [Design decisions](development/Design_decisions.md) | Các phương án đề xuất backend đang áp dụng (vai trò, duyệt, mã truy xuất, gán lô), chưa xác nhận. |
 | [Labs Android](development/Labs_Android.md) | Kiến thức Lab A1–A9 và Phụ lục 2 (Retrofit) áp dụng cho app Admin, đối chiếu từng yêu cầu C.1. |
-| [Architecture](development/Architecture.md) | Kiến trúc mã nguồn phân tầng theo miền, quy tắc phụ thuộc được kiểm tra bằng máy (đề xuất). Đọc trước khi sửa code. |
+| [Architecture](development/Architecture.md) | Tổng quan hệ thống (app, backend, CSDL, nơi deploy), kiến trúc mã nguồn phân tầng theo miền, quy tắc phụ thuộc được kiểm tra bằng máy. Đọc trước khi sửa code. |
+| [Setup](development/Setup.md) | Cài đặt môi trường, chạy backend và hai app, kiểm thử, build APK, triển khai, lỗi thường gặp. |
+| [Contributing](development/Contributing.md) | Quy trình làm việc nhóm: chia việc theo miền, Git, thêm chức năng xuyên suốt, kiểm tra trước khi push, bảo mật. |
 
 ## Môn học và lớp
 
