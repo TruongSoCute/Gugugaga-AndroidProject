@@ -2,7 +2,7 @@
 
 REST API Node.js/Express dùng chung cho app Admin Android và app Client Flutter. Dữ liệu nằm trên PostgreSQL (Supabase). Danh sách API, quyền và mã lỗi: [docs/development/API.md](../docs/development/API.md). Các quy tắc đang áp dụng (**Đề xuất**, chưa xác nhận): [Design decisions](../docs/development/Design_decisions.md).
 
-**Trạng thái:** đã có `/health`, đăng ký/đăng nhập JWT, danh mục công khai, quản trị và duyệt nhà cung cấp/sản phẩm, quản lý lô và bước truy xuất, API truy xuất QR công khai. Chưa làm: đơn hàng, giỏ, đánh giá, báo cáo vi phạm, yêu thích, theo dõi, báo cáo doanh số, upload ảnh. Chưa deploy lên Render/Supabase.
+**Trạng thái:** đã có `/health`, đăng ký/đăng nhập JWT, danh mục công khai, quản trị và duyệt nhà cung cấp/sản phẩm, quản lý lô và bước truy xuất, API truy xuất QR công khai, giỏ hàng và đơn hàng (gán lô FIFO, trừ/hoàn tồn trong transaction, chuyển trạng thái theo vai trò). Chưa làm: đánh giá, báo cáo vi phạm, yêu thích, theo dõi, báo cáo doanh số, upload ảnh. Chưa deploy lên Render/Supabase.
 
 ## Cấu trúc
 
@@ -22,6 +22,7 @@ backend/
       nha-cung-cap/  /nha-cung-cap, /quan-tri/nha-cung-cap
       san-pham/      /san-pham, /quan-tri/san-pham
       truy-xuat/     /lo-san-xuat, /truy-xuat/:ma
+      don-hang/      /gio-hang, /don-hang, /quan-tri/don-hang (config.js: phí giao)
         types.js     kiểm tra dữ liệu vào, hằng trạng thái (hàm thuần)
         repo.js      chỉ chứa SQL tham số hóa
         service.js   quy tắc nghiệp vụ, transaction
@@ -78,7 +79,7 @@ TEST_DATABASE_URL=postgresql://user:pass@localhost:5432/ocop_test npm test
 
 `npm test` gồm cả kiểm tra kiến trúc. Có thể chạy riêng phần này (không cần CSDL) bằng `npm run check:arch`.
 
-Kết quả lần chạy gần nhất: 45/45 đạt trên PostgreSQL 16, Node.js 22.
+Kết quả lần chạy gần nhất: 59/59 đạt trên PostgreSQL 16, Node.js 22.
 
 ## Tài khoản thử nghiệm (từ seed.sql)
 
@@ -105,8 +106,10 @@ Không commit `.env`. Khóa `SUPABASE_SERVICE_KEY` chỉ khai báo trên Render,
 ## Giải thích nhanh để trình bày
 
 - **SQL tham số hóa:** mọi câu SQL nằm trong các file `repo.js`. Giá trị người dùng gửi lên đều được truyền qua `$1, $2…` và không ghép vào chuỗi SQL, nhờ đó tránh SQL injection. Các test có thử từ khóa `' OR 1=1 --`.
-- **Transaction:** khi tạo nhà cung cấp kèm chứng nhận, hoặc tạo lô kèm các bước, mọi lệnh `INSERT` nằm giữa `BEGIN` và `COMMIT`. Nếu một lệnh lỗi, `ROLLBACK` hoàn tác tất cả (xem `withTransaction` trong `src/providers/db.js`, được gọi ở tầng service).
+- **Transaction:** khi tạo nhà cung cấp kèm chứng nhận, tạo lô kèm các bước, hoặc đặt đơn (lưu đơn, chi tiết, trừ tồn lô, ghi lịch sử, xóa giỏ), mọi lệnh nằm giữa `BEGIN` và `COMMIT`. Nếu một lệnh lỗi, `ROLLBACK` hoàn tác tất cả (xem `withTransaction` trong `src/providers/db.js`, được gọi ở tầng service).
 - **Phân tầng:** muốn biết SQL ở đâu thì xem `repo.js`; quy tắc nghiệp vụ ở `service.js`; quyền ở `providers/auth.js` và chỗ gắn `auth.nhanSu`/`auth.quanTri` trong `routes.js`.
 - **bcrypt:** CSDL chỉ lưu hash của mật khẩu. Khi đăng nhập, backend so sánh hash và không bao giờ trả hash về app.
 - **JWT:** token ký bằng `JWT_SECRET` và có hạn dùng. Mỗi request, middleware kiểm tra chữ ký và hạn của token, rồi đọc lại vai trò trong CSDL, nên sửa vai trò trong token cũng không có tác dụng.
+- **Không bán vượt tồn:** khi đặt đơn, backend khóa các lô của sản phẩm bằng `SELECT … FOR UPDATE`. Hai khách đặt cùng lúc phần hàng cuối thì người sau phải chờ người trước xong, rồi đọc lại tồn mới, nên chỉ một đơn thành công. Test `don-hang.test.js` gửi hai đơn song song để chứng minh; gỡ `FOR UPDATE` thì test này đỏ.
+- **Gán lô FIFO:** mỗi dòng đơn được chia cho lô sản xuất sớm nhất còn hàng và còn hạn; không đủ thì lấy tiếp lô kế tiếp. Mỗi lô là một dòng `chi_tiet_don`, nên đơn hàng biết chính xác lô nào đã giao và khách tra được mã truy xuất của hàng mình mua.
 - **Mã truy xuất khó đoán:** mã có 80 bit ngẫu nhiên từ `crypto.randomBytes`, không phải số tăng dần, nên không ai dò được mã của lô khác.

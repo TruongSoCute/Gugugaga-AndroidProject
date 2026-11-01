@@ -16,13 +16,13 @@ Nguồn và cách phân biệt yêu cầu: xem [README](../README.md).
 
 ## Đã triển khai trong `backend/`
 
-Quyền và quy tắc dưới đây theo [Design decisions](Design_decisions.md) (**Đề xuất**, chưa xác nhận). Chưa triển khai: đơn hàng, giỏ, đánh giá, báo cáo vi phạm, yêu thích, theo dõi, báo cáo doanh số, upload ảnh.
+Quyền và quy tắc dưới đây theo [Design decisions](Design_decisions.md) (**Đề xuất**, chưa xác nhận). Chưa triển khai: đánh giá, báo cáo vi phạm, yêu thích, theo dõi, báo cáo doanh số, upload ảnh.
 
 ### Quy ước chung
 
 - JSON dùng khóa camelCase; tiền là số nguyên VND; ngày `YYYY-MM-DD`; thời điểm ISO 8601 (gửi lên phải có múi giờ, ví dụ `2026-03-01T07:00:00+07:00`; trả về dạng UTC `…Z`).
 - API cần đăng nhập nhận header `Authorization: Bearer <token>`.
-- Ký hiệu quyền: **Công khai** (không cần token), **Đăng nhập** (mọi vai trò), **Nhân sự** (`QUAN_TRI`, `NHAN_VIEN`), **Quản trị** (chỉ `QUAN_TRI`).
+- Ký hiệu quyền: **Công khai** (không cần token), **Đăng nhập** (mọi vai trò), **Khách** (chỉ `KHACH`), **Nhân sự** (`QUAN_TRI`, `NHAN_VIEN`), **Quản trị** (chỉ `QUAN_TRI`).
 - Danh sách có phân trang nhận `trang` (mặc định 1) và `kichThuoc` (mặc định 20, tối đa 100), trả `{ "duLieu": [...], "phanTrang": { "trang", "kichThuoc", "tong" } }`.
 - Lỗi luôn có dạng:
 
@@ -106,6 +106,23 @@ Token hết hạn sau `JWT_EXPIRES_IN` (mặc định 8 giờ). Khi nhận 401, 
 | `POST /lo-san-xuat` | Nhân sự | Body `sanPhamId, ngaySanXuat, hanSuDung (> ngaySanXuat), soLuong, nguoiSanXuat, vungNguyenLieuId? (mặc định vùng nhà cung cấp), anhHienTruongUrl?, ghiChu?, cacBuoc?: [{ thuTu?, tenBuoc, moTa?, thoiDiem, anhUrl? }]`. Mã truy xuất do server sinh. Lô và các bước được lưu trong **một transaction**. `201` trả chi tiết lô; `409 SAN_PHAM_BI_TU_CHOI`. |
 | `POST /lo-san-xuat/:id/buoc` | Nhân sự | Body `tenBuoc, thoiDiem, thuTu?, moTa?, anhUrl?`; không gửi `thuTu` thì lấy thứ tự kế tiếp. `201`; `404` lô không tồn tại; `409 THU_TU_BUOC_TRUNG`. |
 
+### Giỏ hàng và đơn hàng
+
+Quy tắc theo [Design decisions](Design_decisions.md#đơn-hàng-và-gán-lô-đề-xuất) (**Đề xuất**).
+
+| Phương thức, đường dẫn | Quyền | Mô tả |
+| --- | --- | --- |
+| `GET /don-hang/hinh-thuc-giao` | Công khai | `[{ ma, ten, phiGiao }]` cho `TIEU_CHUAN` (30.000 đ), `NHANH` (50.000 đ), `NHAN_TAI_CHO` (0 đ). |
+| `GET /gio-hang` | Khách | `{ duLieu: [{ sanPhamId, ten, anhUrl, donViTinh, gia, soLuong, thanhTien, dangBan, conHang }], tamTinh }`. `gia` là giá hiện hành; `tamTinh` chỉ cộng sản phẩm còn bán; `conHang` là tổng tồn các lô còn hạn. |
+| `PUT /gio-hang/:sanPhamId` | Khách | Body `{ soLuong }` (1–999): thêm mới hoặc đặt lại số lượng. Trả giỏ như trên. `404` nếu sản phẩm không đang bán. |
+| `DELETE /gio-hang/:sanPhamId` | Khách | Xóa khỏi giỏ, trả giỏ. `404` nếu không có trong giỏ. |
+| `POST /don-hang` | Khách | Body `hinhThucGiao, tenNguoiNhan, sdtNguoiNhan, diaChiGiao, ghiChu?, cacDong?: [{ sanPhamId, soLuong }]`. Không gửi `cacDong` thì đặt **toàn bộ giỏ** và xóa giỏ sau khi đặt. Giá, phí giao, tổng tiền và lô do backend quyết định; `gia`, `tongTien`, `trangThai`… client gửi bị bỏ qua. `201` trả chi tiết đơn. `400` giỏ trống/dữ liệu sai; `409 SAN_PHAM_KHONG_CON_BAN`; `409 KHONG_DU_HANG` (mỗi phần tử `chiTiet` có thêm `sanPhamId`, `conLai`). |
+| `GET /don-hang?trangThai=&trang=&kichThuoc=` | Khách | Đơn của chính khách, mới nhất trước: `id, trangThai, hinhThucGiao, tongTien, taoLuc, capNhatLuc, khachId, tenKhach, tenNguoiNhan, soSanPham, tenSanPhamDau, anhSanPhamDau`. |
+| `GET /don-hang/:id` | Đăng nhập | Khách chỉ xem đơn của mình (đơn người khác trả `404`); nhân sự xem mọi đơn. Trả thông tin đơn, `tenKhach, emailKhach`, `chiTiet[] (sanPhamId, tenSanPham, anhUrl, donViTinh, loId, maTruyXuat, ngaySanXuat, vungNguyenLieu, soLuong, donGia, thanhTien)` và `lichSu[] (trangThai, ghiChu, thoiDiem, nguoiThucHien)`. |
+| `PATCH /don-hang/:id/trang-thai` | Đăng nhập | Body `{ trangThai, ghiChu? }`. Nhân sự: `CHO_XAC_NHAN → DA_XAC_NHAN → DANG_GIAO → DA_GIAO`, hủy (`DA_HUY`) khi chưa giao và **bắt buộc** `ghiChu`. Khách (đơn của mình): hủy khi còn `CHO_XAC_NHAN`, xác nhận `DA_NHAN` khi đơn `DA_GIAO`. `403` vai trò không bao giờ được chuyển tới trạng thái đó; `409 TRANG_THAI_KHONG_HOP_LE` sai thứ tự. Hủy đơn hoàn tồn cho đúng các lô đã trừ. |
+| `GET /quan-tri/don-hang?trangThai=&khachId=&trang=&kichThuoc=` | Nhân sự | Mọi đơn, cùng dạng danh sách như trên. |
+| `GET /quan-tri/don-hang/:id` | Nhân sự | Như `GET /don-hang/:id`. |
+
 ## Kiểm thử tự động
 
-`backend/test/` có 45 trường hợp (gồm 2 trường hợp kiểm tra kiến trúc phân tầng) chạy với CSDL PostgreSQL thật, xem [backend/README](../../backend/README.md). Các trường hợp bao gồm: `/health`; đăng nhập đúng/sai; thiếu token, token giả, token hết hạn; khách gọi API nhân sự bị 403; nhân viên duyệt bị 403; dữ liệu sai bị 400; rollback khi tạo nhà cung cấp lỗi; luồng duyệt → tạo hai lô cùng sản phẩm → quét từng mã không đăng nhập thấy đúng hành trình; mã không tồn tại trả 404; truy xuất không lộ dữ liệu nội bộ; ràng buộc mã trùng; seed đủ số lượng.
+`backend/test/` có 59 trường hợp (gồm 2 trường hợp kiểm tra kiến trúc phân tầng) chạy với CSDL PostgreSQL thật, xem [backend/README](../../backend/README.md). Các trường hợp bao gồm: `/health`; đăng nhập đúng/sai; thiếu token, token giả, token hết hạn; khách gọi API nhân sự bị 403; nhân viên duyệt bị 403; dữ liệu sai bị 400; rollback khi tạo nhà cung cấp lỗi; luồng duyệt → tạo hai lô cùng sản phẩm → quét từng mã không đăng nhập thấy đúng hành trình; mã không tồn tại trả 404; truy xuất không lộ dữ liệu nội bộ; ràng buộc mã trùng; seed đủ số lượng; giỏ hàng; đặt đơn tính tiền ở backend; gán lô FIFO và chia nhiều lô; thiếu hàng thì rollback; lô hết hạn không bán; hai khách đặt cùng lúc không bán vượt tồn; khách không xem được đơn người khác; chuyển trạng thái đơn theo vai trò; hủy đơn hoàn tồn.

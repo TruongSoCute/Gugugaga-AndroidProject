@@ -12,6 +12,7 @@ const createDanhMuc = require('./domains/danh-muc');
 const createNhaCungCap = require('./domains/nha-cung-cap');
 const createSanPham = require('./domains/san-pham');
 const createTruyXuat = require('./domains/truy-xuat');
+const createDonHang = require('./domains/don-hang');
 
 function createApp({ pool, config }) {
   const providers = createProviders({ pool, config });
@@ -22,6 +23,7 @@ function createApp({ pool, config }) {
   const nhaCungCap = createNhaCungCap(providers);
   const sanPham = createSanPham(providers, { nhaCungCap: nhaCungCap.service });
   const truyXuat = createTruyXuat(providers, { nhaCungCap: nhaCungCap.service });
+  const donHang = createDonHang(providers);
 
   const app = express();
   app.disable('x-powered-by');
@@ -40,8 +42,11 @@ function createApp({ pool, config }) {
   app.use('/san-pham', sanPham.publicRouter);
   app.use('/lo-san-xuat', truyXuat.loRouter);
   app.use('/truy-xuat', truyXuat.publicRouter);
+  app.use('/gio-hang', donHang.gioRouter);
+  app.use('/don-hang', donHang.donRouter);
   app.use('/quan-tri/nha-cung-cap', nhaCungCap.adminRouter);
   app.use('/quan-tri/san-pham', sanPham.adminRouter);
+  app.use('/quan-tri/don-hang', donHang.adminRouter);
 
   app.use(providers.http.notFoundHandler);
   app.use(providers.http.errorHandler);

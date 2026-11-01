@@ -63,9 +63,13 @@ function createAuth({ db, config }) {
     signToken,
     requireAuth,
     requireRole,
+    // Người dùng (req.user) có phải nhân sự app Admin không; dùng khi một API phục vụ cả
+    // khách và nhân sự với quyền khác nhau (vd: xem đơn, đổi trạng thái đơn).
+    laNhanSu: (user) => Boolean(user) && NHAN_SU.includes(user.vaiTro),
     // Viết tắt cho các nhóm quyền hay dùng ở tầng routes.
     nhanSu: [requireAuth, requireRole(...NHAN_SU)],
     quanTri: [requireAuth, requireRole(VAI_TRO.QUAN_TRI)],
+    khach: [requireAuth, requireRole(VAI_TRO.KHACH)],
   };
 }
 

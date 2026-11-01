@@ -13,9 +13,11 @@ Tài liệu này ghi các phương án **Đề xuất** mà backend hiện đang
 | Xem hồ sơ mọi trạng thái (app Admin) | ✓ | ✓ | | |
 | **Duyệt/từ chối** nhà cung cấp và sản phẩm, chốt hạng sao | ✓ | | | |
 | Tạo lô, thêm bước truy xuất | ✓ | ✓ | | |
-| Xử lý đơn và phản ánh *(chưa triển khai)* | ✓ | ✓ | | |
+| Xử lý đơn (xác nhận, giao, hủy kèm lý do) | ✓ | ✓ | | |
+| Xử lý phản ánh *(chưa triển khai)* | ✓ | ✓ | | |
 | Báo cáo doanh số *(chưa triển khai)* | ✓ | | | |
-| Đặt đơn, đánh giá, báo cáo vi phạm, yêu thích *(chưa triển khai)* | | | ✓ | |
+| Giỏ hàng, đặt đơn, hủy đơn chưa xác nhận, xác nhận đã nhận | | | ✓ | |
+| Đánh giá, báo cáo vi phạm, yêu thích *(chưa triển khai)* | | | ✓ | |
 
 - Đăng ký công khai luôn tạo `KHACH`. Tài khoản `QUAN_TRI`/`NHAN_VIEN` hiện có sẵn trong `seed.sql`; chức năng tạo tài khoản nhân sự chưa làm.
 - Backend đọc lại vai trò từ CSDL ở mỗi request, không tin vai trò ghi trong token; tài khoản bị khóa (`dang_hoat_dong = false`) bị từ chối ngay cả khi token còn hạn.
@@ -38,11 +40,17 @@ Tài liệu này ghi các phương án **Đề xuất** mà backend hiện đang
 - `GET /truy-xuat/:ma` trả 404 khi mã không tồn tại **hoặc** sản phẩm/nhà cung cấp không còn ở trạng thái đã duyệt. App nên hiển thị "không xác minh được nguồn gốc", vì đây là tín hiệu cảnh báo cho người mua.
 - Dữ liệu công khai của truy xuất chỉ gồm thông tin lô, sản phẩm, nhà cung cấp (tên, địa chỉ cơ sở, ảnh, chứng nhận) và các bước. Không trả id nội bộ của lô, tồn kho, ghi chú nội bộ, người nhập liệu, số điện thoại hay người đại diện.
 
-## Đơn hàng và gán lô (Đề xuất, schema đã chuẩn bị, API chưa làm)
+## Đơn hàng và gán lô (Đề xuất)
 
 - Trạng thái đơn: `CHO_XAC_NHAN → DA_XAC_NHAN → DANG_GIAO → DA_GIAO → DA_NHAN`, hoặc `DA_HUY`. Lịch sử chuyển trạng thái lưu ở `lich_su_trang_thai_don`.
 - Gán lô **lúc đặt đơn** theo FIFO (lô sản xuất trước bán trước) trong một transaction có khóa dòng `SELECT … FOR UPDATE`, trừ `so_luong_con` của lô. Nếu một lô không đủ, dòng hàng được chia sang nhiều lô; mỗi lô là một dòng `chi_tiet_don`. Khóa ngoại `(lo_id, san_pham_id)` bảo đảm lô thuộc đúng sản phẩm.
-- Giá, phí giao và tổng tiền do backend tính; `chi_tiet_don.don_gia` lưu giá tại thời điểm đặt.
+- Ai được chuyển trạng thái:
+  - nhân sự: `CHO_XAC_NHAN → DA_XAC_NHAN → DANG_GIAO → DA_GIAO`; hủy được khi đơn chưa giao (`CHO_XAC_NHAN`, `DA_XAC_NHAN`) và phải ghi lý do;
+  - khách: hủy đơn của mình khi còn `CHO_XAC_NHAN`; chỉ khách mới xác nhận `DA_NHAN`, khi đơn đã `DA_GIAO`.
+  Không được nhảy cóc hay quay lui. Hủy đơn hoàn lại `so_luong_con` cho đúng các lô đã trừ, trong cùng transaction với việc đổi trạng thái.
+- Chỉ bán lô còn hạn sử dụng (`han_su_dung` sau ngày hôm nay theo giờ Việt Nam). Khóa lô theo thứ tự `id` để các đơn đặt đồng thời không gây deadlock.
+- Giá, phí giao và tổng tiền do backend tính; `chi_tiet_don.don_gia` lưu giá tại thời điểm đặt. Giỏ hàng chỉ lưu sản phẩm và số lượng, luôn hiển thị giá hiện hành.
+- Phí giao cố định theo hình thức: `TIEU_CHUAN` 30.000 đ, `NHANH` 50.000 đ, `NHAN_TAI_CHO` 0 đ (khai báo ở `backend/src/domains/don-hang/config.js`). Không tích hợp hãng vận chuyển thật; "vận chuyển liên vùng" được quản lý bằng trạng thái đơn và vùng của lô. Cần giảng viên xác nhận (xem [Open questions](Open_questions.md)).
 - Doanh số tính trên đơn `DA_GIAO` và `DA_NHAN`, theo vùng của **lô thực tế đã giao**.
 
 ## Bảo mật Supabase
