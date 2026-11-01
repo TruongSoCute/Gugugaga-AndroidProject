@@ -10,7 +10,7 @@ Mã nhóm: **gugugaga**. Tên app, package và TAG log đều chứa mã này.
 
 | Thư mục | Nội dung | Trạng thái |
 | --- | --- | --- |
-| [`backend/`](backend/README.md) | REST API Node.js/Express, `schema.sql`, `seed.sql`; TAG log `[GUGUGAGA-API]` | Luồng truy xuất xuyên suốt: duyệt → lô → QR công khai; giỏ hàng và đơn hàng (gán lô FIFO, chuyển trạng thái). 59 test đạt trên PostgreSQL cục bộ. **Chưa deploy**; chưa có API đánh giá, phản ánh, báo cáo doanh số. |
+| [`backend/`](backend/README.md) | REST API Node.js/Express, `schema.sql`, `seed.sql`; TAG log `[GUGUGAGA-API]` | Luồng truy xuất xuyên suốt: duyệt → lô → QR công khai; giỏ hàng và đơn hàng (gán lô FIFO, chuyển trạng thái). 59 test đạt trên PostgreSQL cục bộ. CSDL đã lên Supabase (project `Gugugaga-Android`, đủ dữ liệu mẫu, RLS bật cho 16 bảng); **backend chưa deploy lên Render**; chưa có API đánh giá, phản ánh, báo cáo doanh số. |
 | [`admin-android/`](admin-android/README.md) | App Admin Java/XML, package `vn.edu.vhu.ltdd.gugugaga.admin` | 2 màn hình gọi API thật: đăng nhập; danh sách sản phẩm có duyệt/từ chối. Thêm tab Tài khoản. Build được APK, chưa chạy thử trên thiết bị. |
 | [`client-flutter/`](client-flutter/README.md) | App Client Flutter, package `vn.edu.vhu.ltdd.gugugaga.ocop_client` | 2 màn hình gọi API thật: sản phẩm lọc theo vùng và hạng sao; truy xuất mã lô → hành trình. Build được APK, chưa chạy thử trên thiết bị. |
 

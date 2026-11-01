@@ -2,7 +2,7 @@
 
 REST API Node.js/Express dùng chung cho app Admin Android và app Client Flutter. Dữ liệu nằm trên PostgreSQL (Supabase). Danh sách API, quyền và mã lỗi: [docs/development/API.md](../docs/development/API.md). Các quy tắc đang áp dụng (**Đề xuất**, chưa xác nhận): [Design decisions](../docs/development/Design_decisions.md).
 
-**Trạng thái:** đã có `/health`, đăng ký/đăng nhập JWT, danh mục công khai, quản trị và duyệt nhà cung cấp/sản phẩm, quản lý lô và bước truy xuất, API truy xuất QR công khai, giỏ hàng và đơn hàng (gán lô FIFO, trừ/hoàn tồn trong transaction, chuyển trạng thái theo vai trò). Chưa làm: đánh giá, báo cáo vi phạm, yêu thích, theo dõi, báo cáo doanh số, upload ảnh. Chưa deploy lên Render/Supabase.
+**Trạng thái:** đã có `/health`, đăng ký/đăng nhập JWT, danh mục công khai, quản trị và duyệt nhà cung cấp/sản phẩm, quản lý lô và bước truy xuất, API truy xuất QR công khai, giỏ hàng và đơn hàng (gán lô FIFO, trừ/hoàn tồn trong transaction, chuyển trạng thái theo vai trò). Chưa làm: đánh giá, báo cáo vi phạm, yêu thích, theo dõi, báo cáo doanh số, upload ảnh. CSDL đã chạy `schema.sql` + `seed.sql` trên Supabase (project `Gugugaga-Android`, vùng eu-west-1); chưa deploy backend lên Render.
 
 ## Cấu trúc
 

@@ -325,7 +325,8 @@ FROM (VALUES (1, 1), (2, 2), (3, 3), (4, 4), (5, 11)) AS r (stt, don_hang_id)
 JOIN don_hang dh ON dh.id = r.don_hang_id
 JOIN LATERAL (
   SELECT san_pham_id, lo_id FROM chi_tiet_don WHERE don_hang_id = dh.id ORDER BY id LIMIT 1
-) ct ON TRUE;
+) ct ON TRUE
+ORDER BY r.stt;
 
 INSERT INTO yeu_thich (nguoi_dung_id, san_pham_id)
 SELECT u, sp FROM generate_series(3, 7) AS u
