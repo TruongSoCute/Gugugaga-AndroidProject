@@ -1,5 +1,5 @@
 # Bảo vệ nhánh release: chỉ nhận Pull Request từ main.
-# Kết hợp với ruleset của nhánh release (bắt buộc check "Chỉ nhận PR từ main" phải đạt),
+# Kết hợp với ruleset của nhánh release (bắt buộc check "chi-nhan-pr-tu-main" phải đạt),
 # mọi thay đổi vào release đều phải đi qua main trước. Xem docs/development/Setup.md mục 8.3.
 name: Kiểm tra PR vào release
 
@@ -12,8 +12,9 @@ permissions:
   contents: read
 
 jobs:
-  chi-tu-main:
-    name: Chỉ nhận PR từ main
+  # Tên check không dấu để dễ gõ khi thêm vào ruleset ("Require status checks to pass").
+  chi-nhan-pr-tu-main:
+    name: chi-nhan-pr-tu-main
     runs-on: ubuntu-latest
     steps:
       - name: Nhánh nguồn phải là main của repo này
