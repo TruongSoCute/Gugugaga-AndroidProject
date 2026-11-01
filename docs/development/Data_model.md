@@ -38,7 +38,7 @@ Thông tin vùng nguyên liệu, người sản xuất và ảnh hiện trườn
 
 | Điểm | Schema đang chạy (`backend/db/schema.sql`) | Sơ đồ ERD đề xuất |
 | --- | --- | --- |
-| Vai trò | `QUAN_TRI`, `NHAN_VIEN`, `KHACH`; nhân viên nhập hồ sơ nhà cung cấp (`nguoi_tao_id`) | Thêm `NHA_CUNG_CAP` có tài khoản riêng (`nha_cung_cap.nguoi_dung_id` `UNIQUE`), tự gửi hồ sơ qua app Client |
+| Vai trò | `QUAN_TRI`, `NHAN_VIEN`, `KHACH`; nhân viên nhập hồ sơ nhà cung cấp (`nguoi_tao_id`) | Thêm `NHA_CUNG_CAP` có tài khoản riêng (`nha_cung_cap.tai_khoan_id` `UNIQUE`), tự gửi hồ sơ qua app Client |
 | Hạng sao | Chỉ `hang_sao` do Quản trị chốt khi duyệt | Thêm `hang_sao_de_nghi` do nhà cung cấp gửi |
 | Mã truy xuất | 20 ký tự hex (80 bit ngẫu nhiên), `CHECK` định dạng | Ví dụ 16 ký tự từ `crypto.randomBytes` |
 | Lô của dòng đơn | `chi_tiet_don.lo_id` `NOT NULL`, gán lô lúc đặt (FIFO) | `lo_id` có thể `NULL`, gán khi chuẩn bị giao |
@@ -82,7 +82,7 @@ erDiagram
     }
     nha_cung_cap {
         bigint id PK
-        bigint nguoi_dung_id FK, UK "tài khoản sở hữu hồ sơ"
+        int tai_khoan_id FK, UK "tài khoản NHA_CUNG_CAP sở hữu hồ sơ"
         bigint vung_id FK
         varchar ten
         varchar nguoi_dai_dien
@@ -254,7 +254,7 @@ erDiagram
 - **17 bảng**, đều nối bằng khóa ngoại thật, vượt mức tối thiểu 8 bảng của đề. Ảnh chỉ lưu URL trên Supabase Storage, không lưu base64 trong CSDL.
 - **Sản phẩm khác lô.** `san_pham` là mặt hàng chung; `lo_san_xuat` là từng đợt sản xuất, có `ma_truy_xuat` riêng và `buoc_truy_xuat` riêng. `GET /truy-xuat/:maTruyXuat` tìm theo mã của lô, nên quét QR lô A chỉ trả hành trình của lô A.
 - **Mã truy xuất khó đoán:** máy chủ sinh ngẫu nhiên (ví dụ 16 ký tự từ `crypto.randomBytes`), có `UNIQUE`; không dùng `id` tăng dần làm mã.
-- **Người dùng và vai trò:** một bảng `nguoi_dung` với cột `vai_tro`. `QUAN_TRI` và `NHAN_VIEN` dùng app Admin; `KHACH` và `NHA_CUNG_CAP` dùng app Client (đề xuất). `nha_cung_cap.nguoi_dung_id` có `UNIQUE` nên một tài khoản chỉ sở hữu một hồ sơ. Quyền do backend kiểm tra theo `vai_tro` trong JWT.
+- **Người dùng và vai trò:** một bảng `nguoi_dung` với cột `vai_tro`. `QUAN_TRI` và `NHAN_VIEN` dùng app Admin; `KHACH` và `NHA_CUNG_CAP` dùng app Client (nhóm đã chốt). `nha_cung_cap.tai_khoan_id` có `UNIQUE` nên một tài khoản chỉ sở hữu một hồ sơ. Quyền do backend kiểm tra theo `vai_tro` trong JWT.
 - **Duyệt:** `nha_cung_cap` và `san_pham` có `trang_thai_duyet`, `ly_do_tu_choi`, `nguoi_duyet_id`. Đề xuất ràng buộc `CHECK`: khi `TU_CHOI` thì `ly_do_tu_choi` không được trống. Nhà cung cấp chỉ gửi `hang_sao_de_nghi`; `hang_sao` chính thức do Quản trị chốt.
 - **Đơn và lô đã giao:** `chi_tiet_don.lo_id` ghi lô thực tế đã giao, có thể `NULL` khi đơn mới đặt. Đề xuất: backend chỉ cho chuyển đơn sang `DANG_GIAO` khi mọi dòng đã có lô. Nếu một dòng phải giao từ nhiều lô, tách thành nhiều dòng cùng `san_pham_id`; quy tắc này cần nhóm chốt.
 - **Giá và tồn kho:** `chi_tiet_don.don_gia` lưu giá tại lúc đặt; `don_hang.tong_tien` do máy chủ tính. Tạo đơn, tạo các dòng và trừ `so_luong_con` của lô nằm trong một transaction.

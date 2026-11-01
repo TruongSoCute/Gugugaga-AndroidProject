@@ -26,7 +26,7 @@ Ví dụ luồng chung: Admin duyệt sản phẩm, tạo lô và các bước t
 - Giỏ hàng, đặt hàng và chọn hình thức giao; theo dõi đơn và xác nhận đã nhận.
 - Đánh giá sản phẩm kèm ảnh thật, báo cáo hàng nghi giả; lưu sản phẩm yêu thích và theo dõi nhà cung cấp.
 
-**Đề xuất của nhóm, cần giảng viên xác nhận:** đề không nói ai gửi hồ sơ nhà cung cấp và sản phẩm để Admin duyệt. Nhóm đề xuất nhà cung cấp có tài khoản riêng trên app Client để gửi hồ sơ và upload sản phẩm chờ duyệt. Tạo lô, sinh QR và nhập bước truy xuất vẫn do app Admin làm, vì đề ghi đây là chức năng của Admin. Xem [Use case](Use_case.md).
+**Nhóm đã chốt (01/11/2026), nên báo giảng viên khi demo:** đề không nói ai gửi hồ sơ nhà cung cấp và sản phẩm để Admin duyệt. Nhà cung cấp có tài khoản `NHA_CUNG_CAP` trên app Client để gửi hồ sơ và sản phẩm chờ duyệt, chỉ thấy và sửa dữ liệu của mình (xem [Design decisions](Design_decisions.md#nhà-cung-cấp-dùng-app-client-nhóm-đã-chốt)). Tạo lô, sinh QR và nhập bước truy xuất vẫn do app Admin làm, vì đề ghi đây là chức năng của Admin. Xem [Use case](Use_case.md).
 
 ## Tính năng mở rộng, chỉ làm sau phần bắt buộc
 

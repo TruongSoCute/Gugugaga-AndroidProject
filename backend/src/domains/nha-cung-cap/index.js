@@ -5,6 +5,6 @@ const routes = require('./routes');
 
 module.exports = function createNhaCungCap(providers) {
   const service = createService(providers);
-  const { pub, admin } = routes({ service, auth: providers.auth });
-  return { service, publicRouter: pub, adminRouter: admin };
+  const { pub, admin, cuaToi } = routes({ service, auth: providers.auth });
+  return { service, publicRouter: pub, adminRouter: admin, cuaToiRouter: cuaToi };
 };

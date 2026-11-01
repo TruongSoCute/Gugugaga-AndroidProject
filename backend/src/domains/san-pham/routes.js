@@ -4,7 +4,7 @@ const express = require('express');
 const { ah } = require('../../utils/http');
 const { idParam } = require('../../utils/validator');
 const { phanTrang } = require('../../utils/sql');
-const { parseLoc, parseTao, parseDuyet } = require('./types');
+const { parseLoc, parseTao, parseDuyet, parseSanPhamCuaToi } = require('./types');
 
 module.exports = function sanPhamRoutes({ service, auth }) {
   // ---- /san-pham: công khai cho app Client + nhập liệu/duyệt cho nhân sự ----
@@ -40,5 +40,25 @@ module.exports = function sanPhamRoutes({ service, auth }) {
     res.json(await service.chiTiet(idParam(req.params.id), { quanTri: true }));
   }));
 
-  return { pub, admin };
+  // ---- /cua-toi/san-pham: nhà cung cấp quản lý sản phẩm của mình (mọi trạng thái) ----
+  const cuaToi = express.Router();
+  cuaToi.use(auth.nhaCungCap);
+
+  cuaToi.get('/', ah(async (req, res) => {
+    res.json(await service.dsCuaToi(req.user.id));
+  }));
+
+  cuaToi.get('/:id', ah(async (req, res) => {
+    res.json(await service.chiTietCuaToi(req.user.id, idParam(req.params.id)));
+  }));
+
+  cuaToi.post('/', ah(async (req, res) => {
+    res.status(201).json(await service.taoCuaToi(req.user.id, parseSanPhamCuaToi(req.body)));
+  }));
+
+  cuaToi.put('/:id', ah(async (req, res) => {
+    res.json(await service.capNhatCuaToi(req.user.id, idParam(req.params.id), parseSanPhamCuaToi(req.body)));
+  }));
+
+  return { pub, admin, cuaToi };
 };

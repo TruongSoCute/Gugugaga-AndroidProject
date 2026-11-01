@@ -16,13 +16,13 @@ Nguồn và cách phân biệt yêu cầu: xem [README](../README.md).
 
 ## Đã triển khai trong `backend/`
 
-Quyền và quy tắc dưới đây theo [Design decisions](Design_decisions.md) (**Đề xuất**, chưa xác nhận). Chưa triển khai: đánh giá, báo cáo vi phạm, yêu thích, theo dõi, báo cáo doanh số, upload ảnh.
+Quyền và quy tắc dưới đây theo [Design decisions](Design_decisions.md) (**Đề xuất**, chưa xác nhận). Đã triển khai đủ các nhóm API của đề: xác thực, danh mục, nhà cung cấp (kể cả nhà cung cấp tự gửi hồ sơ), sản phẩm, lô và truy xuất QR, giỏ hàng và đơn hàng, đánh giá, phản ánh, yêu thích, theo dõi, báo cáo doanh số, tải ảnh.
 
 ### Quy ước chung
 
 - JSON dùng khóa camelCase; tiền là số nguyên VND; ngày `YYYY-MM-DD`; thời điểm ISO 8601 (gửi lên phải có múi giờ, ví dụ `2026-03-01T07:00:00+07:00`; trả về dạng UTC `…Z`).
 - API cần đăng nhập nhận header `Authorization: Bearer <token>`.
-- Ký hiệu quyền: **Công khai** (không cần token), **Đăng nhập** (mọi vai trò), **Khách** (chỉ `KHACH`), **Nhân sự** (`QUAN_TRI`, `NHAN_VIEN`), **Quản trị** (chỉ `QUAN_TRI`).
+- Ký hiệu quyền: **Công khai** (không cần token), **Đăng nhập** (mọi vai trò), **Khách** (chỉ `KHACH`), **Nhà cung cấp** (chỉ `NHA_CUNG_CAP`), **Nhân sự** (`QUAN_TRI`, `NHAN_VIEN`), **Quản trị** (chỉ `QUAN_TRI`).
 - Danh sách có phân trang nhận `trang` (mặc định 1) và `kichThuoc` (mặc định 20, tối đa 100), trả `{ "duLieu": [...], "phanTrang": { "trang", "kichThuoc", "tong" } }`.
 - Lỗi luôn có dạng:
 
@@ -45,7 +45,7 @@ Quyền và quy tắc dưới đây theo [Design decisions](Design_decisions.md)
 | Phương thức, đường dẫn | Quyền | Mô tả |
 | --- | --- | --- |
 | `GET /health` | Công khai | `200 { "trangThai": "ok", "csdl": "ok", "thoiGian" }`; `503` nếu mất kết nối CSDL. |
-| `POST /auth/dang-ky` | Công khai | Body `email`, `matKhau` (8–72 byte), `hoTen`, `soDienThoai?`. Luôn tạo `KHACH`. `201 { token, nguoiDung }`; `409 EMAIL_DA_TON_TAI`. |
+| `POST /auth/dang-ky` | Công khai | Body `email`, `matKhau` (8–72 byte), `hoTen`, `soDienThoai?`, `loaiTaiKhoan?` (`KHACH` mặc định hoặc `NHA_CUNG_CAP`; giá trị khác bị 400). Không bao giờ tạo nhân sự; `vaiTro` client gửi bị bỏ qua. `201 { token, nguoiDung }`; `409 EMAIL_DA_TON_TAI`. |
 | `POST /auth/dang-nhap` | Công khai | Body `email`, `matKhau`. `200 { token, nguoiDung: { id, email, hoTen, soDienThoai, vaiTro } }`; `401` khi sai email **hoặc** mật khẩu (cùng thông điệp); `403` khi tài khoản bị khóa. |
 | `GET /auth/toi` | Đăng nhập | Thông tin tài khoản hiện tại. App dùng để kiểm tra token còn hạn khi mở lại. |
 
@@ -88,7 +88,7 @@ Token hết hạn sau `JWT_EXPIRES_IN` (mặc định 8 giờ). Khi nhận 401, 
 
 | Phương thức, đường dẫn | Quyền | Mô tả |
 | --- | --- | --- |
-| `GET /quan-tri/nha-cung-cap?trangThai=&vung=&trang=&kichThuoc=` | Nhân sự | Mọi trạng thái, hồ sơ chờ duyệt xếp trước. Có `trangThaiDuyet, lyDoTuChoi`. |
+| `GET /quan-tri/nha-cung-cap?trangThai=&vung=&trang=&kichThuoc=` | Nhân sự | Mọi trạng thái, hồ sơ chờ duyệt xếp trước. Có `trangThaiDuyet, lyDoTuChoi, tuGui` (`true` nếu nhà cung cấp tự gửi từ app Client). |
 | `GET /quan-tri/nha-cung-cap/:id` | Nhân sự | Chi tiết hồ sơ kèm `chungNhan[]`, `nguoiDuyet`, `duyetLuc`. |
 | `POST /nha-cung-cap` | Nhân sự | Body `ten, nguoiDaiDien, soDienThoai, diaChi, vungId, anhCoSoUrl?, chungNhan?: [{ loai, soHieu, ngayCap, ngayHetHan?, anhUrl? }]`. Lưu hồ sơ và chứng nhận trong **một transaction**. `201` hồ sơ `CHO_DUYET`; `409 CHUNG_NHAN_TRUNG`. |
 | `PATCH /nha-cung-cap/:id/duyet` | Quản trị | Body `{ "trangThai": "DA_DUYET" \| "TU_CHOI", "lyDo"? }`; `lyDo` bắt buộc khi từ chối. `409`: `TRANG_THAI_KHONG_DOI`, `THIEU_ANH_CO_SO`, `THIEU_CHUNG_NHAN_OCOP`. |
@@ -123,6 +123,69 @@ Quy tắc theo [Design decisions](Design_decisions.md#đơn-hàng-và-gán-lô-�
 | `GET /quan-tri/don-hang?trangThai=&khachId=&trang=&kichThuoc=` | Nhân sự | Mọi đơn, cùng dạng danh sách như trên. |
 | `GET /quan-tri/don-hang/:id` | Nhân sự | Như `GET /don-hang/:id`. |
 
+### Nhà cung cấp tự quản lý hồ sơ và sản phẩm (app Client)
+
+Tài khoản `NHA_CUNG_CAP` gửi hồ sơ và sản phẩm chờ duyệt, chỉ thấy và sửa dữ liệu của mình, không tự đổi trạng thái duyệt hay hạng sao. Quản trị duyệt trên app Admin bằng các API duyệt ở trên. Quy tắc: [Design decisions](Design_decisions.md#nhà-cung-cấp-dùng-app-client-nhóm-đã-chốt).
+
+| Phương thức, đường dẫn | Quyền | Mô tả |
+| --- | --- | --- |
+| `GET /cua-toi/nha-cung-cap` | Nhà cung cấp | Hồ sơ của tài khoản (như `GET /quan-tri/nha-cung-cap/:id`, có `trangThaiDuyet`, `lyDoTuChoi`, `chungNhan[]`). `404 CHUA_CO_HO_SO` nếu chưa gửi. |
+| `POST /cua-toi/nha-cung-cap` | Nhà cung cấp | Body như `POST /nha-cung-cap`. Hồ sơ luôn `CHO_DUYET`, gắn với tài khoản. `201`; `409 DA_CO_HO_SO` (mỗi tài khoản một hồ sơ); `409 CHUNG_NHAN_TRUNG`. |
+| `PUT /cua-toi/nha-cung-cap` | Nhà cung cấp | Sửa hồ sơ đang `CHO_DUYET` hoặc `TU_CHOI`: thay toàn bộ chứng nhận, đưa về `CHO_DUYET` (gửi duyệt lại). `409 HO_SO_DA_DUYET` nếu đã duyệt. |
+| `GET /cua-toi/san-pham` | Nhà cung cấp | Sản phẩm của mình, mọi trạng thái: `id, ten, moTa, donViTinh, gia, hangSao, anhUrl, trangThaiDuyet, lyDoTuChoi, duyetLuc, taoLuc, soLo, tonKho`. Chưa có hồ sơ thì trả `[]`. |
+| `GET /cua-toi/san-pham/:id` | Nhà cung cấp | Một sản phẩm của mình; sản phẩm của người khác trả `404`. |
+| `POST /cua-toi/san-pham` | Nhà cung cấp | Body `ten, gia, moTa?, donViTinh?, anhUrl?`. `nhaCungCapId`, `hangSao`, `trangThaiDuyet` client gửi bị bỏ qua. `201` sản phẩm `CHO_DUYET`. `409 CHUA_CO_HO_SO`, `409 NHA_CUNG_CAP_BI_TU_CHOI`. |
+| `PUT /cua-toi/san-pham/:id` | Nhà cung cấp | Body như trên. Chỉ sửa sản phẩm `CHO_DUYET`/`TU_CHOI`, sửa xong về `CHO_DUYET` và xóa hạng sao. `409 SAN_PHAM_DA_DUYET`. |
+
+### Đánh giá
+
+| Phương thức, đường dẫn | Quyền | Mô tả |
+| --- | --- | --- |
+| `GET /danh-gia?sanPhamId=&trang=&kichThuoc=` | Công khai | `{ duLieu: [{ id, sanPhamId, donHangId, soSao, noiDung, taoLuc, tenNguoiDanhGia, anh[] }], phanTrang, tongHop: { soDanhGia, diemTrungBinh } }`. Không có email hay số điện thoại người đánh giá. |
+| `POST /danh-gia` | Khách | Body `donHangId, sanPhamId, soSao (1–5), noiDung?, anhUrls? (tối đa 5 URL, lấy từ API tải ảnh)`. Chỉ đơn của mình, đã `DA_NHAN`, có sản phẩm đó. Đánh giá và ảnh lưu trong một transaction. `201`; `404` đơn không phải của mình; `400` sản phẩm không có trong đơn; `409 DON_CHUA_NHAN`; `409 DA_DANH_GIA`. Chi tiết đơn (`GET /don-hang/:id`) có cờ `chiTiet[].daDanhGia`. |
+
+### Phản ánh hàng giả, sai mô tả
+
+| Phương thức, đường dẫn | Quyền | Mô tả |
+| --- | --- | --- |
+| `POST /bao-cao-vi-pham` | Khách | Body `sanPhamId, loai (HANG_GIA, SAI_MO_TA, KHAC), noiDung, maTruyXuat?, anhUrl?`. Có `maTruyXuat` thì gắn với đúng lô; mã của sản phẩm khác trả `400`. Luôn bắt đầu ở `MOI`. `201`. |
+| `GET /bao-cao-vi-pham?trangThai=&loai=` | Khách | Phản ánh của chính mình. |
+| `GET /bao-cao-vi-pham/:id` | Khách | Của người khác trả `404`. |
+| `GET /quan-tri/bao-cao-vi-pham?trangThai=&loai=&trang=&kichThuoc=` | Nhân sự | Mọi phản ánh, `MOI` xếp trước: `id, sanPhamId, tenSanPham, anhSanPham, nhaCungCapId, tenNhaCungCap, loId, maTruyXuat, loai, noiDung, anhUrl, trangThai, ketQuaXuLy, xuLyLuc, taoLuc, nguoiBaoId, tenNguoiBao, tenNguoiXuLy`. |
+| `GET /quan-tri/bao-cao-vi-pham/:id` | Nhân sự | Như trên, thêm `emailNguoiBao` để liên hệ. |
+| `PATCH /quan-tri/bao-cao-vi-pham/:id` | Nhân sự | Body `{ trangThai: DANG_XU_LY \| DA_XU_LY \| BAC_BO, ketQuaXuLy? }`; `ketQuaXuLy` bắt buộc khi `DA_XU_LY`/`BAC_BO`. Chỉ đi tới: `MOI → DANG_XU_LY → DA_XU_LY/BAC_BO`. `409 TRANG_THAI_KHONG_HOP_LE`. |
+
+### Yêu thích và theo dõi
+
+| Phương thức, đường dẫn | Quyền | Mô tả |
+| --- | --- | --- |
+| `GET /yeu-thich` | Khách | Sản phẩm yêu thích còn đang bán: `id, ten, gia, donViTinh, hangSao, anhUrl, nhaCungCapId, tenNhaCungCap, taoLuc`. |
+| `PUT /yeu-thich/:sanPhamId`, `DELETE /yeu-thich/:sanPhamId` | Khách | Thêm/bỏ, gọi lại không lỗi. Trả `{ sanPhamId, yeuThich }`. Sản phẩm không đang bán: `404`. |
+| `GET /theo-doi` | Khách | Nhà cung cấp đang theo dõi: `id, ten, diaChi, anhCoSoUrl, tenVung, soSanPham, taoLuc`. |
+| `PUT /theo-doi/:nhaCungCapId`, `DELETE /theo-doi/:nhaCungCapId` | Khách | Trả `{ nhaCungCapId, theoDoi }`. Nhà cung cấp chưa duyệt: `404`. `soNguoiTheoDoi` trong `GET /nha-cung-cap/:id` thay đổi tương ứng. |
+
+### Báo cáo doanh số
+
+`GET /bao-cao/doanh-so?tu=&den=&vung=` — **Quản trị**. `tu`, `den` là ngày đặt đơn (YYYY-MM-DD, giờ Việt Nam, tính cả hai đầu); `vung` là vùng của **lô thực tế đã giao**. Chỉ tính đơn `DA_GIAO`, `DA_NHAN`; doanh số = số lượng × đơn giá lúc đặt, không gồm phí giao.
+
+```json
+{
+  "boLoc": { "tu": null, "den": null, "vung": null, "trangThaiTinh": ["DA_GIAO", "DA_NHAN"] },
+  "tong": { "doanhSo": 41230000, "soLuong": 120, "soDon": 30 },
+  "theoVung": [{ "vungId": 1, "tenVung": "Cần Giờ", "doanhSo": 0, "soLuong": 0 }],
+  "theoHangSao": [{ "hangSao": 3, "doanhSo": 0, "soLuong": 0 }],
+  "nhaCungCapBanChay": [{ "id": 3, "ten": "…", "tenVung": "…", "doanhSo": 0, "soLuong": 0, "soDon": 0 }]
+}
+```
+
+`theoVung` luôn đủ mọi vùng (vùng chưa bán được có `doanhSo = 0`), `theoHangSao` luôn đủ 3, 4, 5 sao, `nhaCungCapBanChay` tối đa 5 dòng. `400` khi `tu > den` hoặc ngày sai định dạng.
+
+### Tải ảnh
+
+`POST /tai-len/anh?mucDich=` — **Đăng nhập**. Body là **byte của ảnh** (không phải JSON), header `Content-Type: image/jpeg | image/png | image/webp`, tối đa 5 MB. `mucDich`: `danh-gia`, `san-pham`, `nha-cung-cap`, `lo`, `phan-anh` (thư mục lưu). Backend kiểm tra byte đầu tệp để chắc là ảnh thật, đặt tên tệp ngẫu nhiên, lưu lên Supabase Storage (bucket công khai `ocop-anh`) và trả `201 { "url": "https://…/storage/v1/object/public/ocop-anh/…" }`. Dùng `url` này cho `anhUrls` của đánh giá, `anhUrl` của sản phẩm, `anhCoSoUrl`, `anhHienTruongUrl`.
+
+`415 KHONG_PHAI_ANH`; `413` quá 5 MB; `503 CHUA_CAU_HINH_LUU_ANH` khi backend chưa có `SUPABASE_URL`/`SUPABASE_SERVICE_KEY` (app nên cho nhập URL ảnh thay thế); `502 LUU_ANH_THAT_BAI` khi Supabase lỗi.
+
 ## Kiểm thử tự động
 
-`backend/test/` có 59 trường hợp (gồm 2 trường hợp kiểm tra kiến trúc phân tầng) chạy với CSDL PostgreSQL thật, xem [backend/README](../../backend/README.md). Các trường hợp bao gồm: `/health`; đăng nhập đúng/sai; thiếu token, token giả, token hết hạn; khách gọi API nhân sự bị 403; nhân viên duyệt bị 403; dữ liệu sai bị 400; rollback khi tạo nhà cung cấp lỗi; luồng duyệt → tạo hai lô cùng sản phẩm → quét từng mã không đăng nhập thấy đúng hành trình; mã không tồn tại trả 404; truy xuất không lộ dữ liệu nội bộ; ràng buộc mã trùng; seed đủ số lượng; giỏ hàng; đặt đơn tính tiền ở backend; gán lô FIFO và chia nhiều lô; thiếu hàng thì rollback; lô hết hạn không bán; hai khách đặt cùng lúc không bán vượt tồn; khách không xem được đơn người khác; chuyển trạng thái đơn theo vai trò; hủy đơn hoàn tồn.
+`backend/test/` có 78 trường hợp (gồm 2 trường hợp kiểm tra kiến trúc phân tầng) chạy với CSDL PostgreSQL thật, xem [backend/README](../../backend/README.md). Các trường hợp bao gồm: `/health`; đăng nhập đúng/sai; thiếu token, token giả, token hết hạn; khách gọi API nhân sự bị 403; nhân viên duyệt bị 403; dữ liệu sai bị 400; rollback khi tạo nhà cung cấp lỗi; luồng duyệt → tạo hai lô cùng sản phẩm → quét từng mã không đăng nhập thấy đúng hành trình; mã không tồn tại trả 404; truy xuất không lộ dữ liệu nội bộ; ràng buộc mã trùng; seed đủ số lượng; giỏ hàng; đặt đơn tính tiền ở backend; gán lô FIFO và chia nhiều lô; thiếu hàng thì rollback; lô hết hạn không bán; hai khách đặt cùng lúc không bán vượt tồn; khách không xem được đơn người khác; chuyển trạng thái đơn theo vai trò; hủy đơn hoàn tồn; nhà cung cấp tự gửi hồ sơ và sản phẩm, chỉ thấy và sửa dữ liệu của mình, không tự duyệt; không tự đăng ký được nhân sự; đánh giá chỉ cho đơn đã nhận, không trùng; phản ánh gắn đúng lô, xử lý chỉ đi tới; yêu thích/theo dõi; báo cáo doanh số khớp số liệu tính trực tiếp từ CSDL, chỉ quản trị xem; tải ảnh chỉ nhận ảnh thật, báo 503 khi chưa cấu hình.

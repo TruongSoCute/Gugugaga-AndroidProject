@@ -114,4 +114,42 @@ async function capNhatDuyet(q, id, { trangThai, hangSao, lyDoTuChoi, nguoiDuyetI
   );
 }
 
-module.exports = { danhSach, timTheoId, danhGiaGanDay, trangThaiNhaCungCap, them, khoaDeDuyet, capNhatDuyet };
+// Sản phẩm của một nhà cung cấp, mọi trạng thái (nhà cung cấp xem trên app Client).
+const COT_CUA_TOI = `sp.id, sp.ten, sp.mo_ta, sp.don_vi_tinh, sp.gia, sp.hang_sao, sp.anh_url,
+  sp.trang_thai_duyet, sp.ly_do_tu_choi, sp.duyet_luc, sp.tao_luc,
+  (SELECT count(*) FROM lo_san_xuat lo WHERE lo.san_pham_id = sp.id) AS so_lo,
+  COALESCE((SELECT sum(lo.so_luong_con) FROM lo_san_xuat lo WHERE lo.san_pham_id = sp.id), 0) AS ton_kho`;
+
+async function dsCuaNhaCungCap(q, nhaCungCapId) {
+  const { rows } = await q.query(
+    `SELECT ${COT_CUA_TOI} FROM san_pham sp WHERE sp.nha_cung_cap_id = $1
+     ORDER BY (sp.trang_thai_duyet = 'CHO_DUYET') DESC, sp.tao_luc DESC, sp.id DESC`,
+    [nhaCungCapId],
+  );
+  return rows.map(camel);
+}
+
+async function timCuaNhaCungCap(q, id, nhaCungCapId, { khoa = false } = {}) {
+  const { rows } = await q.query(
+    `SELECT ${COT_CUA_TOI} FROM san_pham sp WHERE sp.id = $1 AND sp.nha_cung_cap_id = $2${khoa ? ' FOR UPDATE' : ''}`,
+    [id, nhaCungCapId],
+  );
+  return camel(rows[0]);
+}
+
+// Nhà cung cấp sửa sản phẩm: đưa về CHO_DUYET, xóa hạng sao và kết quả duyệt cũ để quản trị duyệt lại.
+async function capNhatChoDuyetLai(q, id, d) {
+  await q.query(
+    `UPDATE san_pham
+     SET ten = $2, mo_ta = $3, don_vi_tinh = COALESCE($4, don_vi_tinh), gia = $5, anh_url = $6,
+         trang_thai_duyet = 'CHO_DUYET', hang_sao = NULL, ly_do_tu_choi = NULL,
+         nguoi_duyet_id = NULL, duyet_luc = NULL
+     WHERE id = $1`,
+    [id, d.ten, d.moTa || null, d.donViTinh || null, d.gia, d.anhUrl || null],
+  );
+}
+
+module.exports = {
+  danhSach, timTheoId, danhGiaGanDay, trangThaiNhaCungCap, them, khoaDeDuyet, capNhatDuyet,
+  dsCuaNhaCungCap, timCuaNhaCungCap, capNhatChoDuyetLai,
+};

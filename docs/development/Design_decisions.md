@@ -6,22 +6,42 @@ Tài liệu này ghi các phương án **Đề xuất** mà backend hiện đang
 
 ## Vai trò và phân quyền (Đề xuất)
 
-| Chức năng | `QUAN_TRI` | `NHAN_VIEN` | `KHACH` | Không đăng nhập |
-| --- | :---: | :---: | :---: | :---: |
-| Xem sản phẩm/nhà cung cấp đã duyệt, truy xuất QR | ✓ | ✓ | ✓ | ✓ |
-| Nhập hồ sơ nhà cung cấp, chứng nhận, sản phẩm | ✓ | ✓ | | |
-| Xem hồ sơ mọi trạng thái (app Admin) | ✓ | ✓ | | |
-| **Duyệt/từ chối** nhà cung cấp và sản phẩm, chốt hạng sao | ✓ | | | |
-| Tạo lô, thêm bước truy xuất | ✓ | ✓ | | |
-| Xử lý đơn (xác nhận, giao, hủy kèm lý do) | ✓ | ✓ | | |
-| Xử lý phản ánh *(chưa triển khai)* | ✓ | ✓ | | |
-| Báo cáo doanh số *(chưa triển khai)* | ✓ | | | |
-| Giỏ hàng, đặt đơn, hủy đơn chưa xác nhận, xác nhận đã nhận | | | ✓ | |
-| Đánh giá, báo cáo vi phạm, yêu thích *(chưa triển khai)* | | | ✓ | |
+| Chức năng | `QUAN_TRI` | `NHAN_VIEN` | `KHACH` | `NHA_CUNG_CAP` | Không đăng nhập |
+| --- | :---: | :---: | :---: | :---: | :---: |
+| Xem sản phẩm/nhà cung cấp đã duyệt, truy xuất QR, xem đánh giá | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Nhập hồ sơ nhà cung cấp, chứng nhận, sản phẩm cho bất kỳ nhà cung cấp | ✓ | ✓ | | | |
+| Gửi/sửa hồ sơ và sản phẩm **của chính mình** (chờ duyệt) | | | | ✓ | |
+| Xem hồ sơ mọi trạng thái (app Admin) | ✓ | ✓ | | | |
+| **Duyệt/từ chối** nhà cung cấp và sản phẩm, chốt hạng sao | ✓ | | | | |
+| Tạo lô, thêm bước truy xuất | ✓ | ✓ | | | |
+| Xử lý đơn (xác nhận, giao, hủy kèm lý do) | ✓ | ✓ | | | |
+| Xử lý phản ánh | ✓ | ✓ | | | |
+| Báo cáo doanh số | ✓ | | | | |
+| Giỏ hàng, đặt đơn, hủy đơn chưa xác nhận, xác nhận đã nhận | | | ✓ | | |
+| Đánh giá (đơn đã nhận), báo cáo vi phạm, yêu thích, theo dõi | | | ✓ | | |
+| Tải ảnh lên | ✓ | ✓ | ✓ | ✓ | |
 
-- Đăng ký công khai luôn tạo `KHACH`. Tài khoản `QUAN_TRI`/`NHAN_VIEN` hiện có sẵn trong `seed.sql`; chức năng tạo tài khoản nhân sự chưa làm.
+- Đăng ký công khai chỉ tạo `KHACH` hoặc `NHA_CUNG_CAP` (trường `loaiTaiKhoan`); không bao giờ tạo nhân sự. Tài khoản `QUAN_TRI`/`NHAN_VIEN` có sẵn trong `seed.sql`; chức năng tạo tài khoản nhân sự chưa làm.
 - Backend đọc lại vai trò từ CSDL ở mỗi request, không tin vai trò ghi trong token; tài khoản bị khóa (`dang_hoat_dong = false`) bị từ chối ngay cả khi token còn hạn.
 - Lý do tách quyền duyệt: người nhập liệu không tự duyệt hồ sơ của mình, đáp ứng yêu cầu hai vai trò Admin nhìn thấy chức năng khác nhau.
+
+## Nhà cung cấp dùng app Client (Nhóm đã chốt)
+
+Nhóm đã quyết định (01/11/2026): nhà cung cấp có tài khoản `NHA_CUNG_CAP` và dùng **app Client** để gửi hồ sơ và sản phẩm chờ duyệt. Đề không nói ai gửi hồ sơ, còn slide giới thiệu ghi app Client dành cho khách, nên vẫn nên báo giảng viên khi demo. Tạo lô, sinh QR và nhập bước truy xuất vẫn làm trên app Admin, vì đề ghi đây là chức năng của Admin.
+
+- Mỗi tài khoản sở hữu **đúng một** hồ sơ (`nha_cung_cap.tai_khoan_id UNIQUE`). Hồ sơ nhân sự nhập hộ có `tai_khoan_id = NULL`; app Admin hiển thị cờ `tuGui` để phân biệt.
+- Hồ sơ và sản phẩm mới luôn `CHO_DUYET`. Backend bỏ qua `trangThaiDuyet`, `hangSao`, `nhaCungCapId` do app gửi; sản phẩm luôn gắn với hồ sơ của tài khoản đang đăng nhập.
+- Nhà cung cấp sửa được hồ sơ/sản phẩm khi đang `CHO_DUYET` hoặc `TU_CHOI`; sửa xong quay về `CHO_DUYET` để quản trị duyệt lại (sản phẩm bị xóa hạng sao). Hồ sơ/sản phẩm đã `DA_DUYET` không tự sửa được, vì đang bán công khai; cần liên hệ quản trị.
+- Hồ sơ bị từ chối thì chưa thêm được sản phẩm mới (giống quy tắc khi nhân sự nhập).
+- Nhà cung cấp chỉ thấy dữ liệu của mình: sản phẩm của hồ sơ khác trả `404`. Không dùng được API nhân sự, giỏ hàng hay đặt đơn.
+
+## Đánh giá, phản ánh, yêu thích, báo cáo, ảnh (Đề xuất)
+
+- **Đánh giá:** chỉ khách có đơn `DA_NHAN` chứa sản phẩm đó; mỗi sản phẩm trong một đơn đánh giá một lần (`UNIQUE (khach_id, san_pham_id, don_hang_id)`); 1–5 sao, tối đa 5 ảnh. Đánh giá công khai chỉ hiện tên người đánh giá.
+- **Phản ánh:** khách gửi kèm mã lô (nếu có) để gắn với đúng lô; mã của sản phẩm khác bị từ chối. Trạng thái chỉ đi tới `MOI → DANG_XU_LY → DA_XU_LY | BAC_BO`; kết thúc phải ghi kết quả xử lý. Nhân sự thấy email người báo để liên hệ; khách chỉ thấy phản ánh của mình.
+- **Yêu thích, theo dõi:** chỉ sản phẩm đang bán và nhà cung cấp đã duyệt; thêm/bỏ gọi lại không lỗi. Sản phẩm bị thu hồi duyệt tự ẩn khỏi danh sách yêu thích.
+- **Báo cáo doanh số:** tính trên đơn `DA_GIAO`, `DA_NHAN`; doanh số = số lượng × đơn giá lúc đặt, không gồm phí giao; theo vùng của lô thực tế đã giao; lọc theo ngày đặt (giờ Việt Nam). Chỉ `QUAN_TRI` xem.
+- **Ảnh:** app gửi byte ảnh lên backend (`POST /tai-len/anh`); backend kiểm tra byte đầu tệp (JPEG/PNG/WebP, ≤ 5 MB), đặt tên ngẫu nhiên và lưu lên Supabase Storage bucket công khai `ocop-anh` bằng khóa service role chỉ có trên Render. CSDL chỉ lưu URL, không lưu base64.
 
 ## Duyệt nhà cung cấp và sản phẩm (Đề xuất)
 

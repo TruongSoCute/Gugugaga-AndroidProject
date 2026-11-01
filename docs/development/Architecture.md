@@ -22,19 +22,19 @@ flowchart LR
   end
   subgraph S["Supabase (eu-west-1)"]
     D[("PostgreSQL<br/>16 bảng, RLS bật")]
-    ST["Storage ảnh<br/>(chưa dùng)"]
+    ST["Storage ảnh<br/>bucket ocop-anh"]
   end
   A -- "HTTPS + JWT" --> B
   C -- "HTTPS + JWT (trừ API công khai)" --> B
   Q -- "GET /truy-xuat/:ma (không cần JWT)" --> B
   B -- "Session pooler :5432, SSL" --> D
-  B -. "upload ảnh (dự kiến)" .-> ST
+  B -- "POST /tai-len/anh → REST Storage" --> ST
 ```
 
 | Thành phần | Công nghệ | Chạy ở đâu | Thư mục |
 | --- | --- | --- | --- |
 | App Admin cho quản trị và nhân viên | Android Studio, Java, XML, minSdk 24, Retrofit 2 + Gson | Điện thoại hoặc máy ảo Android | `admin-android/` |
-| App Client cho khách | Flutter 3.35+, Dart 3, gói `http`, `shared_preferences` | Điện thoại hoặc máy ảo Android | `client-flutter/` |
+| App Client cho khách và nhà cung cấp | Flutter 3.35+, Dart 3, gói `http`, `shared_preferences` | Điện thoại hoặc máy ảo Android | `client-flutter/` |
 | Backend REST API | Node.js 20, Express 4, `pg` (SQL thuần), `jsonwebtoken`, `bcryptjs` | Render Web Service gói Free: https://ocop-backend.onrender.com | `backend/` |
 | CSDL | PostgreSQL trên Supabase gói Free | Supabase project `Gugugaga-Android` | `backend/db/` |
 
@@ -81,14 +81,15 @@ sequenceDiagram
 | `he-thong` | `/health` | — | Xong |
 | `tai-khoan` | `/auth` | `nguoi_dung` | Xong: đăng ký, đăng nhập, `GET /auth/toi` |
 | `danh-muc` | `/vung-nguyen-lieu` | `vung_nguyen_lieu` | Xong |
-| `nha-cung-cap` | `/nha-cung-cap`, `/quan-tri/nha-cung-cap` | `nha_cung_cap`, `chung_nhan` | Xong: nhập hồ sơ, duyệt |
-| `san-pham` | `/san-pham`, `/quan-tri/san-pham` | `san_pham` | Xong: danh sách, lọc, duyệt, chốt hạng sao |
+| `nha-cung-cap` | `/nha-cung-cap`, `/quan-tri/nha-cung-cap`, `/cua-toi/nha-cung-cap` | `nha_cung_cap`, `chung_nhan` | Xong: nhập hồ sơ, duyệt, nhà cung cấp tự gửi hồ sơ |
+| `san-pham` | `/san-pham`, `/quan-tri/san-pham`, `/cua-toi/san-pham` | `san_pham` | Xong: danh sách, lọc, duyệt, chốt hạng sao, nhà cung cấp tự gửi sản phẩm |
 | `truy-xuat` | `/lo-san-xuat`, `/truy-xuat/:ma` | `lo_san_xuat`, `buoc_truy_xuat` | Xong: lô, bước, QR công khai |
 | `don-hang` | `/gio-hang`, `/don-hang`, `/quan-tri/don-hang` | `gio_hang`, `don_hang`, `chi_tiet_don`, `lich_su_trang_thai_don` | Xong: giỏ, đặt đơn FIFO, chuyển trạng thái |
-| *(chưa có)* | đánh giá, phản ánh | `danh_gia`, `anh_danh_gia`, `bao_cao_vi_pham` | Bảng đã có, chưa có API |
-| *(chưa có)* | yêu thích, theo dõi | `yeu_thich`, `theo_doi_nha_cung_cap` | Bảng đã có, chưa có API |
-| *(chưa có)* | báo cáo doanh số | đọc từ `don_hang`, `chi_tiet_don`, `lo_san_xuat` | Chưa làm |
-| *(chưa có)* | upload ảnh | Supabase Storage | Chưa làm; hiện dùng URL ảnh |
+| `danh-gia` | `/danh-gia` | `danh_gia`, `anh_danh_gia` | Xong: đánh giá đơn đã nhận kèm ảnh |
+| `phan-anh` | `/bao-cao-vi-pham`, `/quan-tri/bao-cao-vi-pham` | `bao_cao_vi_pham` | Xong: khách gửi, nhân sự xử lý |
+| `tuong-tac` | `/yeu-thich`, `/theo-doi` | `yeu_thich`, `theo_doi_nha_cung_cap` | Xong |
+| `bao-cao` | `/bao-cao/doanh-so` | đọc `don_hang`, `chi_tiet_don`, `lo_san_xuat` | Xong: theo vùng, hạng sao, top nhà cung cấp |
+| `tai-len` | `/tai-len/anh` | Supabase Storage (bucket `ocop-anh`) qua `providers/storage.js` | Xong; cần khóa `SUPABASE_SERVICE_KEY` trên Render |
 
 Chi tiết từng endpoint: [API](API.md). Bảng và quan hệ: [Data model](Data_model.md). Quy tắc nghiệp vụ đang áp dụng: [Design decisions](Design_decisions.md).
 
@@ -106,10 +107,11 @@ Các mối quan tâm xuyên suốt (CSDL, JWT/vai trò, bcrypt, sinh số ngẫu
 backend/src/
   app.js, server.js, config.js   App Wiring
   providers/   db (pg, transaction), auth (JWT, vai trò), password (bcrypt),
-               random (crypto), logger, http (lỗi, 404)
+               random (crypto), logger, http (lỗi, 404), storage (Supabase Storage qua fetch)
   utils/       errors, validator, sql, http
   domains/
     he-thong/  tai-khoan/  danh-muc/  nha-cung-cap/  san-pham/  truy-xuat/  don-hang/
+    danh-gia/  phan-anh/  tuong-tac/  bao-cao/  tai-len/
       types.js  [config.js]  repo.js  service.js  routes.js  index.js
 backend/db/      schema.sql (tạo bảng, ràng buộc, RLS), seed.sql (dữ liệu mẫu giả lập)
 backend/scripts/ db-reset.js, check-architecture.js

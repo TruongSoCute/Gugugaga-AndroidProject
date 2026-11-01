@@ -19,6 +19,7 @@ Tài khoản thử nghiệm (mật khẩu chung `Demo@12345`):
 | Quản trị (`QUAN_TRI`) | `quantri@ocop.example` | App Admin |
 | Nhân viên (`NHAN_VIEN`) | `nhanvien@ocop.example` | App Admin |
 | Khách (`KHACH`) | `khach1@ocop.example` … `khach5@ocop.example` | App Client |
+| Nhà cung cấp (`NHA_CUNG_CAP`) | `ncc1@ocop.example` (hồ sơ đã duyệt), `ncc11@ocop.example` (hồ sơ chờ duyệt) | App Client |
 
 ## Cấu trúc và tiến độ
 

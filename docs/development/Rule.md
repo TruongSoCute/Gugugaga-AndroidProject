@@ -14,7 +14,7 @@ Nguồn và cách phân biệt yêu cầu: xem [README](../README.md).
 
 ## Đề xuất cần nhóm thống nhất
 
-- Vai trò: `QUAN_TRI` quản lý toàn bộ; `NHAN_VIEN` xử lý đơn và phản ánh theo quyền được cấp; `KHACH` đặt đơn, đánh giá và theo dõi; `NHA_CUNG_CAP` đăng nhập app Client để gửi hồ sơ và sản phẩm chờ duyệt, chỉ thấy và sửa dữ liệu của mình, không tự đổi trạng thái duyệt hay hạng sao (cần giảng viên xác nhận, xem [Use case](Use_case.md)). Admin cần ít nhất hai vai trò với chức năng khác nhau. Phân quyền cụ thể cần thống nhất trước khi lập API.
+- Vai trò: `QUAN_TRI` quản lý toàn bộ; `NHAN_VIEN` xử lý đơn và phản ánh theo quyền được cấp; `KHACH` đặt đơn, đánh giá và theo dõi; `NHA_CUNG_CAP` đăng nhập app Client để gửi hồ sơ và sản phẩm chờ duyệt, chỉ thấy và sửa dữ liệu của mình, không tự đổi trạng thái duyệt hay hạng sao (nhóm đã chốt và đã triển khai, xem [Design decisions](Design_decisions.md#nhà-cung-cấp-dùng-app-client-nhóm-đã-chốt); nên báo giảng viên). Admin cần ít nhất hai vai trò với chức năng khác nhau. Phân quyền cụ thể cần thống nhất trước khi lập API.
 - Duyệt nhà cung cấp và sản phẩm theo `CHO_DUYET`, `DA_DUYET`, `TU_CHOI`; lưu lý do từ chối. Chỉ công bố sản phẩm đã duyệt và thuộc nhà cung cấp đã duyệt.
 - Đơn hàng theo `CHO_XAC_NHAN`, `DA_XAC_NHAN`, `DANG_GIAO`, `DA_GIAO`, `DA_NHAN`, `DA_HUY`; quy định rõ ai được chuyển trạng thái và điều kiện hủy. Không tự coi các tên này là yêu cầu chính thức.
 - Backend lấy giá hiện hành từ CSDL, kiểm tra số lượng và tính tổng; lưu giá tại thời điểm đặt trong chi tiết đơn. Nếu trừ tồn, khóa dữ liệu phù hợp trong transaction để tránh bán vượt khi nhiều người đặt cùng lúc.

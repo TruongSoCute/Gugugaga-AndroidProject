@@ -13,9 +13,15 @@ const createNhaCungCap = require('./domains/nha-cung-cap');
 const createSanPham = require('./domains/san-pham');
 const createTruyXuat = require('./domains/truy-xuat');
 const createDonHang = require('./domains/don-hang');
+const createDanhGia = require('./domains/danh-gia');
+const createPhanAnh = require('./domains/phan-anh');
+const createTuongTac = require('./domains/tuong-tac');
+const createBaoCao = require('./domains/bao-cao');
+const createTaiLen = require('./domains/tai-len');
 
-function createApp({ pool, config }) {
-  const providers = createProviders({ pool, config });
+// storage (tùy chọn): giả lập Supabase Storage khi kiểm thử.
+function createApp({ pool, config, storage }) {
+  const providers = createProviders({ pool, config, storage });
 
   const heThong = createHeThong(providers);
   const taiKhoan = createTaiKhoan(providers);
@@ -24,6 +30,11 @@ function createApp({ pool, config }) {
   const sanPham = createSanPham(providers, { nhaCungCap: nhaCungCap.service });
   const truyXuat = createTruyXuat(providers, { nhaCungCap: nhaCungCap.service });
   const donHang = createDonHang(providers);
+  const danhGia = createDanhGia(providers);
+  const phanAnh = createPhanAnh(providers);
+  const tuongTac = createTuongTac(providers);
+  const baoCao = createBaoCao(providers);
+  const taiLen = createTaiLen(providers);
 
   const app = express();
   app.disable('x-powered-by');
@@ -47,6 +58,15 @@ function createApp({ pool, config }) {
   app.use('/quan-tri/nha-cung-cap', nhaCungCap.adminRouter);
   app.use('/quan-tri/san-pham', sanPham.adminRouter);
   app.use('/quan-tri/don-hang', donHang.adminRouter);
+  app.use('/cua-toi/nha-cung-cap', nhaCungCap.cuaToiRouter);
+  app.use('/cua-toi/san-pham', sanPham.cuaToiRouter);
+  app.use('/danh-gia', danhGia.router);
+  app.use('/bao-cao-vi-pham', phanAnh.khachRouter);
+  app.use('/quan-tri/bao-cao-vi-pham', phanAnh.adminRouter);
+  app.use('/yeu-thich', tuongTac.yeuThichRouter);
+  app.use('/theo-doi', tuongTac.theoDoiRouter);
+  app.use('/bao-cao', baoCao.router);
+  app.use('/tai-len', taiLen.router);
 
   app.use(providers.http.notFoundHandler);
   app.use(providers.http.errorHandler);

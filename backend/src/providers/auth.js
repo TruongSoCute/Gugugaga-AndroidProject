@@ -4,7 +4,9 @@
 const jwt = require('jsonwebtoken');
 const { HttpError } = require('../utils/errors');
 
-const VAI_TRO = Object.freeze({ QUAN_TRI: 'QUAN_TRI', NHAN_VIEN: 'NHAN_VIEN', KHACH: 'KHACH' });
+const VAI_TRO = Object.freeze({
+  QUAN_TRI: 'QUAN_TRI', NHAN_VIEN: 'NHAN_VIEN', KHACH: 'KHACH', NHA_CUNG_CAP: 'NHA_CUNG_CAP',
+});
 // Nhân sự dùng app Admin.
 const NHAN_SU = Object.freeze([VAI_TRO.QUAN_TRI, VAI_TRO.NHAN_VIEN]);
 
@@ -70,6 +72,8 @@ function createAuth({ db, config }) {
     nhanSu: [requireAuth, requireRole(...NHAN_SU)],
     quanTri: [requireAuth, requireRole(VAI_TRO.QUAN_TRI)],
     khach: [requireAuth, requireRole(VAI_TRO.KHACH)],
+    // Tài khoản nhà cung cấp dùng app Client để gửi hồ sơ và sản phẩm chờ duyệt.
+    nhaCungCap: [requireAuth, requireRole(VAI_TRO.NHA_CUNG_CAP)],
   };
 }
 

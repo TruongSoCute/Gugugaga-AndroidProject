@@ -52,7 +52,8 @@ async function dsChungNhan(q, nhaCungCapId) {
 // Danh sách cho app Admin: mọi trạng thái, hồ sơ chờ duyệt xếp trước. Có cột "tong".
 async function dsQuanTri(q, { trangThai, vung, limit, offset }) {
   const { rows } = await q.query(
-    `SELECT ${COT}, ncc.ly_do_tu_choi, ncc.tao_luc, count(*) OVER () AS tong
+    `SELECT ${COT}, ncc.ly_do_tu_choi, ncc.tao_luc, (ncc.tai_khoan_id IS NOT NULL) AS tu_gui,
+            count(*) OVER () AS tong
      FROM nha_cung_cap ncc JOIN vung_nguyen_lieu v ON v.id = ncc.vung_id
      WHERE ($1::text IS NULL OR ncc.trang_thai_duyet = $1)
        AND ($2::int IS NULL OR ncc.vung_id = $2)
@@ -65,7 +66,8 @@ async function dsQuanTri(q, { trangThai, vung, limit, offset }) {
 
 async function timQuanTri(q, id) {
   const { rows } = await q.query(
-    `SELECT ${COT}, ncc.ly_do_tu_choi, ncc.duyet_luc, ncc.tao_luc, nd.ho_ten AS nguoi_duyet
+    `SELECT ${COT}, ncc.ly_do_tu_choi, ncc.duyet_luc, ncc.tao_luc, nd.ho_ten AS nguoi_duyet,
+            (ncc.tai_khoan_id IS NOT NULL) AS tu_gui
      FROM nha_cung_cap ncc
      JOIN vung_nguyen_lieu v ON v.id = ncc.vung_id
      LEFT JOIN nguoi_dung nd ON nd.id = ncc.nguoi_duyet_id
@@ -80,13 +82,39 @@ async function vungTonTai(q, vungId) {
   return rowCount > 0;
 }
 
-async function themNhaCungCap(q, d, nguoiTaoId) {
+// taiKhoanId: tài khoản NHA_CUNG_CAP sở hữu hồ sơ (null khi nhân sự nhập hộ).
+async function themNhaCungCap(q, d, nguoiTaoId, taiKhoanId = null) {
   const { rows } = await q.query(
-    `INSERT INTO nha_cung_cap (ten, nguoi_dai_dien, so_dien_thoai, dia_chi, vung_id, anh_co_so_url, nguoi_tao_id)
-     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
-    [d.ten, d.nguoiDaiDien, d.soDienThoai, d.diaChi, d.vungId, d.anhCoSoUrl || null, nguoiTaoId],
+    `INSERT INTO nha_cung_cap
+       (ten, nguoi_dai_dien, so_dien_thoai, dia_chi, vung_id, anh_co_so_url, nguoi_tao_id, tai_khoan_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+    [d.ten, d.nguoiDaiDien, d.soDienThoai, d.diaChi, d.vungId, d.anhCoSoUrl || null, nguoiTaoId, taiKhoanId],
   );
   return rows[0].id;
+}
+
+// Hồ sơ của một tài khoản nhà cung cấp. khoa = true: khóa dòng để sửa trong transaction.
+async function timTheoTaiKhoan(q, taiKhoanId, { khoa = false } = {}) {
+  const { rows } = await q.query(
+    `SELECT id, trang_thai_duyet FROM nha_cung_cap WHERE tai_khoan_id = $1${khoa ? ' FOR UPDATE' : ''}`,
+    [taiKhoanId],
+  );
+  return camel(rows[0]);
+}
+
+// Nhà cung cấp sửa hồ sơ: đưa về CHO_DUYET để quản trị duyệt lại, xóa kết quả duyệt cũ.
+async function capNhatHoSoChoDuyetLai(q, id, d) {
+  await q.query(
+    `UPDATE nha_cung_cap
+     SET ten = $2, nguoi_dai_dien = $3, so_dien_thoai = $4, dia_chi = $5, vung_id = $6, anh_co_so_url = $7,
+         trang_thai_duyet = 'CHO_DUYET', ly_do_tu_choi = NULL, nguoi_duyet_id = NULL, duyet_luc = NULL
+     WHERE id = $1`,
+    [id, d.ten, d.nguoiDaiDien, d.soDienThoai, d.diaChi, d.vungId, d.anhCoSoUrl || null],
+  );
+}
+
+async function xoaChungNhan(q, nhaCungCapId) {
+  await q.query('DELETE FROM chung_nhan WHERE nha_cung_cap_id = $1', [nhaCungCapId]);
 }
 
 async function themChungNhan(q, nhaCungCapId, cn) {
@@ -127,4 +155,5 @@ async function capNhatDuyet(q, id, { trangThai, lyDoTuChoi, nguoiDuyetId }) {
 module.exports = {
   dsDaDuyet, timDaDuyet, sanPhamDaDuyet, dsChungNhan, dsQuanTri, timQuanTri, vungTonTai,
   themNhaCungCap, themChungNhan, khoaDeDuyet, coChungNhanOcopHieuLuc, capNhatDuyet,
+  timTheoTaiKhoan, capNhatHoSoChoDuyetLai, xoaChungNhan,
 };

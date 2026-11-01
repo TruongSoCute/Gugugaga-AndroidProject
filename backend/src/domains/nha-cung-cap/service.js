@@ -2,10 +2,33 @@
 
 // Tầng service: quy tắc nghiệp vụ và transaction của miền nhà cung cấp.
 const repo = require('./repo');
-const { notFound, conflict, badRequest } = require('../../utils/errors');
+const { notFound, conflict, badRequest, HttpError } = require('../../utils/errors');
 const { ketQuaPhanTrang } = require('../../utils/sql');
 
+const doiLoiChungNhanTrung = (err) => {
+  if (err.code === '23505' && err.constraint === 'chung_nhan_loai_so_hieu_key') {
+    throw conflict('CHUNG_NHAN_TRUNG', 'Số hiệu chứng nhận đã tồn tại.');
+  }
+  throw err;
+};
+
 module.exports = function createNhaCungCapService({ db }) {
+  async function kiemTraVung(client, vungId) {
+    if (!(await repo.vungTonTai(client, vungId))) {
+      throw badRequest('Vùng nguyên liệu không tồn tại.', [{ truong: 'vungId', thongDiep: 'Không tồn tại.' }]);
+    }
+  }
+
+  // Lưu hồ sơ + chứng nhận trong một transaction. taiKhoanId: chủ hồ sơ (null nếu nhân sự nhập).
+  function luuHoSoMoi(d, nguoiTaoId, taiKhoanId) {
+    return db.withTransaction(async (client) => {
+      await kiemTraVung(client, d.vungId);
+      const nccId = await repo.themNhaCungCap(client, d, nguoiTaoId, taiKhoanId);
+      for (const cn of d.chungNhan) await repo.themChungNhan(client, nccId, cn);
+      return nccId;
+    }).catch(doiLoiChungNhanTrung);
+  }
+
   async function chiTietQuanTri(id) {
     const ncc = await repo.timQuanTri(db, id);
     if (!ncc) throw notFound('Không tìm thấy nhà cung cấp.');
@@ -34,19 +57,43 @@ module.exports = function createNhaCungCapService({ db }) {
 
     // Hồ sơ và mọi chứng nhận cùng được lưu trong một transaction, hoặc không lưu gì nếu lỗi.
     async taoHoSo(d, nguoiTaoId) {
+      return chiTietQuanTri(await luuHoSoMoi(d, nguoiTaoId, null));
+    },
+
+    // ---- Nhà cung cấp tự quản lý hồ sơ của mình (app Client) ----
+
+    // Id và trạng thái hồ sơ của tài khoản; null nếu chưa gửi hồ sơ. Miền sản phẩm dùng qua wiring.
+    hoSoCuaTaiKhoan: (taiKhoanId) => repo.timTheoTaiKhoan(db, taiKhoanId),
+
+    async hoSoCuaToi(taiKhoanId) {
+      const hs = await repo.timTheoTaiKhoan(db, taiKhoanId);
+      if (!hs) throw new HttpError(404, 'CHUA_CO_HO_SO', 'Tài khoản chưa gửi hồ sơ nhà cung cấp.');
+      return chiTietQuanTri(hs.id);
+    },
+
+    // Mỗi tài khoản chỉ có một hồ sơ; hồ sơ mới luôn CHO_DUYET.
+    async taoHoSoCuaToi(taiKhoanId, d) {
+      if (await repo.timTheoTaiKhoan(db, taiKhoanId)) {
+        throw conflict('DA_CO_HO_SO', 'Tài khoản đã có hồ sơ nhà cung cấp; hãy sửa hồ sơ hiện có.');
+      }
+      return chiTietQuanTri(await luuHoSoMoi(d, taiKhoanId, taiKhoanId));
+    },
+
+    // Sửa hồ sơ chờ duyệt hoặc bị từ chối: thay toàn bộ chứng nhận và đưa về CHO_DUYET (gửi duyệt lại).
+    // Hồ sơ đã duyệt không tự sửa được, vì sản phẩm của nó đang được bán công khai.
+    async capNhatHoSoCuaToi(taiKhoanId, d) {
       const id = await db.withTransaction(async (client) => {
-        if (!(await repo.vungTonTai(client, d.vungId))) {
-          throw badRequest('Vùng nguyên liệu không tồn tại.', [{ truong: 'vungId', thongDiep: 'Không tồn tại.' }]);
+        const hs = await repo.timTheoTaiKhoan(client, taiKhoanId, { khoa: true });
+        if (!hs) throw new HttpError(404, 'CHUA_CO_HO_SO', 'Tài khoản chưa gửi hồ sơ nhà cung cấp.');
+        if (hs.trangThaiDuyet === 'DA_DUYET') {
+          throw conflict('HO_SO_DA_DUYET', 'Hồ sơ đã được duyệt; liên hệ quản trị để thay đổi thông tin.');
         }
-        const nccId = await repo.themNhaCungCap(client, d, nguoiTaoId);
-        for (const cn of d.chungNhan) await repo.themChungNhan(client, nccId, cn);
-        return nccId;
-      }).catch((err) => {
-        if (err.code === '23505' && err.constraint === 'chung_nhan_loai_so_hieu_key') {
-          throw conflict('CHUNG_NHAN_TRUNG', 'Số hiệu chứng nhận đã tồn tại.');
-        }
-        throw err;
-      });
+        await kiemTraVung(client, d.vungId);
+        await repo.capNhatHoSoChoDuyetLai(client, hs.id, d);
+        await repo.xoaChungNhan(client, hs.id);
+        for (const cn of d.chungNhan) await repo.themChungNhan(client, hs.id, cn);
+        return hs.id;
+      }).catch(doiLoiChungNhanTrung);
       return chiTietQuanTri(id);
     },
 

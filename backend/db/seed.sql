@@ -14,6 +14,8 @@
 --   quantri@ocop.example   QUAN_TRI
 --   nhanvien@ocop.example  NHAN_VIEN
 --   khach1..khach5@ocop.example  KHACH
+--   ncc1@ocop.example      NHA_CUNG_CAP, sở hữu hồ sơ nhà cung cấp 1 (đã duyệt)
+--   ncc11@ocop.example     NHA_CUNG_CAP, sở hữu hồ sơ nhà cung cấp 11 (chờ duyệt)
 
 BEGIN;
 
@@ -43,7 +45,9 @@ INSERT INTO nguoi_dung (email, mat_khau_hash, ho_ten, so_dien_thoai, vai_tro) VA
   ('khach2@ocop.example',   '$2b$10$WE2BlejJLkb/aMvR9DcAFetiSsx5EzCD34Xs1qhpy14jwx3av97rq', 'Khách mẫu 2',       '0911000002', 'KHACH'),
   ('khach3@ocop.example',   '$2b$10$WE2BlejJLkb/aMvR9DcAFetiSsx5EzCD34Xs1qhpy14jwx3av97rq', 'Khách mẫu 3',       '0911000003', 'KHACH'),
   ('khach4@ocop.example',   '$2b$10$WE2BlejJLkb/aMvR9DcAFetiSsx5EzCD34Xs1qhpy14jwx3av97rq', 'Khách mẫu 4',       '0911000004', 'KHACH'),
-  ('khach5@ocop.example',   '$2b$10$WE2BlejJLkb/aMvR9DcAFetiSsx5EzCD34Xs1qhpy14jwx3av97rq', 'Khách mẫu 5',       '0911000005', 'KHACH');
+  ('khach5@ocop.example',   '$2b$10$WE2BlejJLkb/aMvR9DcAFetiSsx5EzCD34Xs1qhpy14jwx3av97rq', 'Khách mẫu 5',       '0911000005', 'KHACH'),
+  ('ncc1@ocop.example',     '$2b$10$WE2BlejJLkb/aMvR9DcAFetiSsx5EzCD34Xs1qhpy14jwx3av97rq', 'Nguyễn Văn An (mẫu)', '0281000001', 'NHA_CUNG_CAP'),
+  ('ncc11@ocop.example',    '$2b$10$WE2BlejJLkb/aMvR9DcAFetiSsx5EzCD34Xs1qhpy14jwx3av97rq', 'Lý Văn Minh (mẫu)',   '0281000011', 'NHA_CUNG_CAP');
 
 -- ---------------------------------------------------------------------------
 -- Nhà cung cấp: 1–10 đã duyệt, 11 chờ duyệt, 12 bị từ chối.
@@ -64,6 +68,11 @@ VALUES
   ('HTX Mãng cầu Hóc Môn (mẫu)',     'Ngô Thị Lan',    '0281000010', 'Xã Xuân Thới Thượng, huyện Hóc Môn',  4, 'https://picsum.photos/seed/ocop-ncc-10/800/500', 'DA_DUYET', NULL, 1, '2026-02-05 10:00+07', 2, '2026-01-24 10:00+07'),
   ('Cơ sở Mật ong Bình Chánh (mẫu)', 'Lý Văn Minh',    '0281000011', 'Xã Vĩnh Lộc A, huyện Bình Chánh',     5, 'https://picsum.photos/seed/ocop-ncc-11/800/500', 'CHO_DUYET', NULL, NULL, NULL, 2, '2026-09-20 09:00+07'),
   ('Cơ sở Gạo Bình Chánh (mẫu)',     'Mai Thị Ngọc',   '0281000012', 'Xã Tân Nhựt, huyện Bình Chánh',       5, 'https://picsum.photos/seed/ocop-ncc-12/800/500', 'TU_CHOI', 'Ảnh giấy chứng nhận OCOP không đọc được, cần nộp lại bản rõ nét.', 1, '2026-09-25 09:00+07', 2, '2026-09-21 09:00+07');
+
+-- Gắn hồ sơ với tài khoản nhà cung cấp (đăng nhập app Client).
+UPDATE nha_cung_cap SET tai_khoan_id = nd.id
+FROM nguoi_dung nd
+WHERE (nha_cung_cap.id, nd.email) IN ((1, 'ncc1@ocop.example'), (11, 'ncc11@ocop.example'));
 
 -- Mỗi nhà cung cấp có một chứng nhận OCOP và một chứng nhận an toàn thực phẩm.
 -- Chứng nhận OCOP của nhà cung cấp 10 đã hết hạn (dùng để thử chức năng mở rộng).

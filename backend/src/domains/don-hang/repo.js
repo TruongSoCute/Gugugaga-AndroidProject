@@ -179,7 +179,10 @@ async function chiTietDon(q, donId) {
   const { rows } = await q.query(
     `SELECT c.san_pham_id, sp.ten AS ten_san_pham, sp.anh_url, sp.don_vi_tinh,
             c.lo_id, lo.ma_truy_xuat, lo.ngay_san_xuat, v.ten AS vung_nguyen_lieu,
-            c.so_luong, c.don_gia, c.so_luong * c.don_gia AS thanh_tien
+            c.so_luong, c.don_gia, c.so_luong * c.don_gia AS thanh_tien,
+            EXISTS (SELECT 1 FROM danh_gia dg JOIN don_hang d2 ON d2.id = c.don_hang_id
+                    WHERE dg.don_hang_id = c.don_hang_id AND dg.san_pham_id = c.san_pham_id
+                      AND dg.khach_id = d2.khach_id) AS da_danh_gia
      FROM chi_tiet_don c
      JOIN san_pham sp ON sp.id = c.san_pham_id
      JOIN lo_san_xuat lo ON lo.id = c.lo_id

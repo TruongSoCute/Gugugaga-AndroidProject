@@ -8,7 +8,8 @@ require('dotenv').config({ quiet: true, path: path.join(__dirname, '..', '.env')
 const { createPool } = require('../src/providers/db');
 const { createApp } = require('../src/app');
 
-async function setup() {
+// storage (tùy chọn): kho ảnh giả thay cho Supabase Storage.
+async function setup({ storage } = {}) {
   const databaseUrl = process.env.TEST_DATABASE_URL;
   if (!databaseUrl) {
     throw new Error('Cần đặt TEST_DATABASE_URL (CSDL riêng cho test, sẽ bị xóa dữ liệu).');
@@ -30,21 +31,22 @@ async function setup() {
   for (const file of ['schema.sql', 'seed.sql']) {
     await pool.query(fs.readFileSync(path.join(__dirname, '..', 'db', file), 'utf8'));
   }
-  const app = createApp({ pool, config });
+  const app = createApp({ pool, config, storage });
   const server = await new Promise((resolve) => {
     const s = app.listen(0, () => resolve(s));
   });
   const base = `http://127.0.0.1:${server.address().port}`;
 
   async function api(method, url, { token, body, headers = {} } = {}) {
+    const raw = Buffer.isBuffer(body);
     const res = await fetch(base + url, {
       method,
       headers: {
-        ...(body !== undefined ? { 'content-type': 'application/json' } : {}),
+        ...(body !== undefined && !raw ? { 'content-type': 'application/json' } : {}),
         ...(token ? { authorization: `Bearer ${token}` } : {}),
         ...headers,
       },
-      body: body === undefined ? undefined : typeof body === 'string' ? body : JSON.stringify(body),
+      body: body === undefined ? undefined : raw || typeof body === 'string' ? body : JSON.stringify(body),
     });
     const text = await res.text();
     let json;

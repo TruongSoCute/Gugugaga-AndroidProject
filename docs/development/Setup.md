@@ -31,7 +31,8 @@ Tài khoản thử nghiệm (mật khẩu chung `Demo@12345`):
 | --- | --- | --- |
 | `QUAN_TRI` | `quantri@ocop.example` | App Admin: thấy thêm nút duyệt |
 | `NHAN_VIEN` | `nhanvien@ocop.example` | App Admin: nhập liệu, lô, đơn |
-| `KHACH` | `khach1@ocop.example` … `khach5@ocop.example` | App Client |
+| `KHACH` | `khach1@ocop.example` … `khach5@ocop.example` | App Client: mua hàng, đánh giá, phản ánh |
+| `NHA_CUNG_CAP` | `ncc1@ocop.example` (đã duyệt), `ncc11@ocop.example` (chờ duyệt) | App Client: gửi hồ sơ, sản phẩm |
 
 Một số lưu ý về môi trường dùng chung:
 

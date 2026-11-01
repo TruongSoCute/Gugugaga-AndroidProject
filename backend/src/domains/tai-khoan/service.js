@@ -9,12 +9,13 @@ module.exports = function createTaiKhoanService({ db, auth, password }) {
   const ketQuaDangNhap = (user) => ({ token: auth.signToken(user), nguoiDung: nguoiDungCongKhai(user) });
 
   return {
-    // Khách tự đăng ký: vai trò luôn là KHACH.
+    // Tự đăng ký: chỉ tạo KHACH hoặc NHA_CUNG_CAP (types.js đã giới hạn), không bao giờ tạo nhân sự.
     async dangKy(d) {
       const matKhauHash = await password.hash(d.matKhau);
+      const vaiTro = d.loaiTaiKhoan === VAI_TRO.NHA_CUNG_CAP ? VAI_TRO.NHA_CUNG_CAP : VAI_TRO.KHACH;
       try {
         const user = await repo.taoNguoiDung(db, {
-          email: d.email, matKhauHash, hoTen: d.hoTen, soDienThoai: d.soDienThoai || null, vaiTro: VAI_TRO.KHACH,
+          email: d.email, matKhauHash, hoTen: d.hoTen, soDienThoai: d.soDienThoai || null, vaiTro,
         });
         return ketQuaDangNhap(user);
       } catch (err) {

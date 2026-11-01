@@ -24,3 +24,10 @@ services:
         value: 8h
       - key: PUBLIC_BASE_URL
         sync: false
+      # Lưu ảnh lên Supabase Storage. Khóa secret nhập tay trên trang Render.
+      - key: SUPABASE_URL
+        value: https://zskmoffykgvdpackenre.supabase.co
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SUPABASE_BUCKET
+        value: ocop-anh

@@ -43,4 +43,15 @@ function parseDuyet(body) {
   return d;
 }
 
-module.exports = { TRANG_THAI_DUYET, parseLoc, parseTao, parseDuyet };
+// Nhà cung cấp tự thêm/sửa sản phẩm: không nhận nhaCungCapId (lấy theo tài khoản), trạng thái hay hạng sao.
+function parseSanPhamCuaToi(body) {
+  return validate(body)
+    .string('ten', { required: true, max: 200 })
+    .string('moTa', { max: 5000 })
+    .string('donViTinh', { max: 40 })
+    .int('gia', { required: true, min: 1, max: 1000000000 })
+    .url('anhUrl')
+    .done();
+}
+
+module.exports = { TRANG_THAI_DUYET, parseLoc, parseTao, parseDuyet, parseSanPhamCuaToi };

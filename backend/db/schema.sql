@@ -47,7 +47,7 @@ CREATE TABLE nguoi_dung (
   ho_ten          VARCHAR(120) NOT NULL,
   so_dien_thoai   VARCHAR(20),
   vai_tro         VARCHAR(20)  NOT NULL DEFAULT 'KHACH'
-                  CHECK (vai_tro IN ('QUAN_TRI', 'NHAN_VIEN', 'KHACH')),
+                  CHECK (vai_tro IN ('QUAN_TRI', 'NHAN_VIEN', 'KHACH', 'NHA_CUNG_CAP')),
   dang_hoat_dong  BOOLEAN      NOT NULL DEFAULT TRUE,
   tao_luc         TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
@@ -66,6 +66,9 @@ CREATE TABLE nha_cung_cap (
   nguoi_duyet_id    INTEGER REFERENCES nguoi_dung (id),
   duyet_luc         TIMESTAMPTZ,
   nguoi_tao_id      INTEGER REFERENCES nguoi_dung (id),
+  -- Tài khoản NHA_CUNG_CAP sở hữu hồ sơ (gửi hồ sơ, sản phẩm từ app Client). NULL nếu nhân sự nhập.
+  -- UNIQUE: mỗi tài khoản nhà cung cấp chỉ có một hồ sơ.
+  tai_khoan_id      INTEGER UNIQUE REFERENCES nguoi_dung (id),
   tao_luc           TIMESTAMPTZ  NOT NULL DEFAULT now(),
   CONSTRAINT nha_cung_cap_tu_choi_co_ly_do
     CHECK (trang_thai_duyet <> 'TU_CHOI' OR ly_do_tu_choi IS NOT NULL)

@@ -30,6 +30,10 @@ function loadConfig() {
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '8h',
     // Địa chỉ công khai của backend, dùng để tạo nội dung QR. Để trống thì lấy từ request.
     publicBaseUrl: (process.env.PUBLIC_BASE_URL || '').replace(/\/+$/, ''),
+    // Lưu ảnh lên Supabase Storage. Để trống thì API tải ảnh trả 503, app vẫn nhập được URL ảnh.
+    supabaseUrl: process.env.SUPABASE_URL || null,
+    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY || null,
+    supabaseBucket: process.env.SUPABASE_BUCKET || 'ocop-anh',
   };
 }
 

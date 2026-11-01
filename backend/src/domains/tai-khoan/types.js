@@ -2,14 +2,20 @@
 
 const { validate } = require('../../utils/validator');
 
+// Loại tài khoản được tự đăng ký. Tài khoản QUAN_TRI/NHAN_VIEN không bao giờ tự đăng ký được.
+const LOAI_TU_DANG_KY = Object.freeze(['KHACH', 'NHA_CUNG_CAP']);
+
 // Kiểm tra body đăng ký. Chỉ nhận các trường khai báo; vaiTro client gửi bị bỏ qua.
+// loaiTaiKhoan chỉ nhận KHACH (mặc định) hoặc NHA_CUNG_CAP.
 function parseDangKy(body) {
-  return validate(body)
+  const d = validate(body)
     .email('email', { required: true })
     .password('matKhau')
     .string('hoTen', { required: true, max: 120 })
     .phone('soDienThoai')
+    .oneOf('loaiTaiKhoan', LOAI_TU_DANG_KY)
     .done();
+  return { ...d, loaiTaiKhoan: d.loaiTaiKhoan || 'KHACH' };
 }
 
 function parseDangNhap(body) {
@@ -26,4 +32,4 @@ const nguoiDungCongKhai = (u) => ({
   id: u.id, email: u.email, hoTen: u.hoTen, soDienThoai: u.soDienThoai, vaiTro: u.vaiTro,
 });
 
-module.exports = { parseDangKy, parseDangNhap, nguoiDungCongKhai };
+module.exports = { LOAI_TU_DANG_KY, parseDangKy, parseDangNhap, nguoiDungCongKhai };

@@ -41,5 +41,21 @@ module.exports = function nhaCungCapRoutes({ service, auth }) {
     res.json(await service.chiTietQuanTri(idParam(req.params.id)));
   }));
 
-  return { pub, admin };
+  // ---- /cua-toi/nha-cung-cap: tài khoản NHA_CUNG_CAP quản lý hồ sơ của chính mình ----
+  const cuaToi = express.Router();
+  cuaToi.use(auth.nhaCungCap);
+
+  cuaToi.get('/', ah(async (req, res) => {
+    res.json(await service.hoSoCuaToi(req.user.id));
+  }));
+
+  cuaToi.post('/', ah(async (req, res) => {
+    res.status(201).json(await service.taoHoSoCuaToi(req.user.id, parseTaoHoSo(req.body)));
+  }));
+
+  cuaToi.put('/', ah(async (req, res) => {
+    res.json(await service.capNhatHoSoCuaToi(req.user.id, parseTaoHoSo(req.body)));
+  }));
+
+  return { pub, admin, cuaToi };
 };

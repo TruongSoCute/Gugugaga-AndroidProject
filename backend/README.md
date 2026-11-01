@@ -2,7 +2,7 @@
 
 REST API Node.js/Express dùng chung cho app Admin Android và app Client Flutter. Dữ liệu nằm trên PostgreSQL (Supabase). Danh sách API, quyền và mã lỗi: [docs/development/API.md](../docs/development/API.md). Các quy tắc đang áp dụng (**Đề xuất**, chưa xác nhận): [Design decisions](../docs/development/Design_decisions.md).
 
-**Trạng thái:** đã có `/health`, đăng ký/đăng nhập JWT, danh mục công khai, quản trị và duyệt nhà cung cấp/sản phẩm, quản lý lô và bước truy xuất, API truy xuất QR công khai, giỏ hàng và đơn hàng (gán lô FIFO, trừ/hoàn tồn trong transaction, chuyển trạng thái theo vai trò). Chưa làm: đánh giá, báo cáo vi phạm, yêu thích, theo dõi, báo cáo doanh số, upload ảnh. **Đã deploy:** https://ocop-backend.onrender.com (Render, Frankfurt), CSDL trên Supabase (project `Gugugaga-Android`, eu-west-1).
+**Trạng thái:** đã có `/health`, đăng ký/đăng nhập JWT, danh mục công khai, quản trị và duyệt nhà cung cấp/sản phẩm, quản lý lô và bước truy xuất, API truy xuất QR công khai, giỏ hàng và đơn hàng (gán lô FIFO, trừ/hoàn tồn trong transaction, chuyển trạng thái theo vai trò). Nhà cung cấp tự gửi hồ sơ và sản phẩm (`/cua-toi/...`), đánh giá kèm ảnh, phản ánh hàng giả/sai mô tả, yêu thích, theo dõi, báo cáo doanh số, tải ảnh lên Supabase Storage. **Đã deploy:** https://ocop-backend.onrender.com (Render, Frankfurt), CSDL trên Supabase (project `Gugugaga-Android`, eu-west-1).
 
 ## Cấu trúc
 
@@ -23,6 +23,11 @@ backend/
       san-pham/      /san-pham, /quan-tri/san-pham
       truy-xuat/     /lo-san-xuat, /truy-xuat/:ma
       don-hang/      /gio-hang, /don-hang, /quan-tri/don-hang (config.js: phí giao)
+      danh-gia/      /danh-gia
+      phan-anh/      /bao-cao-vi-pham, /quan-tri/bao-cao-vi-pham
+      tuong-tac/     /yeu-thich, /theo-doi
+      bao-cao/       /bao-cao/doanh-so
+      tai-len/       /tai-len/anh (qua providers/storage -> Supabase Storage)
         types.js     kiểm tra dữ liệu vào, hằng trạng thái (hàm thuần)
         repo.js      chỉ chứa SQL tham số hóa
         service.js   quy tắc nghiệp vụ, transaction
@@ -79,7 +84,7 @@ TEST_DATABASE_URL=postgresql://user:pass@localhost:5432/ocop_test npm test
 
 `npm test` gồm cả kiểm tra kiến trúc. Có thể chạy riêng phần này (không cần CSDL) bằng `npm run check:arch`.
 
-Kết quả lần chạy gần nhất: 59/59 đạt trên PostgreSQL 16, Node.js 22.
+Kết quả lần chạy gần nhất: 78/78 đạt trên PostgreSQL 16, Node.js 22.
 
 ## Tài khoản thử nghiệm (từ seed.sql)
 
@@ -90,6 +95,7 @@ Mật khẩu chung `Demo@12345`. Đây là tài khoản demo theo yêu cầu n�
 | `quantri@ocop.example` | `QUAN_TRI` |
 | `nhanvien@ocop.example` | `NHAN_VIEN` |
 | `khach1@ocop.example` … `khach5@ocop.example` | `KHACH` |
+| `ncc1@ocop.example` (sở hữu nhà cung cấp 1, đã duyệt), `ncc11@ocop.example` (nhà cung cấp 11, chờ duyệt) | `NHA_CUNG_CAP` |
 
 Mã truy xuất của 100 lô mẫu được sinh ngẫu nhiên mỗi lần chạy seed. Có thể xem mã bằng `GET /lo-san-xuat` với token nhân sự, hoặc bằng `SELECT ma_truy_xuat FROM lo_san_xuat` trong Supabase SQL Editor.
 
@@ -110,6 +116,8 @@ Toàn bộ dữ liệu mẫu là giả lập: tên cơ sở có hậu tố "(m�
 - khách xem được giỏ và đơn của mình.
 
 Lỗi đã gặp khi deploy: Blueprint tạo trước khi `render.yaml` có `generateValue`, nên service thiếu `JWT_SECRET` và backend dừng ngay lúc khởi động (log: `Thiếu biến môi trường JWT_SECRET`). Cách xử lý: thêm `JWT_SECRET` trong mục Environment rồi deploy lại.
+
+**Bật tải ảnh:** trên Render khai báo `SUPABASE_URL=https://zskmoffykgvdpackenre.supabase.co` và `SUPABASE_SERVICE_KEY` (Supabase → Project Settings → API Keys → khóa *secret*, hoặc `service_role` kiểu cũ). Bucket công khai `ocop-anh` đã được tạo. Chưa khai báo thì `POST /tai-len/anh` trả 503 và app cho nhập URL ảnh thay thế.
 
 Không commit `.env`. Khóa `SUPABASE_SERVICE_KEY` chỉ khai báo trên Render, không đưa vào app di động. Mọi bảng đã bật RLS không kèm policy, nên anon key của Supabase không đọc được dữ liệu qua REST API tự động.
 

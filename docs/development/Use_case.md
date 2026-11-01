@@ -4,7 +4,7 @@ Nguồn và cách phân biệt yêu cầu: xem [README](../README.md).
 
 **Bắt buộc:** báo cáo phải có danh sách tác nhân, sơ đồ use case và mô tả 5–7 use case quan trọng nhất; bản nháp nộp ở mốc tuần 9 (xem [Delivery](../course/Delivery.md)).
 
-**Đề xuất của nhóm, cần giảng viên xác nhận:** nhà cung cấp có tài khoản riêng và dùng app Client để gửi hồ sơ, upload sản phẩm chờ duyệt (UC10, UC11). Đề 5 chỉ có API `POST /nha-cung-cap` mà không nói ai gửi, còn slide giới thiệu ghi app Client dành cho khách hàng. Các use case còn lại lấy từ danh sách chức năng bắt buộc của đề. Thiết kế dữ liệu tương ứng nằm ở [Data model](Data_model.md).
+**Nhóm đã chốt (01/11/2026), nên báo giảng viên:** nhà cung cấp có tài khoản riêng và dùng app Client để gửi hồ sơ, upload sản phẩm chờ duyệt (UC10, UC11). Đề 5 chỉ có API `POST /nha-cung-cap` mà không nói ai gửi, còn slide giới thiệu ghi app Client dành cho khách hàng. Các use case còn lại lấy từ danh sách chức năng bắt buộc của đề. Thiết kế dữ liệu tương ứng nằm ở [Data model](Data_model.md).
 
 ## Tác nhân
 
@@ -12,7 +12,7 @@ Nguồn và cách phân biệt yêu cầu: xem [README](../README.md).
 | --- | --- | --- |
 | Khách vãng lai | Client | Người chưa đăng nhập, ví dụ người cầm gói hàng quét QR. Xem sản phẩm và truy xuất lô. |
 | Khách hàng | Client | Khách đã đăng nhập (`KHACH`). Làm được mọi việc của khách vãng lai, cộng thêm mua hàng, đánh giá, báo cáo, yêu thích. |
-| Nhà cung cấp | Client | Cơ sở sản xuất, HTX (`NHA_CUNG_CAP`, đề xuất). Gửi hồ sơ và sản phẩm để sàn duyệt. |
+| Nhà cung cấp | Client | Cơ sở sản xuất, HTX (`NHA_CUNG_CAP`, nhóm đã chốt). Gửi hồ sơ và sản phẩm để sàn duyệt. |
 | Nhân viên | Admin | `NHAN_VIEN`: xử lý đơn hàng, vận chuyển và báo cáo vi phạm. |
 | Quản trị | Admin | `QUAN_TRI`: làm được mọi việc của Nhân viên, cộng thêm duyệt, quản lý lô và xem doanh số. |
 
