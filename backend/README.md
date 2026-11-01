@@ -98,7 +98,7 @@ Toàn bộ dữ liệu mẫu là giả lập: tên cơ sở có hậu tố "(m�
 ## Triển khai (cần thành viên có tài khoản thực hiện)
 
 1. **Supabase:** tạo project, mở SQL Editor và chạy `db/schema.sql`, rồi `db/seed.sql`. Bạn cũng có thể đặt `DATABASE_URL` trỏ tới Supabase rồi chạy `npm run db:reset -- --yes`. Lấy chuỗi kết nối tại *Connect → Session pooler* (cổng 5432) theo hướng dẫn của tài liệu môn học.
-2. **Render:** tạo Web Service từ repo, đặt *Root Directory* là `backend`, build bằng `npm ci`, start bằng `npm start`, health check `/health`. Bạn cũng có thể dùng Blueprint với file [render.yaml](../render.yaml). Khai báo biến môi trường `DATABASE_URL`, `DATABASE_SSL=true`, `JWT_SECRET` và `PUBLIC_BASE_URL=https://<tên-service>.onrender.com`.
+2. **Render:** tạo Web Service từ repo, đặt *Root Directory* là `backend`, build bằng `npm ci`, start bằng `npm start`, health check `/health`. Bạn cũng có thể dùng Blueprint với file [render.yaml](../render.yaml). Khai báo biến môi trường `DATABASE_URL`, `DATABASE_SSL=true`, `JWT_SECRET` và `PUBLIC_BASE_URL=https://<tên-service>.onrender.com`. Khi dùng Blueprint, Render tự sinh `JWT_SECRET` và đặt service ở Frankfurt (gần Supabase eu-west-1).
 3. Mở `https://<tên-service>.onrender.com/health` từ một máy khác và kiểm tra nhận được mã 200.
 
 Không commit `.env`. Khóa `SUPABASE_SERVICE_KEY` chỉ khai báo trên Render, không đưa vào app di động. Mọi bảng đã bật RLS không kèm policy, nên anon key của Supabase không đọc được dữ liệu qua REST API tự động.

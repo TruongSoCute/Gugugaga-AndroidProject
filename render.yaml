@@ -1,11 +1,13 @@
 # Cấu hình Render (Blueprint) cho backend. Các biến có sync: false được nhập tay
-# trên trang Render, không ghi giá trị bí mật vào file này.
+# trên trang Render, không ghi giá trị bí mật vào file này. JWT_SECRET do Render tự sinh.
 services:
   - type: web
     name: ocop-backend
     runtime: node
     rootDir: backend
     plan: free
+    # Gần CSDL Supabase (eu-west-1) để mỗi truy vấn đi đường ngắn.
+    region: frankfurt
     buildCommand: npm ci
     startCommand: npm start
     healthCheckPath: /health
@@ -17,7 +19,7 @@ services:
       - key: DATABASE_SSL
         value: "true"
       - key: JWT_SECRET
-        sync: false
+        generateValue: true
       - key: JWT_EXPIRES_IN
         value: 8h
       - key: PUBLIC_BASE_URL
