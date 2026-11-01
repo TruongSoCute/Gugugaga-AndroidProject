@@ -259,6 +259,12 @@ jobs:
         with:
           path: dist
           merge-multiple: true
+      - name: Tạo tag v${{ env.PHIEN_BAN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "v$PHIEN_BAN" -m "OCOP Gugugaga $PHIEN_BAN" "$GITHUB_SHA"
+          git push origin "v$PHIEN_BAN"
       - name: Tạo release v${{ env.PHIEN_BAN }} kèm APK
         env:
           GH_TOKEN: ${{ github.token }}
@@ -272,8 +278,16 @@ jobs:
 
           Tất cả test (backend, app Admin, app Client) đã đạt trước khi phát hành.
           EOF
-          gh release create "v$PHIEN_BAN" dist/*.apk \
-            --target "$GITHUB_SHA" \
+          if ! gh release create "v$PHIEN_BAN" dist/*.apk \
+            --verify-tag \
             --title "OCOP Gugugaga $PHIEN_BAN" \
             --notes-file ghi-chu.md \
-            --generate-notes
+            --generate-notes; then
+            # Chẩn đoán: gửi yêu cầu thiếu tag_name (không tạo gì). 403 kèm header cho biết quyền còn thiếu;
+            # 422 nghĩa là quyền đủ, lỗi nằm ở chỗ khác.
+            echo "::group::Chẩn đoán quyền tạo release"
+            gh api -i -X POST "repos/$GITHUB_REPOSITORY/releases" 2>&1 \
+              | grep -i -E "^HTTP/|x-accepted-github-permissions|x-oauth-scopes|\"message\"|documentation_url" || true
+            echo "::endgroup::"
+            exit 1
+          fi
