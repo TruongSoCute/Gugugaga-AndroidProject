@@ -4,4 +4,14 @@
     <dimen name="khoang_md">16dp</dimen>
     <dimen name="khoang_lg">24dp</dimen>
     <dimen name="chu_nho">12sp</dimen>
+    <dimen name="chu_ma">18sp</dimen>
+    <dimen name="chu_bieu_do">13sp</dimen>
+    <dimen name="kich_thuoc_qr">220dp</dimen>
+    <dimen name="anh_lon">180dp</dimen>
+    <dimen name="anh_nho">56dp</dimen>
+    <dimen name="vong_thu_tu">32dp</dimen>
+    <dimen name="bieu_do_cao_dong">36dp</dimen>
+    <dimen name="bieu_do_cao_cot">18dp</dimen>
+    <!-- Chừa chỗ dưới cùng danh sách để nút nổi không che dòng cuối. -->
+    <dimen name="dem_duoi_danh_sach">88dp</dimen>
 </resources>

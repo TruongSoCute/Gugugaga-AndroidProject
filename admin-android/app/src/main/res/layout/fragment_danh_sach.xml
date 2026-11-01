@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout dùng chung cho các danh sách: Spinner lọc (ẩn nếu không cần) + RecyclerView + 3 trạng thái. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvNhanLoc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/khoang_md"
+        android:layout_marginTop="@dimen/khoang_sm"
+        android:layout_marginEnd="@dimen/khoang_md"
+        android:text="@string/loc_trang_thai"
+        android:textSize="@dimen/chu_nho" />
+
+    <Spinner
+        android:id="@+id/spLoc"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="@dimen/khoang_sm"
+        android:layout_marginEnd="@dimen/khoang_sm" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvDanhSach"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/dem_duoi_danh_sach" />
+
+        <include layout="@layout/khung_trang_thai" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fabThem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/khoang_md"
+            android:visibility="gone"
+            app:icon="@drawable/ic_them" />
+    </FrameLayout>
+</LinearLayout>

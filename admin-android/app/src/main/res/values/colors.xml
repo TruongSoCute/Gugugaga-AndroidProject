@@ -8,4 +8,8 @@
     <color name="do_tu_choi">#A1271B</color>
     <color name="nen_tu_choi">#FFDAD4</color>
     <color name="nen_icon">#FFFFFF</color>
+    <color name="xanh_duong_chu">#0B57A4</color>
+    <color name="xanh_duong_nen">#D8E6FA</color>
+    <color name="xam_chu">#4A4A4A</color>
+    <color name="xam_nen">#E6E6E6</color>
 </resources>

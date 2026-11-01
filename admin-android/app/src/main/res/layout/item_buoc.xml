@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Một bước truy xuất: số thứ tự trong vòng tròn + tên, thời điểm, mô tả. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="48dp"
+    android:orientation="horizontal"
+    android:paddingTop="@dimen/khoang_sm"
+    android:paddingBottom="@dimen/khoang_sm">
+
+    <TextView
+        android:id="@+id/tvThuTu"
+        android:layout_width="@dimen/vong_thu_tu"
+        android:layout_height="@dimen/vong_thu_tu"
+        android:background="@drawable/nen_thu_tu"
+        android:gravity="center"
+        android:textColor="@color/nen_icon"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/khoang_md"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvTenBuoc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvThoiDiemBuoc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/chu_nho" />
+
+        <TextView
+            android:id="@+id/tvMoTaBuoc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</LinearLayout>

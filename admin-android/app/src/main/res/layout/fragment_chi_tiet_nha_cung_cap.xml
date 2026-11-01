@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:id="@+id/noiDung"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/khoang_md">
+
+            <ImageView
+                android:id="@+id/ivAnhCoSo"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/anh_lon"
+                android:background="@color/xam_nen"
+                android:contentDescription="@string/mo_ta_anh_co_so"
+                android:scaleType="centerCrop" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/khoang_md"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvTen"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAppearance="?attr/textAppearanceTitleLarge" />
+
+                <TextView
+                    android:id="@+id/tvTrangThai"
+                    style="@style/NhanTrangThai"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/khoang_sm" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvTuGui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/khoang_xs"
+                android:text="@string/ncc_tu_gui"
+                android:textColor="@color/xanh_duong_chu"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvLyDo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/khoang_xs"
+                android:textColor="@color/do_tu_choi"
+                android:visibility="gone" />
+
+            <TextView
+                style="@style/TieuDeMuc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/muc_thong_tin_co_so" />
+
+            <TextView
+                android:id="@+id/tvDaiDien"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/tvSdt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:textColor="?attr/colorPrimary" />
+
+            <TextView
+                android:id="@+id/tvDiaChi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/tvVung"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/tvTaoLuc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/khoang_xs"
+                android:textSize="@dimen/chu_nho" />
+
+            <TextView
+                android:id="@+id/tvDuyet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/chu_nho" />
+
+            <TextView
+                style="@style/TieuDeMuc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/muc_chung_nhan" />
+
+            <TextView
+                android:id="@+id/tvKhongCoChungNhan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/khong_co_chung_nhan"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/dsChungNhan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <TextView
+                android:id="@+id/tvChiXem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/khoang_md"
+                android:text="@string/nhan_vien_chi_xem_ho_so"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/hangNut"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/khoang_md"
+                android:layout_marginBottom="@dimen/khoang_lg"
+                android:gravity="end"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <Button
+                    android:id="@+id/btnTuChoi"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/nut_tu_choi" />
+
+                <Button
+                    android:id="@+id/btnDuyet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/khoang_sm"
+                    android:text="@string/nut_duyet" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <include layout="@layout/khung_trang_thai" />
+</FrameLayout>

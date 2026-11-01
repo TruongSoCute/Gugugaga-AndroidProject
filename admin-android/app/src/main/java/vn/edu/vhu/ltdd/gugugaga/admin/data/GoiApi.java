@@ -7,8 +7,13 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import vn.edu.vhu.ltdd.gugugaga.admin.AppConfig;
 import vn.edu.vhu.ltdd.gugugaga.admin.R;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.DanhSach;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.LoiApi;
 
 import retrofit2.Call;
@@ -39,7 +44,12 @@ public final class GoiApi {
                     TokenStore.xoa(app);
                     kq.hetPhien();
                 } else {
-                    kq.loi(thongDiepLoi(app, res));
+                    String json = docBody(res);
+                    String thongDiep = thongDiepTuJson(json);
+                    if (thongDiep == null) thongDiep = app.getString(R.string.loi_may_chu, res.code());
+                    Map<String, String> theoTruong = res.code() == 400 ? loiTheoTruong(json) : null;
+                    if (theoTruong != null && !theoTruong.isEmpty()) kq.loiDuLieu(thongDiep, theoTruong);
+                    else kq.loi(thongDiep);
                 }
             }
 
@@ -52,22 +62,65 @@ public final class GoiApi {
         });
     }
 
-    /** Lấy loi.thongDiep do backend gửi; nếu không đọc được thì báo mã HTTP. */
-    static String thongDiepLoi(Context app, Response<?> res) {
-        String tuBackend = docThongDiep(res);
-        return tuBackend != null ? tuBackend : app.getString(R.string.loi_may_chu, res.code());
-    }
-
-    private static String docThongDiep(Response<?> res) {
+    /** Đọc body lỗi (chỉ đọc được một lần); không đọc được thì trả null. */
+    private static String docBody(Response<?> res) {
         try (okhttp3.ResponseBody body = res.errorBody()) {
-            return body == null ? null : thongDiepTuJson(body.string());
+            return body == null ? null : body.string();
         } catch (Exception e) {
             return null;
         }
     }
 
+    /**
+     * Danh sách có phân trang chỉ cần phần duLieu: bọc callback để repository trả List cho màn hình.
+     * Lỗi theo ô (400) vẫn được chuyển tiếp nguyên vẹn.
+     */
+    static <T> KetQuaApi<DanhSach<T>> chiLayDuLieu(KetQuaApi<List<T>> kq) {
+        return new KetQuaApi<DanhSach<T>>() {
+            @Override
+            public void thanhCong(DanhSach<T> duLieu) {
+                kq.thanhCong(duLieu.duLieu);
+            }
+
+            @Override
+            public void loi(String thongDiep) {
+                kq.loi(thongDiep);
+            }
+
+            @Override
+            public void hetPhien() {
+                kq.hetPhien();
+            }
+
+            @Override
+            public void loiDuLieu(String thongDiep, Map<String, String> loiTheoTruong) {
+                kq.loiDuLieu(thongDiep, loiTheoTruong);
+            }
+        };
+    }
+
+    /**
+     * Tách chiTiet[] của lỗi 400 thành bảng tên trường -> lời báo, vd {"hanSuDung": "Hạn sử dụng
+     * phải sau ngày sản xuất."}. Trả bảng rỗng nếu không có hoặc JSON sai dạng.
+     */
+    public static Map<String, String> loiTheoTruong(String json) {
+        Map<String, String> kq = new LinkedHashMap<>();
+        if (json == null) return kq;
+        try {
+            LoiApi loi = GSON.fromJson(json, LoiApi.class);
+            if (loi == null || loi.loi == null || loi.loi.chiTiet == null) return kq;
+            for (LoiApi.ChiTiet ct : loi.loi.chiTiet) {
+                if (ct != null && ct.truong != null && !kq.containsKey(ct.truong)) kq.put(ct.truong, ct.thongDiep);
+            }
+        } catch (RuntimeException ignored) {
+            // JSON hỏng: coi như không có lỗi theo ô
+        }
+        return kq;
+    }
+
     /** Tách thongDiep từ chuỗi JSON lỗi của backend; trả null nếu sai dạng. */
     public static String thongDiepTuJson(String json) {
+        if (json == null) return null;
         try {
             LoiApi loi = GSON.fromJson(json, LoiApi.class);
             if (loi != null && loi.loi != null && loi.loi.thongDiep != null && !loi.loi.thongDiep.isEmpty()) {

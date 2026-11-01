@@ -20,6 +20,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public final class ApiClient {
     private static ApiService service;
+    private static OkHttpClient httpAnh;
 
     private ApiClient() { }
 
@@ -53,5 +54,19 @@ public final class ApiClient {
                     .create(ApiService.class);
         }
         return service;
+    }
+
+    /**
+     * OkHttp riêng để tải ảnh (ảnh cơ sở, ảnh hiện trường...). Ảnh nằm ở máy chủ khác backend
+     * nên client này KHÔNG gắn token, tránh lộ token cho bên thứ ba.
+     */
+    static synchronized OkHttpClient httpAnh() {
+        if (httpAnh == null) {
+            httpAnh = new OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .build();
+        }
+        return httpAnh;
     }
 }

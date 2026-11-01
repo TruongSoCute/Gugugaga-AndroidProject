@@ -11,7 +11,7 @@
     <string name="loi_email_trong">Vui lòng nhập email</string>
     <string name="loi_email_sai">Email chưa đúng định dạng, ví dụ ten@ocop.example</string>
     <string name="loi_mat_khau_trong">Vui lòng nhập mật khẩu</string>
-    <string name="loi_tai_khoan_khach">Tài khoản khách không dùng được app quản trị. Hãy dùng app Client.</string>
+    <string name="loi_tai_khoan_khong_phai_nhan_su">Chỉ tài khoản Quản trị hoặc Nhân viên dùng được app này. Khách và nhà cung cấp hãy dùng app Client.</string>
     <string name="thong_bao_het_phien">Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.</string>
 
     <!-- Lỗi chung khi gọi API (Phụ lục 2) -->
@@ -56,7 +56,194 @@
     <string name="vai_tro_nhan_vien">Nhân viên</string>
     <string name="tai_khoan_vai_tro">Vai trò: %1$s</string>
     <string name="tai_khoan_may_chu">Máy chủ: %1$s</string>
-    <string name="nhan_vien_chi_xem">Nhân viên chỉ xem danh sách; chỉ Quản trị được duyệt sản phẩm.</string>
+    <string name="nhan_vien_chi_xem">Nhân viên quản lý lô, đơn hàng và phản ánh; chỉ Quản trị được duyệt sản phẩm, hồ sơ nhà cung cấp và xem báo cáo doanh số.</string>
     <string name="nut_dang_xuat">Đăng xuất</string>
     <string name="xac_nhan_dang_xuat">Bạn có chắc muốn đăng xuất?</string>
+    <!-- Chung -->
+    <string name="quay_lai">Quay lại</string>
+    <string name="danh_sach_trong_chung">Không có dữ liệu.</string>
+    <string name="nut_dong_y">Đồng ý</string>
+    <string name="nut_them">Thêm</string>
+    <string name="nut_chia_se">Chia sẻ đường dẫn</string>
+    <string name="nut_thu_hoi">Thu hồi duyệt</string>
+    <string name="loi_khong_co_ung_dung">Máy không có ứng dụng phù hợp để mở.</string>
+    <string name="loi_tai_anh">Không tải được ảnh.</string>
+    <string name="loi_url_anh">Đường dẫn ảnh phải bắt đầu bằng http:// hoặc https:// và không có khoảng trắng</string>
+    <string name="hint_anh_url">Đường dẫn ảnh (không bắt buộc)</string>
+    <string name="ten_kem_trang_thai">%1$s (%2$s)</string>
+
+    <!-- Tên trạng thái (mã của backend -> chữ) -->
+    <string name="tt_khong_ro">Không rõ</string>
+    <string name="tt_cho_xac_nhan">Chờ xác nhận</string>
+    <string name="tt_da_xac_nhan">Đã xác nhận</string>
+    <string name="tt_dang_giao">Đang giao</string>
+    <string name="tt_da_giao">Đã giao</string>
+    <string name="tt_da_nhan">Khách đã nhận</string>
+    <string name="tt_da_huy">Đã hủy</string>
+    <string name="tt_moi">Mới</string>
+    <string name="tt_dang_xu_ly">Đang xử lý</string>
+    <string name="tt_da_xu_ly">Đã xử lý</string>
+    <string name="tt_bac_bo">Bác bỏ</string>
+
+    <!-- Tiêu đề màn hình -->
+    <string name="tieu_de_san_pham">Sản phẩm</string>
+    <string name="tieu_de_lo">Lô sản xuất</string>
+    <string name="tieu_de_chi_tiet_lo">Chi tiết lô và QR</string>
+    <string name="tieu_de_tao_lo">Tạo lô sản xuất</string>
+    <string name="tieu_de_them_buoc">Thêm bước truy xuất</string>
+    <string name="tieu_de_don_hang">Đơn hàng</string>
+    <string name="tieu_de_chi_tiet_don">Chi tiết đơn hàng</string>
+    <string name="tieu_de_phan_anh">Phản ánh</string>
+    <string name="tieu_de_chi_tiet_phan_anh">Chi tiết phản ánh</string>
+    <string name="tieu_de_nha_cung_cap">Nhà cung cấp</string>
+    <string name="tieu_de_chi_tiet_ncc">Hồ sơ nhà cung cấp</string>
+    <string name="tieu_de_bao_cao">Báo cáo doanh số</string>
+
+    <!-- Tab -->
+    <string name="tab_lo">Lô</string>
+    <string name="tab_don_hang">Đơn hàng</string>
+    <string name="tab_phan_anh">Phản ánh</string>
+
+    <!-- Tài khoản -->
+    <string name="nut_mo_nha_cung_cap">Hồ sơ nhà cung cấp</string>
+    <string name="nut_mo_bao_cao">Báo cáo doanh số</string>
+
+    <!-- Đơn hàng -->
+    <string name="trong_don_hang">Không có đơn hàng nào ở trạng thái này.</string>
+    <string name="ma_don">Đơn #%1$d</string>
+    <string name="nguoi_nhan_khach">Nhận: %1$s · Khách: %2$s</string>
+    <string name="san_pham_va_khac">%1$s và %2$d sản phẩm khác</string>
+    <string name="dat_luc">Đặt lúc %1$s</string>
+    <string name="hinh_thuc_va_phi">%1$s · phí giao %2$s</string>
+    <string name="tien_hang">Tiền hàng: %1$s</string>
+    <string name="tong_tien">Tổng tiền: %1$s</string>
+    <string name="khach_dat">Khách đặt: %1$s (%2$s)</string>
+    <string name="ghi_chu_khach">Ghi chú của khách: %1$s</string>
+    <string name="so_luong_x_ten">%1$d %2$s × %3$s</string>
+    <string name="don_gia_thanh_tien">Đơn giá %1$s · Thành tiền %2$s</string>
+    <string name="lo_da_giao">Lô %1$s · SX %2$s · %3$s</string>
+    <string name="thoi_diem_nguoi">%1$s · %2$s</string>
+    <string name="giao_tieu_chuan">Giao tiêu chuẩn</string>
+    <string name="giao_nhanh">Giao nhanh</string>
+    <string name="giao_tai_cho">Nhận tại chỗ</string>
+    <string name="muc_nguoi_nhan">Người nhận</string>
+    <string name="muc_san_pham_lo">Sản phẩm và lô đã giao</string>
+    <string name="muc_lich_su">Lịch sử trạng thái</string>
+    <string name="muc_xu_ly_don">Xử lý đơn</string>
+    <string name="don_khong_con_buoc">Đơn đã kết thúc hoặc đang chờ khách xác nhận đã nhận hàng; nhân sự không còn thao tác.</string>
+    <string name="nut_xac_nhan_don">Xác nhận đơn</string>
+    <string name="nut_bat_dau_giao">Bắt đầu giao</string>
+    <string name="nut_da_giao">Đã giao xong</string>
+    <string name="nut_huy_don">Hủy đơn</string>
+    <string name="xac_nhan_doi_trang_thai_don">Chuyển đơn #%1$d từ \"%2$s\" sang \"%3$s\"?</string>
+    <string name="hint_ghi_chu">Ghi chú (không bắt buộc)</string>
+    <string name="hint_ly_do_huy">Lý do hủy đơn</string>
+    <string name="loi_ly_do_huy_trong">Vui lòng ghi lý do hủy để khách biết</string>
+    <string name="da_doi_trang_thai_don">Đơn #%1$d: %2$s</string>
+
+    <!-- Nhà cung cấp -->
+    <string name="trong_nha_cung_cap">Không có hồ sơ nào ở trạng thái này.</string>
+    <string name="dai_dien_vung">%1$s · %2$s</string>
+    <string name="ncc_tu_gui">Nhà cung cấp tự gửi hồ sơ từ app Client</string>
+    <string name="nguoi_dai_dien">Người đại diện: %1$s</string>
+    <string name="vung_nguyen_lieu">Vùng nguyên liệu: %1$s</string>
+    <string name="gui_luc">Gửi lúc %1$s</string>
+    <string name="xu_ly_boi">Duyệt/từ chối bởi %1$s lúc %2$s</string>
+    <string name="muc_thong_tin_co_so">Thông tin cơ sở</string>
+    <string name="muc_chung_nhan">Chứng nhận</string>
+    <string name="khong_co_chung_nhan">Hồ sơ chưa có chứng nhận.</string>
+    <string name="loai_so_hieu">%1$s · %2$s</string>
+    <string name="cap_ngay">Cấp ngày %1$s</string>
+    <string name="cap_ngay_het_han">Cấp %1$s · hết hạn %2$s</string>
+    <string name="con_hieu_luc">Còn hiệu lực</string>
+    <string name="het_hieu_luc">Hết hiệu lực</string>
+    <string name="nhan_vien_chi_xem_ho_so">Nhân viên chỉ xem hồ sơ; chỉ Quản trị được duyệt hoặc từ chối.</string>
+    <string name="xac_nhan_duyet_ncc">Duyệt hồ sơ này? Máy chủ sẽ kiểm tra hồ sơ có ảnh cơ sở và chứng nhận OCOP còn hiệu lực.</string>
+    <string name="da_duyet_ho_so">Đã duyệt hồ sơ \"%1$s\"</string>
+    <string name="mo_ta_anh_co_so">Ảnh cơ sở sản xuất</string>
+    <string name="mo_ta_anh_chung_nhan">Ảnh giấy chứng nhận</string>
+
+    <!-- Lô và QR -->
+    <string name="trong_lo">Chưa có lô sản xuất nào.</string>
+    <string name="nut_tao_lo">Tạo lô</string>
+    <string name="nsx_hsd">NSX %1$s · HSD %2$s</string>
+    <string name="ton_vung_buoc">Còn %1$d/%2$d · %3$s · %4$d bước</string>
+    <string name="so_luong_con">Số lượng còn: %1$d / %2$d</string>
+    <string name="nguoi_san_xuat">Người sản xuất: %1$s</string>
+    <string name="ghi_chu_lo">Ghi chú: %1$s</string>
+    <string name="muc_cac_buoc">Các bước truy xuất</string>
+    <string name="chua_co_buoc">Lô chưa có bước truy xuất nào.</string>
+    <string name="nut_them_buoc">Thêm bước truy xuất</string>
+    <string name="mo_ta_qr">Mã QR truy xuất của lô %1$s</string>
+    <string name="mo_ta_qr_chung">Mã QR truy xuất của lô</string>
+    <string name="mo_ta_anh_hien_truong">Ảnh hiện trường sản xuất</string>
+    <string name="noi_dung_chia_se_lo">Truy xuất nguồn gốc %1$s: %2$s</string>
+    <string name="hint_ten_buoc">Tên bước (vd Thu hoạch)</string>
+    <string name="hint_thoi_diem">Thời điểm (bấm để chọn)</string>
+    <string name="hint_mo_ta_buoc">Mô tả (không bắt buộc)</string>
+    <string name="loi_ten_buoc_trong">Vui lòng nhập tên bước</string>
+    <string name="loi_thoi_diem_trong">Vui lòng bấm để chọn ngày và giờ</string>
+    <string name="da_them_buoc">Đã thêm bước \"%1$s\"</string>
+    <string name="nhan_san_pham">Sản phẩm của lô</string>
+    <string name="chon_san_pham">Chọn sản phẩm</string>
+    <string name="hint_ngay_san_xuat">Ngày sản xuất (bấm để chọn)</string>
+    <string name="hint_han_su_dung">Hạn sử dụng (bấm để chọn)</string>
+    <string name="hint_so_luong">Số lượng</string>
+    <string name="hint_nguoi_san_xuat">Người sản xuất</string>
+    <string name="hint_anh_hien_truong">Đường dẫn ảnh hiện trường (không bắt buộc)</string>
+    <string name="hint_ghi_chu_lo">Ghi chú nội bộ (không bắt buộc)</string>
+    <string name="ghi_chu_ma_do_may_chu_sinh">Mã truy xuất và QR do máy chủ sinh ngẫu nhiên sau khi lưu.</string>
+    <string name="nut_luu_lo">Lưu lô</string>
+    <string name="loi_chua_chon_san_pham">Vui lòng chọn sản phẩm của lô</string>
+    <string name="loi_ngay_san_xuat_trong">Vui lòng chọn ngày sản xuất</string>
+    <string name="loi_han_su_dung_trong">Vui lòng chọn hạn sử dụng</string>
+    <string name="loi_han_truoc_ngay_san_xuat">Hạn sử dụng phải sau ngày sản xuất</string>
+    <string name="loi_so_luong_trong">Vui lòng nhập số lượng</string>
+    <string name="loi_so_luong_sai">Số lượng phải là số nguyên, không có dấu chấm hay chữ</string>
+    <string name="loi_so_luong_mien">Số lượng phải từ 1 đến %1$d</string>
+    <string name="loi_nguoi_san_xuat_trong">Vui lòng nhập người hoặc tổ sản xuất</string>
+    <string name="da_tao_lo">Đã tạo lô, mã truy xuất %1$s</string>
+
+    <!-- Phản ánh -->
+    <string name="trong_phan_anh">Không có phản ánh nào ở trạng thái này.</string>
+    <string name="loai_hang_gia">Hàng giả</string>
+    <string name="loai_sai_mo_ta">Sai mô tả</string>
+    <string name="loai_khac">Phản ánh khác</string>
+    <string name="loai_va_san_pham">%1$s: %2$s</string>
+    <string name="nguoi_bao_luc">%1$s · %2$s</string>
+    <string name="san_pham_x">Sản phẩm: %1$s</string>
+    <string name="nha_cung_cap_x">Nhà cung cấp: %1$s</string>
+    <string name="lo_x">Lô: %1$s</string>
+    <string name="khong_ghi_ma_lo">Khách không ghi mã lô</string>
+    <string name="nguoi_bao_chi_tiet">Người báo: %1$s · %2$s · %3$s</string>
+    <string name="muc_noi_dung_phan_anh">Nội dung phản ánh</string>
+    <string name="muc_xu_ly_phan_anh">Xử lý</string>
+    <string name="ket_qua_xu_ly_chi_tiet">Kết quả: %1$s\nNgười xử lý: %2$s · %3$s</string>
+    <string name="chua_co_ket_qua">(chưa ghi kết quả)</string>
+    <string name="phan_anh_da_dong">Phản ánh đã kết thúc, không còn bước xử lý.</string>
+    <string name="nut_bat_dau_xu_ly">Bắt đầu xử lý</string>
+    <string name="nut_da_xu_ly">Đã xử lý xong</string>
+    <string name="nut_bac_bo">Bác bỏ</string>
+    <string name="xac_nhan_xu_ly_phan_anh">Chuyển phản ánh sang \"%1$s\"? Phản ánh chỉ đi tới, không quay lại được.</string>
+    <string name="hint_ket_qua_xu_ly">Kết quả xử lý</string>
+    <string name="loi_ket_qua_trong">Vui lòng ghi kết quả xử lý để khách biết</string>
+    <string name="da_cap_nhat_phan_anh">Đã chuyển phản ánh sang \"%1$s\"</string>
+    <string name="mo_ta_anh_phan_anh">Ảnh khách gửi kèm phản ánh</string>
+
+    <!-- Báo cáo doanh số -->
+    <string name="tu_ngay_trong">Từ ngày</string>
+    <string name="den_ngay_trong">Đến ngày</string>
+    <string name="tu_ngay_x">Từ %1$s</string>
+    <string name="den_ngay_x">Đến %1$s</string>
+    <string name="nut_xoa_loc">Xóa lọc</string>
+    <string name="loi_tu_sau_den">\"Từ ngày\" phải trước hoặc bằng \"Đến ngày\". Hãy chọn lại.</string>
+    <string name="tong_doanh_so">Tổng doanh số</string>
+    <string name="tong_don_so_luong">%1$d đơn · %2$d sản phẩm đã bán</string>
+    <string name="muc_theo_vung">Doanh số theo vùng</string>
+    <string name="muc_theo_hang_sao">Doanh số theo hạng sao OCOP</string>
+    <string name="muc_ncc_ban_chay">Nhà cung cấp bán chạy</string>
+    <string name="chua_co_doanh_so">Chưa có doanh số trong khoảng ngày này.</string>
+    <string name="hang_sao_ngan">%1$d sao</string>
+    <string name="vung_don_so_luong">%1$s · %2$d đơn · %3$d sản phẩm</string>
+    <string name="ghi_chu_bao_cao">Chỉ tính đơn đã giao và khách đã nhận. Doanh số = số lượng × đơn giá lúc đặt, không gồm phí giao; vùng tính theo lô thực tế đã giao.</string>
 </resources>

@@ -43,6 +43,23 @@
             android:textSize="@dimen/chu_nho" />
 
         <Button
+            android:id="@+id/btnNhaCungCap"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_lg"
+            android:text="@string/nut_mo_nha_cung_cap" />
+
+        <Button
+            android:id="@+id/btnBaoCao"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_sm"
+            android:text="@string/nut_mo_bao_cao"
+            android:visibility="gone" />
+
+        <Button
             android:id="@+id/btnDangXuat"
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"

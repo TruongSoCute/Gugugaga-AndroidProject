@@ -2,12 +2,15 @@ package vn.edu.vhu.ltdd.gugugaga.admin.data;
 
 import android.content.Context;
 
-import vn.edu.vhu.ltdd.gugugaga.admin.AppConfig;
 import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.KetQuaDangNhap;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauDangNhap;
+import vn.edu.vhu.ltdd.gugugaga.admin.util.PhanQuyen;
 
-/** Đăng nhập cho app Admin: chỉ nhận tài khoản QUAN_TRI hoặc NHAN_VIEN. */
+/**
+ * Đăng nhập cho app Admin: chỉ nhận tài khoản QUAN_TRI hoặc NHAN_VIEN. Khách và nhà cung cấp
+ * dùng app Client, nên bị từ chối ngay và KHÔNG lưu token.
+ */
 public class AuthRepository {
     private final Context app;
 
@@ -20,9 +23,9 @@ public class AuthRepository {
                 new KetQuaApi<KetQuaDangNhap>() {
                     @Override
                     public void thanhCong(KetQuaDangNhap duLieu) {
-                        // App chỉ ẩn bớt chức năng; backend vẫn chặn khách gọi API quản trị bằng 403.
-                        if (duLieu.nguoiDung == null || AppConfig.VAI_TRO_KHACH.equals(duLieu.nguoiDung.vaiTro)) {
-                            kq.loi(app.getString(R.string.loi_tai_khoan_khach));
+                        // Danh sách trắng: chỉ nhân sự. Backend vẫn chặn vai trò khác bằng 403.
+                        if (duLieu.nguoiDung == null || !PhanQuyen.duocDungAppAdmin(duLieu.nguoiDung.vaiTro)) {
+                            kq.loi(app.getString(R.string.loi_tai_khoan_khong_phai_nhan_su));
                             return;
                         }
                         TokenStore.luu(app, duLieu);

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Ba trạng thái khi gọi API (C.1 #8): đang tải / trống / lỗi + Thử lại.
+  Dùng <merge> để include thẳng vào FrameLayout của màn hình (các lớp chồng nhau, Lab A3).
+-->
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvTrong"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:padding="@dimen/khoang_lg"
+        android:text="@string/danh_sach_trong_chung"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/khungLoi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/khoang_lg"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvLoi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="?attr/colorError" />
+
+        <Button
+            android:id="@+id/btnThuLai"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_sm"
+            android:text="@string/nut_thu_lai" />
+    </LinearLayout>
+</merge>

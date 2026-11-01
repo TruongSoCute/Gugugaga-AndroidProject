@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:minHeight="48dp"
+    android:orientation="horizontal"
+    android:paddingTop="@dimen/khoang_xs"
+    android:paddingBottom="@dimen/khoang_xs">
+
+    <TextView
+        android:id="@+id/tvHang"
+        android:layout_width="@dimen/vong_thu_tu"
+        android:layout_height="@dimen/vong_thu_tu"
+        android:background="@drawable/nen_thu_tu"
+        android:gravity="center"
+        android:textColor="@color/nen_icon"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/khoang_md"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvTenNcc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvVungNcc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/chu_nho" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvDoanhSoNcc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/khoang_sm"
+        android:textStyle="bold" />
+</LinearLayout>

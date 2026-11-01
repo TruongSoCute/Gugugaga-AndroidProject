@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Một chứng nhận của nhà cung cấp: ảnh nhỏ + loại, số hiệu, hạn, còn hiệu lực. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:minHeight="48dp"
+    android:orientation="horizontal"
+    android:paddingTop="@dimen/khoang_sm"
+    android:paddingBottom="@dimen/khoang_sm">
+
+    <ImageView
+        android:id="@+id/ivAnhChungNhan"
+        android:layout_width="@dimen/anh_nho"
+        android:layout_height="@dimen/anh_nho"
+        android:layout_marginEnd="@dimen/khoang_md"
+        android:background="@color/xam_nen"
+        android:contentDescription="@string/mo_ta_anh_chung_nhan"
+        android:scaleType="centerCrop" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvLoaiChungNhan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvHanChungNhan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/chu_nho" />
+
+        <TextView
+            android:id="@+id/tvHieuLuc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/chu_nho"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

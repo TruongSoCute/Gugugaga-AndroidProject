@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Một lần chuyển trạng thái của đơn. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/khoang_xs"
+    android:paddingBottom="@dimen/khoang_xs">
+
+    <TextView
+        android:id="@+id/tvTrangThaiLichSu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvThoiDiemLichSu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/chu_nho" />
+
+    <TextView
+        android:id="@+id/tvGhiChuLichSu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/chu_nho"
+        android:textStyle="italic" />
+</LinearLayout>

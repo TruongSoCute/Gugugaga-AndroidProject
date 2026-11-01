@@ -1,7 +1,7 @@
 package vn.edu.vhu.ltdd.gugugaga.admin.model;
 
 /**
- * Body của PATCH /san-pham/:id/duyet. Trường null không được Gson gửi đi.
+ * Body của PATCH /san-pham/:id/duyet và PATCH /nha-cung-cap/:id/duyet. Trường null không được Gson gửi đi.
  * Backend vẫn tự kiểm tra lại mọi điều kiện (hạng 3–5, lý do bắt buộc khi từ chối).
  */
 public class YeuCauDuyet {
@@ -17,6 +17,11 @@ public class YeuCauDuyet {
 
     public static YeuCauDuyet duyet(int hangSao) {
         return new YeuCauDuyet("DA_DUYET", hangSao, null);
+    }
+
+    /** Duyệt hồ sơ nhà cung cấp: không có hạng sao. */
+    public static YeuCauDuyet duyetHoSo() {
+        return new YeuCauDuyet("DA_DUYET", null, null);
     }
 
     public static YeuCauDuyet tuChoi(String lyDo) {

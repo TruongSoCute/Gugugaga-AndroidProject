@@ -76,6 +76,9 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
+    // Vẽ mã QR của lô từ duongDanTruyXuat (chỉ phần lõi Java, không kèm giao diện quét).
+    implementation("com.google.zxing:core:3.5.3")
+
     testImplementation("junit:junit:4.13.2")
     // Kiểm tra kiến trúc bằng máy (docs/development/Architecture.md).
     testImplementation("com.tngtech.archunit:archunit-junit4:1.5.1")

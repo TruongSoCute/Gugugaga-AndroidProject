@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Một dòng hàng trong chi tiết đơn; mỗi lô đã giao là một dòng, kèm mã truy xuất. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="48dp"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/khoang_sm"
+    android:paddingBottom="@dimen/khoang_sm">
+
+    <TextView
+        android:id="@+id/tvTenSanPham"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvGiaDong"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/tvLoDong"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textIsSelectable="true"
+        android:textSize="@dimen/chu_nho" />
+</LinearLayout>

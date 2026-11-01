@@ -13,4 +13,40 @@
         <item>TU_CHOI</item>
         <item></item>
     </string-array>
+
+    <!-- Lọc đơn hàng: nhãn và giá trị gửi API theo cùng thứ tự. -->
+    <string-array name="don_hang_nhan">
+        <item>Tất cả</item>
+        <item>Chờ xác nhận</item>
+        <item>Đã xác nhận</item>
+        <item>Đang giao</item>
+        <item>Đã giao</item>
+        <item>Khách đã nhận</item>
+        <item>Đã hủy</item>
+    </string-array>
+    <string-array name="don_hang_gia_tri" translatable="false">
+        <item></item>
+        <item>CHO_XAC_NHAN</item>
+        <item>DA_XAC_NHAN</item>
+        <item>DANG_GIAO</item>
+        <item>DA_GIAO</item>
+        <item>DA_NHAN</item>
+        <item>DA_HUY</item>
+    </string-array>
+
+    <!-- Lọc phản ánh. -->
+    <string-array name="phan_anh_nhan">
+        <item>Tất cả</item>
+        <item>Mới</item>
+        <item>Đang xử lý</item>
+        <item>Đã xử lý</item>
+        <item>Bác bỏ</item>
+    </string-array>
+    <string-array name="phan_anh_gia_tri" translatable="false">
+        <item></item>
+        <item>MOI</item>
+        <item>DANG_XU_LY</item>
+        <item>DA_XU_LY</item>
+        <item>BAC_BO</item>
+    </string-array>
 </resources>

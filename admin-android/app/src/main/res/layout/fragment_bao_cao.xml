@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Bộ lọc khoảng ngày nằm ngoài vùng nội dung để vẫn đổi được khi đang lỗi. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/khoang_sm"
+        android:paddingTop="@dimen/khoang_sm"
+        android:paddingEnd="@dimen/khoang_sm">
+
+        <Button
+            android:id="@+id/btnTuNgay"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:maxLines="1" />
+
+        <Button
+            android:id="@+id/btnDenNgay"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/khoang_sm"
+            android:layout_weight="1"
+            android:maxLines="1" />
+
+        <Button
+            android:id="@+id/btnXoaLoc"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nut_xoa_loc" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvLoiLoc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/khoang_md"
+        android:layout_marginEnd="@dimen/khoang_md"
+        android:text="@string/loi_tu_sau_den"
+        android:textColor="?attr/colorError"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ScrollView
+            android:id="@+id/noiDung"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/khoang_md">
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/TheChiTiet"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/khoang_md">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/tong_doanh_so"
+                            android:textSize="@dimen/chu_nho" />
+
+                        <TextView
+                            android:id="@+id/tvTongDoanhSo"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                            android:textColor="?attr/colorPrimary" />
+
+                        <TextView
+                            android:id="@+id/tvTongDon"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    style="@style/TieuDeMuc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/muc_theo_vung" />
+
+                <vn.edu.vhu.ltdd.gugugaga.admin.ui.baocao.BieuDoCotView
+                    android:id="@+id/bdVung"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    style="@style/TieuDeMuc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/muc_theo_hang_sao" />
+
+                <vn.edu.vhu.ltdd.gugugaga.admin.ui.baocao.BieuDoCotView
+                    android:id="@+id/bdHangSao"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    style="@style/TieuDeMuc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/muc_ncc_ban_chay" />
+
+                <TextView
+                    android:id="@+id/tvTrongTop"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chua_co_doanh_so"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/dsTop"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/khoang_md"
+                    android:layout_marginBottom="@dimen/khoang_lg"
+                    android:text="@string/ghi_chu_bao_cao"
+                    android:textSize="@dimen/chu_nho" />
+            </LinearLayout>
+        </ScrollView>
+
+        <include layout="@layout/khung_trang_thai" />
+    </FrameLayout>
+</LinearLayout>

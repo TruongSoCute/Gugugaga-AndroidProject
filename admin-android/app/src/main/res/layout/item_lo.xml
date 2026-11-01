@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Một dòng lô (Labs_Android.md A9): mã truy xuất, tên sản phẩm, ngày, số lượng còn, số bước. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/TheDong"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="72dp"
+        android:orientation="vertical"
+        android:padding="@dimen/khoang_md">
+
+        <TextView
+            android:id="@+id/tvTenSanPham"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="?attr/textAppearanceTitleMedium" />
+
+        <TextView
+            android:id="@+id/tvMaTruyXuat"
+            style="@style/MaTruyXuat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_xs" />
+
+        <TextView
+            android:id="@+id/tvNgay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_xs" />
+
+        <TextView
+            android:id="@+id/tvTon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="@dimen/chu_nho" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

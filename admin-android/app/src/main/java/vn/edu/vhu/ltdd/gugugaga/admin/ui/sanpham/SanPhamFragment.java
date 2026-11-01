@@ -52,6 +52,7 @@ public class SanPhamFragment extends Fragment implements SanPhamAdapter.HanhDong
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        ((MainActivity) requireActivity()).datTieuDe(R.string.tieu_de_san_pham);
         rv = view.findViewById(R.id.rvSanPham);
         progress = view.findViewById(R.id.progress);
         tvTrong = view.findViewById(R.id.tvTrong);

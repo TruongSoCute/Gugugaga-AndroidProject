@@ -13,4 +13,29 @@
         <item name="android:paddingTop">2dp</item>
         <item name="android:paddingBottom">2dp</item>
     </style>
+
+    <!-- Thẻ một dòng trong danh sách (MaterialCardView, Lab A3). -->
+    <style name="TheDong" parent="Widget.Material3.CardView.Outlined">
+        <item name="android:layout_marginStart">@dimen/khoang_md</item>
+        <item name="android:layout_marginTop">@dimen/khoang_sm</item>
+        <item name="android:layout_marginEnd">@dimen/khoang_md</item>
+    </style>
+
+    <!-- Thẻ tóm tắt ở đầu màn hình chi tiết. -->
+    <style name="TheChiTiet" parent="Widget.Material3.CardView.Filled" />
+
+    <!-- Tiêu đề từng mục trong màn hình chi tiết. -->
+    <style name="TieuDeMuc">
+        <item name="android:layout_marginTop">@dimen/khoang_lg</item>
+        <item name="android:layout_marginBottom">@dimen/khoang_xs</item>
+        <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+
+    <!-- Mã truy xuất 20 ký tự hex: chữ đơn cách cho dễ đọc, dễ đối chiếu với tem. -->
+    <style name="MaTruyXuat">
+        <item name="android:fontFamily">monospace</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.05</item>
+    </style>
 </resources>
