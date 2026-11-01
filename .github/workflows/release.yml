@@ -5,7 +5,8 @@
 # và chờ Render chạy đúng commit này -> build APK release đã ký cho hai app -> tạo GitHub Release.
 # Bất kỳ bước nào đỏ thì dừng: không deploy, không phát hành.
 #
-# Cần các GitHub Secrets (Settings -> Secrets and variables -> Actions), xem docs/development/Setup.md:
+# Cần các GitHub Secrets (Settings -> Secrets and variables -> Actions -> Repository secrets, hoặc
+# Settings -> Environments -> production -> Environment secrets), xem docs/development/Setup.md:
 #   RENDER_DEPLOY_HOOK_URL, KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
 # và trên Render: Branch = release, Auto-Deploy = Off.
 name: Phát hành (nhánh release)
@@ -33,6 +34,7 @@ jobs:
     name: Kiểm tra cấu hình
     if: github.ref == 'refs/heads/release'
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - name: Đủ GitHub Secrets
         env:
@@ -47,7 +49,7 @@ jobs:
             [ -n "${!ten}" ] || thieu="$thieu $ten"
           done
           if [ -n "$thieu" ]; then
-            echo "::error::Thiếu GitHub Secrets:$thieu. Xem docs/development/Setup.md mục Phát hành tự động."
+            echo "::error::Thiếu GitHub Secrets:$thieu. Thêm ở Settings > Secrets and variables > Actions > Repository secrets (không phải tab Variables, Codespaces hay Dependabot). Xem docs/development/Setup.md mục 8.1."
             exit 1
           fi
           echo "Đủ cấu hình."
@@ -159,6 +161,7 @@ jobs:
     name: Build APK app Admin
     needs: [test-backend, test-admin, test-client]
     runs-on: ubuntu-latest
+    environment: production
     defaults:
       run:
         working-directory: admin-android
@@ -199,6 +202,7 @@ jobs:
     name: Build APK app Client
     needs: [test-backend, test-admin, test-client]
     runs-on: ubuntu-latest
+    environment: production
     defaults:
       run:
         working-directory: client-flutter
