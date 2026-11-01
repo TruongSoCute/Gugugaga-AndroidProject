@@ -31,10 +31,10 @@ Mỗi người nhận trọn một **miền nghiệp vụ**, từ backend tới 
 | Miền | Backend (`backend/src/domains/`) | App Admin (`ui/…`) | App Client (`screens/`) |
 | --- | --- | --- | --- |
 | Đơn hàng | `don-hang` | Danh sách đơn, chi tiết và xử lý trạng thái | Giỏ hàng, đặt đơn, theo dõi đơn |
-| Đánh giá và phản ánh | `danh-gia` (chưa có) | Xử lý phản ánh | Đánh giá kèm ảnh, báo hàng giả |
-| Báo cáo | `bao-cao` (chưa có) | Màn hình biểu đồ doanh số | — |
+| Đánh giá và phản ánh | `danh-gia`, `phan-anh` | Xử lý phản ánh | Đánh giá kèm ảnh, báo hàng giả |
+| Báo cáo | `bao-cao` | Màn hình biểu đồ doanh số | — |
 | Lô và truy xuất | `truy-xuat` | Danh sách lô, tạo lô, thêm bước, hiển thị QR | Quét QR bằng camera |
-| Nhà cung cấp | `nha-cung-cap` | Duyệt hồ sơ nhà cung cấp | Trang nhà cung cấp, theo dõi |
+| Nhà cung cấp | `nha-cung-cap`, `tuong-tac` | Duyệt hồ sơ nhà cung cấp | Trang nhà cung cấp, theo dõi; hồ sơ và sản phẩm của nhà cung cấp |
 
 Ghi tên người nhận việc vào bảng phân công của nhóm trước khi bắt đầu, để tránh hai người làm trùng.
 
@@ -76,7 +76,7 @@ Ví dụ: "khách đánh giá sản phẩm đã mua". Làm theo thứ tự dư�
 ### 5.1. Chốt yêu cầu
 
 - Đối chiếu [Product](Product.md) và [Rule](Rule.md). Điểm nào đề chưa quy định thì ghi **Đề xuất** vào [Design decisions](Design_decisions.md), ví dụ "chỉ đánh giá sản phẩm trong đơn đã `DA_NHAN`".
-- Xem bảng liên quan trong [Data model](Data_model.md) và `backend/db/schema.sql`. Nhiều bảng đã có sẵn, ví dụ `danh_gia`, `anh_danh_gia`, `bao_cao_vi_pham`, `yeu_thich`, `theo_doi_nha_cung_cap`.
+- Xem bảng liên quan trong [Data model](Data_model.md) và `backend/db/schema.sql`.
 
 ### 5.2. Backend
 

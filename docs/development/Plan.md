@@ -12,25 +12,21 @@ Nguồn và cách phân biệt yêu cầu: xem [README](../README.md).
 Cập nhật bảng này mỗi khi xong hoặc nhận một việc, để thành viên mới biết nên làm gì. Thứ tự ưu tiên theo [mốc môn học](../course/Delivery.md): tuần 11 cần backend đã deploy, 3 API thật và 2 màn hình mỗi app; tuần 13 cần hai app gọi API thật và demo luồng chính.
 
 **Đã xong (01/11/2026):**
-- Backend đã deploy tại https://ocop-backend.onrender.com, CSDL trên Supabase với đủ dữ liệu mẫu.
-- API: xác thực, danh mục, nhà cung cấp, sản phẩm, lô và truy xuất QR, giỏ hàng và đơn hàng. Có 59 test tự động.
-- App Admin: đăng nhập, danh sách và duyệt sản phẩm, tab tài khoản (3 màn hình).
-- App Client: danh sách sản phẩm có lọc, tra cứu mã, hành trình lô (3 màn hình).
+- Backend: đủ các nhóm API của đề (xác thực, danh mục, nhà cung cấp kể cả tự gửi hồ sơ, sản phẩm, lô và truy xuất QR, giỏ và đơn hàng, đánh giá, phản ánh, yêu thích, theo dõi, báo cáo doanh số, tải ảnh). 78 test tự động.
+- CSDL trên Supabase đủ dữ liệu mẫu, có 2 tài khoản nhà cung cấp, bucket ảnh `ocop-anh`.
+- App Admin: 13 màn hình (đăng nhập, sản phẩm, nhà cung cấp, lô + QR + tạo lô, đơn hàng, phản ánh, báo cáo biểu đồ, tài khoản), đủ 10 yêu cầu C.1; 63 unit test.
+- App Client: 22 màn hình cho khách (mua hàng, đánh giá kèm ảnh, phản ánh, yêu thích, theo dõi, quét QR) và nhà cung cấp (hồ sơ, sản phẩm); 52 test + 8 contract test.
+- Cả hai app build được APK release.
 
-**Việc tiếp theo** (mỗi app cần ít nhất 6 màn hình; xem [Tech stack](Tech_stack.md#tiêu-chuẩn-kỹ-thuật-cho-ứng-dụng)):
+**Việc tiếp theo:**
 
 | Ưu tiên | Phần | Việc | Ghi chú |
 | --- | --- | --- | --- |
-| 1 | Hai app | Build APK, cài lên điện thoại thật, chụp màn hình gọi API thật | Minh chứng mốc tuần 11 |
-| 2 | Admin | Danh sách đơn hàng (RecyclerView thứ hai) + chi tiết và chuyển trạng thái | API `/quan-tri/don-hang`, `PATCH /don-hang/:id/trang-thai` đã có |
-| 2 | Client | Đăng ký/đăng nhập, lưu token | API `/auth` đã có; `TokenStore` đã sẵn; cần thêm `post` vào `ApiClient` |
-| 2 | Client | Giỏ hàng, đặt đơn (chọn hình thức giao), theo dõi đơn, xác nhận đã nhận | API `/gio-hang`, `/don-hang` đã có; cần Navigator trả kết quả, SnackBar Hoàn tác |
-| 3 | Admin | Duyệt hồ sơ nhà cung cấp | API đã có |
-| 3 | Admin | Danh sách lô, tạo lô (form giữ dữ liệu khi xoay), thêm bước, hiển thị QR | API đã có |
-| 3 | Client | Quét QR bằng camera | Hiện đang nhập hoặc dán mã |
-| 4 | Backend + Client + Admin | Đánh giá kèm ảnh, báo cáo hàng giả, xử lý phản ánh | Bảng đã có, chưa có API |
-| 4 | Backend + Client | Yêu thích sản phẩm, theo dõi nhà cung cấp | Bảng đã có, chưa có API |
-| 4 | Backend + Admin | Báo cáo doanh số theo vùng, hạng sao, nhà cung cấp; màn hình biểu đồ | Bắt buộc C.1 #7 |
-| 5 | Backend | Upload ảnh lên Supabase Storage | Hiện dùng URL ảnh |
-| 5 | Nộp bài | Báo cáo PDF, video demo, ít nhất 25 trường hợp kiểm thử có kết quả thật | Xem [Submission checklist](../course/Submission_checklist.md) |
-
+| 1 | Triển khai | Đưa code mới lên `main` để Render deploy; khai báo `SUPABASE_URL`, `SUPABASE_SERVICE_KEY` trên Render để bật tải ảnh | Hiện bản trên Render là bản cũ |
+| 1 | Hai app | Cài APK lên điện thoại thật, chạy hết các luồng, chụp màn hình | Chưa chạy thử giao diện trên thiết bị; camera và chọn ảnh chỉ thử được trên máy thật |
+| 2 | Nộp bài | Ký APK release bằng khóa của nhóm (`keystore.properties`, `key.properties`) | App Admin hiện ra APK chưa ký |
+| 2 | Nhóm | Mỗi thành viên nắm phần của mình, tự commit các cải tiến bằng tài khoản riêng | Minh chứng đóng góp |
+| 3 | Admin | Tải ảnh lô từ máy (hiện nhập URL); phân trang danh sách (hiện tối đa 100 dòng) | Cải tiến |
+| 3 | Client | `--split-per-abi` để APK nhỏ hơn (hiện ~71 MB do `mobile_scanner`) | Cải tiến |
+| 4 | Nộp bài | Báo cáo PDF, video demo, ít nhất 25 trường hợp kiểm thử có kết quả thật | Xem [Submission checklist](../course/Submission_checklist.md) |
+| 5 | Mở rộng | Trang truy xuất HTML, bản đồ vùng nguyên liệu, tự khóa bán khi chứng nhận hết hạn | Chỉ làm sau phần bắt buộc |

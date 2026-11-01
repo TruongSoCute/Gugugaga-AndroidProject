@@ -27,8 +27,8 @@ Mã nhóm: **gugugaga**. Tên app, package và TAG log đều chứa mã này.
 
 | Thư mục | Nội dung | Trạng thái |
 | --- | --- | --- |
-| [`backend/`](backend/README.md) | REST API Node.js/Express, `schema.sql`, `seed.sql`; TAG log `[GUGUGAGA-API]` | Luồng truy xuất xuyên suốt: duyệt → lô → QR công khai; giỏ hàng và đơn hàng (gán lô FIFO, chuyển trạng thái). 59 test đạt trên PostgreSQL cục bộ. Đã deploy: API trên Render, CSDL trên Supabase (đủ dữ liệu mẫu, RLS bật cho 16 bảng); chưa có API đánh giá, phản ánh, báo cáo doanh số. |
-| [`admin-android/`](admin-android/README.md) | App Admin Java/XML, package `vn.edu.vhu.ltdd.gugugaga.admin` | 2 màn hình gọi API thật: đăng nhập; danh sách sản phẩm có duyệt/từ chối. Thêm tab Tài khoản. Build được APK, chưa chạy thử trên thiết bị. |
-| [`client-flutter/`](client-flutter/README.md) | App Client Flutter, package `vn.edu.vhu.ltdd.gugugaga.ocop_client` | 2 màn hình gọi API thật: sản phẩm lọc theo vùng và hạng sao; truy xuất mã lô → hành trình. Build được APK, chưa chạy thử trên thiết bị. |
+| [`backend/`](backend/README.md) | REST API Node.js/Express, `schema.sql`, `seed.sql`; TAG log `[GUGUGAGA-API]` | Đủ các nhóm API của đề: truy xuất QR công khai, giỏ/đơn hàng (gán lô FIFO), nhà cung cấp tự gửi hồ sơ, đánh giá, phản ánh, yêu thích, theo dõi, báo cáo doanh số, tải ảnh. 78 test đạt. Đã deploy bản trước trên Render; CSDL trên Supabase. |
+| [`admin-android/`](admin-android/README.md) | App Admin Java/XML, package `vn.edu.vhu.ltdd.gugugaga.admin` | 13 màn hình gọi API thật: sản phẩm, nhà cung cấp, lô + QR, đơn hàng, phản ánh, báo cáo biểu đồ; đủ 10 yêu cầu C.1. 63 test, build được APK. Chưa chạy thử trên thiết bị. |
+| [`client-flutter/`](client-flutter/README.md) | App Client Flutter, package `vn.edu.vhu.ltdd.gugugaga.ocop_client` | 22 màn hình cho khách (mua hàng, đánh giá kèm ảnh, phản ánh, quét QR) và nhà cung cấp (hồ sơ, sản phẩm chờ duyệt). 60 test, build được APK. Chưa chạy thử trên thiết bị. |
 
 Cách chạy từng phần, tài khoản thử nghiệm và các bước deploy nằm trong README của từng thư mục. Danh sách API: [docs/development/API.md](docs/development/API.md).

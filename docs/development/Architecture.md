@@ -48,12 +48,12 @@ Nguyên tắc chung:
 
 ### Đường đi của một yêu cầu
 
-Ví dụ: khách bấm "Đặt hàng" trên app Client. Phần backend trong sơ đồ đã có thật; phía app (`DonHangRepository`, hàm `post` của `ApiClient`, xử lý 401) là **dự kiến**, sẽ thêm khi làm màn hình giỏ hàng và đăng nhập.
+Ví dụ: khách bấm "Đặt hàng" trên app Client (`screens/dat_hang_screen.dart`).
 
 ```mermaid
 sequenceDiagram
   participant M as Màn hình (Flutter)
-  participant RP as DonHangRepository (dự kiến)
+  participant RP as DonHangRepository
   participant AC as ApiClient
   participant RT as routes.js
   participant SV as service.js
@@ -71,7 +71,7 @@ sequenceDiagram
   SV->>RE: themDon, themChiTiet, truTonLo, themLichSu
   SV->>DB: COMMIT (lỗi thì ROLLBACK)
   RT-->>AC: 201 + JSON đơn hàng
-  AC-->>M: model, hoặc ApiException (lỗi mạng / mã HTTP + thông điệp)
+  AC-->>M: model, hoặc ApiException (lỗi mạng hoặc mã HTTP + thông điệp), 401 thì phien_dang_nhap báo hết phiên
 ```
 
 ### Bản đồ miền nghiệp vụ
@@ -193,39 +193,48 @@ data/
   ApiService.java         interface Retrofit: @GET/@POST/@PATCH từng endpoint
   ApiClient.java          một Retrofit duy nhất; interceptor gắn "Bearer <token>"; timeout 90 giây
   TokenStore.java         nơi DUY NHẤT đọc/ghi SharedPreferences (token, vai trò, họ tên)
-  GoiApi.java             gọi enqueue, chia kết quả: thành công / lỗi / hết phiên (401) / lỗi mạng
-  KetQuaApi.java          callback trả về cho repository/ViewModel
-  AuthRepository.java, SanPhamRepository.java   repository mỏng bọc ApiService
-model/                    lớp dữ liệu khớp JSON (SanPham, NguoiDung, DanhSach<T>, PhanTrang, LoiApi…)
+  GoiApi.java             gọi enqueue, chia kết quả: thành công / lỗi / lỗi từng ô (400) / hết phiên (401) / lỗi mạng
+  KetQuaApi.java          callback trả về cho ViewModel
+  AuthRepository, SanPhamRepository, NhaCungCapRepository, LoSanXuatRepository,
+  DonHangRepository, PhanAnhRepository, BaoCaoRepository, AnhRepository   repository mỏng bọc ApiService
+model/                    lớp dữ liệu khớp JSON
 ui/
-  MainActivity.java       BottomNavigationView + các Fragment tab
-  chung/TrangThai.java    trạng thái màn hình: DANG_TAI / THANH_CONG / LOI / HET_PHIEN
-  chung/SuKien.java       sự kiện dùng một lần (Toast, điều hướng) qua LiveData
-  dangnhap/               LoginActivity + DangNhapViewModel
-  sanpham/                SanPhamFragment + SanPhamViewModel + SanPhamAdapter + 2 DialogFragment duyệt/từ chối
-  taikhoan/               TaiKhoanFragment (thông tin phiên, đăng xuất)
-util/DinhDang.java        định dạng tiền, ngày (Java thuần)
+  MainActivity.java       BottomNavigationView 5 tab: Sản phẩm, Lô, Đơn hàng, Phản ánh, Tài khoản
+  chung/                  TrangThai, KhungTrangThai (đang tải / dữ liệu / trống / lỗi + Thử lại), XacNhanDialog,
+                          CoSoViewModel, LocDanhSachViewModel, ChiTietViewModel, SuKien, NhanTrangThai, NutThaoTac, BoLoc, ManHinh
+  dangnhap/               LoginActivity + DangNhapViewModel (chỉ nhận QUAN_TRI, NHAN_VIEN)
+  sanpham/                danh sách + duyệt/từ chối (2 DialogFragment)
+  nhacungcap/             danh sách + chi tiết hồ sơ, chứng nhận, duyệt (QUAN_TRI)
+  lo/                     danh sách lô, chi tiết + mã QR (MaQr, zxing), TaoLoFragment (form giữ dữ liệu khi xoay), ThemBuocDialog
+  donhang/                danh sách lọc trạng thái + chi tiết, nút chuyển trạng thái hợp lệ
+  phananh/                danh sách + chi tiết, xử lý
+  baocao/                 BaoCaoFragment + BieuDoCotView (biểu đồ cột tự vẽ bằng Canvas), chỉ QUAN_TRI
+  taikhoan/               thông tin phiên, lối vào Nhà cung cấp và Báo cáo, đăng xuất
+util/                     Java thuần: DinhDang, QuyTacTrangThai, PhanQuyen, BieuDo, KiemTraForm
 ```
 
 Địa chỉ API chọn theo bản build trong `app/build.gradle.kts`: debug đọc `ocopApiBaseUrlDebug`, release đọc `ocopApiBaseUrlRelease` trong `gradle.properties`. Có thể ghi đè bằng `~/.gradle/gradle.properties` mà không sửa repo (xem [Setup](Setup.md#53-trỏ-app-tới-backend-đã-deploy)).
 
-**App Client** (`client-flutter/lib/`):
+**App Client** (`client-flutter/lib/`), dùng cho cả khách (`KHACH`) và nhà cung cấp (`NHA_CUNG_CAP`):
 
 ```
-main.dart                 MaterialApp, theme
+main.dart                 MaterialApp, khôi phục phiên khi mở app
 config.dart               TAG "GUGUGAGA_CLIENT", API_BASE_URL (--dart-define), timeout 90 giây
 data/
-  api_client.dart         nơi DUY NHẤT dùng package:http; hiện có get(); ném ApiException (maHttp, thongDiep; maHttp null = lỗi mạng)
-  token_store.dart        nơi DUY NHẤT dùng shared_preferences
-  san_pham_repository.dart, truy_xuat_repository.dart
-models/                   san_pham.dart, vung.dart, hanh_trinh_lo.dart (fromJson)
+  api_client.dart         nơi DUY NHẤT dùng package:http: get/post/put/patch/delete/postBytes; ApiException (maHttp, ma, lỗi từng trường)
+  token_store.dart        nơi DUY NHẤT dùng shared_preferences (token + người dùng)
+  phien_dang_nhap.dart    báo hết phiên (401) bằng Stream thuần Dart để app về màn hình đăng nhập
+  tai_khoan_, san_pham_, truy_xuat_, don_hang_, danh_gia_, phan_anh_, tuong_tac_, cua_toi_, tai_anh_repository.dart
+models/                   fromJson: san_pham, vung, nha_cung_cap, chung_nhan, gio_hang, don_hang, danh_gia, phan_anh, hanh_trinh_lo, nguoi_dung
 screens/
-  khung_chinh.dart        Scaffold + NavigationBar
-  san_pham_screen.dart    lọc theo vùng, hạng sao; ListView.builder
-  tra_cuu_screen.dart     Form + validator nhập/dán mã truy xuất
-  hanh_trinh_screen.dart  hành trình của đúng một lô
-widgets/                  anh_mang.dart (loadingBuilder/errorBuilder), trang_thai_loi.dart (lỗi + Thử lại)
-utils/                    dinh_dang.dart
+  khung_chinh.dart        NavigationBar; bộ tab khác nhau theo vai trò
+  khách:                  san_pham, chi_tiet_san_pham, nha_cung_cap, tra_cuu + quet_qr (mobile_scanner), hanh_trinh,
+                          dang_nhap, dang_ky, gio_hang, dat_hang, don_hang, chi_tiet_don, danh_gia (image_picker),
+                          phan_anh, phan_anh_cua_toi, yeu_thich, theo_doi, tai_khoan
+  nhà cung cấp:           ho_so_ncc, ho_so_ncc_form, san_pham_cua_toi, san_pham_form
+  yeu_cau_dang_nhap.dart  mở đăng nhập, chờ kết quả (Navigator) rồi làm tiếp thao tác
+widgets/                  anh_mang (loadingBuilder/errorBuilder), trang_thai_loi, trang_trong, chip_trang_thai, hang_sao, hop_thoai
+utils/                    dinh_dang (tiền, ngày), kiem_tra (validator khớp backend)
 ```
 
 ### Kiểm tra kiến trúc hai app bằng máy
