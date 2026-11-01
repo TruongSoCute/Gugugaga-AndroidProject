@@ -68,7 +68,31 @@ Ghi tên người nhận việc vào bảng phân công của nhóm trước khi
 6. Merge vào `main` **không deploy**. `main` là nơi gộp code đang phát triển.
 7. Khi `main` đã ổn định, mở Pull Request **từ `main` vào `release`**. Nhánh `release` được bảo vệ: không ai sửa thẳng trên đó, không xóa được, chỉ chủ repo merge; PR từ nhánh khác `main` bị chặn. Sửa lỗi gấp cũng phải vào `main` trước. Workflow sẽ chạy toàn bộ test, deploy backend lên Render và tạo GitHub Release kèm APK hai app. Xem [Setup mục 8](Setup.md#8-phát-hành-tự-động-nhánh-release).
 
-Không commit trực tiếp lên `main`, trừ sửa tài liệu nhỏ đã được cả nhóm đồng ý.
+Không commit trực tiếp lên `main`: nhánh được bảo vệ bằng ruleset ([mục 4.1](#41-bảo-vệ-nhánh-main)), mọi thay đổi đi qua Pull Request.
+
+### 4.1. Bảo vệ nhánh `main`
+
+Mỗi Pull Request vào `main` tự chạy workflow [CI](../../.github/workflows/ci.yml) gồm 3 check `test-backend`, `test-admin`, `test-client`. Ruleset của `main` (chủ repo tạo ở *Settings → Rules → Rulesets → New branch ruleset*):
+
+| Mục | Chọn | Lý do |
+| --- | --- | --- |
+| Ruleset name, Enforcement | `Bảo vệ main`, *Active* | |
+| Bypass list | **Repository admin**, chế độ **For pull requests only** | Chủ repo được bỏ qua yêu cầu duyệt khi merge PR (lúc gấp), nhưng vẫn không đẩy thẳng được |
+| Target branches | *Include default branch* | |
+| Restrict deletions | ✓ | Không xóa nhầm `main` |
+| Block force pushes | ✓ | Không ghi đè lịch sử, giữ commit của từng người |
+| Require a pull request before merging | ✓ | Mọi thay đổi phải qua PR |
+| ↳ Required approvals | `1` | Mỗi PR có một bạn khác xem; cả nhóm cùng hiểu code để bảo vệ |
+| ↳ Dismiss stale pull request approvals when new commits are pushed | ✓ | Sửa sau khi duyệt thì phải duyệt lại |
+| ↳ Require approval of the most recent reviewable push | ✓ | Người đẩy commit cuối không tự duyệt được |
+| ↳ Require conversation resolution before merging | ✓ | Góp ý trong PR phải được xử lý |
+| ↳ Allowed merge methods | Chỉ **Merge** | **Không dùng Squash**: squash gộp mọi commit của PR thành một, làm giảm số commit của từng người (học phần yêu cầu ≥ 15 commit/người) |
+| Require status checks to pass | ✓, thêm `test-backend`, `test-admin`, `test-client` (nguồn GitHub Actions) | Test đỏ thì không merge được |
+| ↳ Require branches to be up to date before merging | ✓ | PR phải được test cùng code mới nhất của `main` |
+| Require linear history | ✗ | Xung đột với cách merge bằng merge commit |
+| Require signed commits | ✗ | Thêm bước cài đặt khóa cho mọi người, chưa cần cho đồ án |
+
+Thêm trong *Settings → General → Pull Requests*: chỉ bật **Allow merge commits**, và bật **Automatically delete head branches** để nhánh tính năng tự xóa sau khi merge.
 
 ## 5. Thêm một chức năng xuyên suốt
 

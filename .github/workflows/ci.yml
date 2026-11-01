@@ -1,0 +1,85 @@
+# CI: chạy test của cả ba phần cho mọi Pull Request vào main (và khi main có commit mới).
+# Ba check test-backend, test-admin, test-client được đặt là bắt buộc trong ruleset của main,
+# nên PR chỉ merge được khi test xanh. Không deploy, không cần secret.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# PR có commit mới thì hủy lần chạy cũ của chính PR đó.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test-backend:
+    name: test-backend
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ocop_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - name: Kiểm tra kiến trúc
+        run: npm run check:arch
+      - name: Test với PostgreSQL thật
+        run: npm test
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ocop_test
+
+  test-admin:
+    name: test-admin
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin-android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Cài Android SDK 36
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" > /dev/null
+      - name: ArchUnit, unit test, lint, build debug
+        run: ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug
+
+  test-client:
+    name: test-client
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client-flutter
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.9
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
