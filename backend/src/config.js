@@ -34,6 +34,9 @@ function loadConfig() {
     supabaseUrl: process.env.SUPABASE_URL || null,
     supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY || null,
     supabaseBucket: process.env.SUPABASE_BUCKET || 'ocop-anh',
+    // Mã commit đang chạy: Render tự đặt RENDER_GIT_COMMIT. Workflow phát hành dùng để xác nhận
+    // Render đã chạy đúng bản vừa phát hành. Chạy trên máy cá nhân thì null.
+    phienBan: process.env.RENDER_GIT_COMMIT || null,
   };
 }
 

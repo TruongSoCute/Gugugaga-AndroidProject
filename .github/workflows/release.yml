@@ -1,0 +1,275 @@
+# Phát hành tự động: CHỈ chạy khi nhánh `release` có commit mới (thường là merge từ main).
+# Đẩy lên main hay nhánh tính năng KHÔNG deploy gì.
+#
+# Thứ tự: kiểm tra cấu hình -> test 3 phần (song song) -> deploy backend lên Render qua Deploy Hook
+# và chờ Render chạy đúng commit này -> build APK release đã ký cho hai app -> tạo GitHub Release.
+# Bất kỳ bước nào đỏ thì dừng: không deploy, không phát hành.
+#
+# Cần các GitHub Secrets (Settings -> Secrets and variables -> Actions), xem docs/development/Setup.md:
+#   RENDER_DEPLOY_HOOK_URL, KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
+# và trên Render: Branch = release, Auto-Deploy = Off.
+name: Phát hành (nhánh release)
+
+on:
+  push:
+    branches: [release]
+  # Chạy lại bằng tay từ tab Actions (chỉ có tác dụng khi chọn nhánh release).
+  workflow_dispatch:
+
+# Không cho hai lần phát hành chạy chồng lên nhau.
+concurrency:
+  group: phat-hanh
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  API_BASE_URL: https://ocop-backend.onrender.com
+  PHIEN_BAN: 1.0.${{ github.run_number }}
+
+jobs:
+  kiem-tra-cau-hinh:
+    name: Kiểm tra cấu hình
+    if: github.ref == 'refs/heads/release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Đủ GitHub Secrets
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          thieu=""
+          for ten in RENDER_DEPLOY_HOOK_URL KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            [ -n "${!ten}" ] || thieu="$thieu $ten"
+          done
+          if [ -n "$thieu" ]; then
+            echo "::error::Thiếu GitHub Secrets:$thieu. Xem docs/development/Setup.md mục Phát hành tự động."
+            exit 1
+          fi
+          echo "Đủ cấu hình."
+
+  test-backend:
+    name: Test backend
+    needs: kiem-tra-cau-hinh
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ocop_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - name: Kiểm tra kiến trúc
+        run: npm run check:arch
+      - name: Test với PostgreSQL thật
+        run: npm test
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ocop_test
+
+  test-admin:
+    name: Test app Admin
+    needs: kiem-tra-cau-hinh
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin-android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Cài Android SDK 36
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" > /dev/null
+      - name: ArchUnit, unit test, lint
+        run: ./gradlew --no-daemon testDebugUnitTest lintDebug
+
+  test-client:
+    name: Test app Client
+    needs: kiem-tra-cau-hinh
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client-flutter
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.9
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+  deploy-backend:
+    name: Deploy backend lên Render
+    needs: [test-backend, test-admin, test-client]
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://ocop-backend.onrender.com/health
+    steps:
+      - name: Gọi Render Deploy Hook
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL" > /dev/null
+      - name: Chờ Render chạy đúng commit này
+        run: |
+          # /health trả phienBan = RENDER_GIT_COMMIT. Chờ tối đa khoảng 20 phút.
+          for i in $(seq 1 60); do
+            body=$(curl -fsS -m 90 "$API_BASE_URL/health" || true)
+            pb=$(echo "$body" | jq -r '.phienBan // empty' 2>/dev/null || true)
+            if [ "$pb" = "$GITHUB_SHA" ] && echo "$body" | jq -e '.trangThai == "ok" and .csdl == "ok"' > /dev/null; then
+              echo "Render đã chạy commit $GITHUB_SHA."
+              exit 0
+            fi
+            echo "Lần $i: đang chạy '${pb:-chưa rõ}', chờ $GITHUB_SHA..."
+            sleep 20
+          done
+          echo "::error::Render chưa chạy commit này sau 20 phút. Xem tab Events/Logs trên Render."
+          exit 1
+      - name: Kiểm tra nhanh API công khai
+        run: |
+          curl -fsS -m 90 "$API_BASE_URL/san-pham?kichThuoc=1" | jq -e '.phanTrang.tong > 0' > /dev/null
+          curl -fsS -m 90 "$API_BASE_URL/don-hang/hinh-thuc-giao" | jq -e 'length == 3' > /dev/null
+          code=$(curl -s -o /dev/null -w '%{http_code}' -m 90 "$API_BASE_URL/truy-xuat/00000000000000000000")
+          [ "$code" = "404" ]
+          echo "API công khai hoạt động."
+
+  build-admin:
+    name: Build APK app Admin
+    needs: [test-backend, test-admin, test-client]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin-android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Cài Android SDK 36
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" > /dev/null
+      - name: Giải mã khóa ký (chỉ tồn tại trong máy chạy workflow)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > gugugaga-release.jks
+          printf 'storeFile=gugugaga-release.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
+            "$KEYSTORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD" > keystore.properties
+      - name: Build APK release
+        run: ./gradlew --no-daemon assembleRelease -PocopVersionCode=${{ github.run_number }} -PocopVersionName=$PHIEN_BAN
+      - name: Đổi tên APK
+        run: |
+          mkdir -p ../dist
+          f=$(ls app/build/outputs/apk/release/*.apk | grep -v unsigned | head -1)
+          [ -n "$f" ] || { echo "::error::Không có APK đã ký"; exit 1; }
+          cp "$f" "../dist/OCOP-Admin-Gugugaga-$PHIEN_BAN.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk-admin
+          path: dist/*.apk
+          if-no-files-found: error
+
+  build-client:
+    name: Build APK app Client
+    needs: [test-backend, test-admin, test-client]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client-flutter
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.9
+          channel: stable
+          cache: true
+      - name: Giải mã khóa ký (chỉ tồn tại trong máy chạy workflow)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > android/gugugaga-release.jks
+          printf 'storeFile=gugugaga-release.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
+            "$KEYSTORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD" > android/key.properties
+      - run: flutter pub get
+      - name: Build APK release (tách theo CPU và bản dùng cho mọi máy)
+        run: |
+          chung="--release --build-name=$PHIEN_BAN --build-number=${{ github.run_number }} --dart-define=API_BASE_URL=$API_BASE_URL"
+          flutter build apk $chung --split-per-abi
+          flutter build apk $chung
+      - name: Đổi tên APK
+        run: |
+          mkdir -p ../dist
+          d=build/app/outputs/flutter-apk
+          cp $d/app-arm64-v8a-release.apk   "../dist/OCOP-Client-Gugugaga-$PHIEN_BAN-arm64-v8a.apk"
+          cp $d/app-armeabi-v7a-release.apk "../dist/OCOP-Client-Gugugaga-$PHIEN_BAN-armeabi-v7a.apk"
+          cp $d/app-x86_64-release.apk      "../dist/OCOP-Client-Gugugaga-$PHIEN_BAN-x86_64.apk"
+          cp $d/app-release.apk             "../dist/OCOP-Client-Gugugaga-$PHIEN_BAN-tat-ca-may.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk-client
+          path: dist/*.apk
+          if-no-files-found: error
+
+  phat-hanh:
+    name: Tạo GitHub Release
+    needs: [deploy-backend, build-admin, build-client]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Tạo release v${{ env.PHIEN_BAN }} kèm APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > ghi-chu.md <<EOF
+          Bản phát hành tự động từ nhánh \`release\`, commit \`${GITHUB_SHA::7}\`.
+
+          - Backend đã deploy: $API_BASE_URL/health (đã xác nhận Render chạy đúng commit này)
+          - **App Admin:** \`OCOP-Admin-Gugugaga-$PHIEN_BAN.apk\`
+          - **App Client:** cài bản \`arm64-v8a\` cho hầu hết điện thoại; \`tat-ca-may\` nếu máy báo không tương thích.
+
+          Tất cả test (backend, app Admin, app Client) đã đạt trước khi phát hành.
+          EOF
+          gh release create "v$PHIEN_BAN" dist/*.apk \
+            --target "$GITHUB_SHA" \
+            --title "OCOP Gugugaga $PHIEN_BAN" \
+            --notes-file ghi-chu.md \
+            --generate-notes

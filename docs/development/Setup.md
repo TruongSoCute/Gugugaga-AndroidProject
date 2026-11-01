@@ -21,8 +21,8 @@ Có hai cách làm việc. Chọn cách phù hợp với phần bạn phụ trá
 
 | Thành phần | Địa chỉ | Ghi chú |
 | --- | --- | --- |
-| API | https://ocop-backend.onrender.com | Render gói Free, Frankfurt. Tự deploy lại mỗi khi `main` có commit mới |
-| Kiểm tra sức khỏe | https://ocop-backend.onrender.com/health | Trả `{"trangThai":"ok","csdl":"ok"}` |
+| API | https://ocop-backend.onrender.com | Render gói Free, Frankfurt. Chỉ deploy khi nhánh `release` có commit mới và mọi test đạt (mục 8) |
+| Kiểm tra sức khỏe | https://ocop-backend.onrender.com/health | Trả `{"trangThai":"ok","csdl":"ok","phienBan":"<commit đang chạy>"}` |
 | CSDL | Supabase project `Gugugaga-Android` (eu-west-1) | Chủ project cấp quyền xem trên dashboard Supabase |
 
 Tài khoản thử nghiệm (mật khẩu chung `Demo@12345`):
@@ -273,7 +273,7 @@ APK nằm ở `client-flutter/build/app/outputs/flutter-apk/app-release.apk`. Kh
 
 ## 7. Triển khai (chủ tài khoản Render/Supabase)
 
-Thường không cần làm lại, vì **push lên `main` là Render tự build và deploy**. Phần này để tham khảo khi cần dựng lại từ đầu.
+Thường không cần làm lại. Backend được deploy **tự động qua nhánh `release`** (mục 8); đẩy lên `main` không deploy. Phần này để tham khảo khi cần dựng lại từ đầu.
 
 1. **Supabase:** tạo project, rồi chạy `backend/db/schema.sql` và sau đó `backend/db/seed.sql` trong *SQL Editor*. Lấy chuỗi kết nối tại *Connect → Session pooler* (cổng 5432). Không dùng Direct connection, vì nó chỉ có IPv6 mà Render không hỗ trợ.
 2. **Render:** *New → Blueprint*, chọn repo và nhánh `main`. Render đọc [`render.yaml`](../../render.yaml): Node 20, thư mục `backend`, health check `/health`, region Frankfurt, tự sinh `JWT_SECRET`. Bạn nhập thêm:
@@ -283,7 +283,64 @@ Thường không cần làm lại, vì **push lên `main` là Render tự build 
 
 **Đổi cấu trúc CSDL trên Supabase:** `schema.sql` xóa và tạo lại toàn bộ bảng. Trên CSDL dùng chung, hãy viết câu `ALTER TABLE …` tương ứng và chạy trong SQL Editor, đồng thời cập nhật `schema.sql`/`seed.sql` trong cùng commit. Chỉ chạy lại toàn bộ `schema.sql` + `seed.sql` khi cả nhóm đồng ý xóa dữ liệu demo.
 
-## 8. Gặp lỗi thường gặp
+## 8. Phát hành tự động (nhánh `release`)
+
+`main` là nơi gộp code đang phát triển và **không deploy**. Khi `main` đã ổn định, đưa sang nhánh `release`. Workflow [`.github/workflows/release.yml`](../../.github/workflows/release.yml) sẽ tự chạy:
+
+1. Kiểm tra đủ GitHub Secrets.
+2. Chạy song song: test backend (với PostgreSQL thật), test và lint app Admin, `flutter analyze` và `flutter test` app Client.
+3. Nếu tất cả xanh:
+   - gọi Render Deploy Hook, rồi chờ `/health` trả `phienBan` đúng bằng commit vừa phát hành (Render tự đặt `RENDER_GIT_COMMIT`);
+   - đồng thời build APK release đã ký cho hai app. Số phiên bản là `1.0.<số lần chạy>` và tự tăng, nên bản mới cài đè được lên bản cũ.
+4. Tạo **GitHub Release** `v1.0.N` kèm APK: app Admin, app Client bản `arm64-v8a`, `armeabi-v7a`, `x86_64` và bản dùng cho mọi máy.
+
+Bước nào đỏ thì workflow dừng: không deploy, không phát hành.
+
+### 8.1. Cấu hình một lần
+
+**Render** (service `ocop-backend` → *Settings*):
+
+- *Build & Deploy → Branch*: đổi thành `release`.
+- *Auto-Deploy*: **Off**. Chỉ workflow mới được deploy, và chỉ sau khi test xanh.
+- *Deploy Hook*: copy đường dẫn này. Ai có đường dẫn là deploy được, nên không đưa vào chat hay vào repo.
+
+**Khóa ký APK** (tạo một lần trên máy của chủ repo, dùng chung cho hai app):
+
+```powershell
+keytool -genkeypair -v -keystore gugugaga-release.jks -alias gugugaga -keyalg RSA -keysize 2048 -validity 10000
+```
+
+Giữ file `.jks` và mật khẩu ở nơi an toàn, ngoài repo. **Mất khóa thì người dùng không cập nhật được app**, phải gỡ ra cài lại. Chuyển file sang base64 để lưu vào GitHub:
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("gugugaga-release.jks")) | Set-Clipboard
+```
+
+Trên macOS/Linux: `base64 -w0 gugugaga-release.jks` (macOS: `base64 -i gugugaga-release.jks`).
+
+**GitHub Secrets** (repo → *Settings → Secrets and variables → Actions → New repository secret*):
+
+| Secret | Giá trị |
+| --- | --- |
+| `RENDER_DEPLOY_HOOK_URL` | Deploy Hook của Render |
+| `KEYSTORE_BASE64` | Nội dung base64 của `gugugaga-release.jks` |
+| `KEYSTORE_PASSWORD` | Mật khẩu kho khóa |
+| `KEY_ALIAS` | `gugugaga` (alias đã đặt khi tạo khóa) |
+| `KEY_PASSWORD` | Mật khẩu của khóa |
+
+**Nhánh `release`:** tạo từ `main`. Nên bật bảo vệ nhánh: *Settings → Branches → Add rule*, nhánh `release`, chọn *Require a pull request before merging*.
+
+### 8.2. Mỗi lần phát hành
+
+1. Trên GitHub, mở Pull Request **từ `main` vào `release`**. Kiểm tra lại thay đổi, rồi merge.
+2. Theo dõi tab **Actions**, workflow *Phát hành (nhánh release)*. Một lần chạy mất khoảng 15–25 phút.
+3. Xong thì vào **Releases**, tải APK `v1.0.N`, rồi mở https://ocop-backend.onrender.com/health. Trường `phienBan` phải đúng bằng commit vừa merge.
+
+Chạy lại bằng tay: tab *Actions* → chọn workflow → *Run workflow* → chọn nhánh `release`.
+
+**Lưu ý về CSDL:** workflow không đổi cấu trúc CSDL trên Supabase. Nếu bản mới có thay đổi `schema.sql`, phải chạy câu `ALTER` tương ứng trên Supabase **trước** khi merge vào `release` (xem mục 7).
+
+## 9. Gặp lỗi thường gặp
 
 | Hiện tượng | Nguyên nhân thường gặp | Cách xử lý |
 | --- | --- | --- |
@@ -295,4 +352,6 @@ Thường không cần làm lại, vì **push lên `main` là Render tự build 
 | App báo lỗi mạng khi chạy máy ảo | Backend trên máy chưa chạy, hoặc gọi `localhost` thay vì `10.0.2.2` | Chạy `npm run dev`; máy ảo phải dùng `10.0.2.2` |
 | Điện thoại thật không gọi được backend trên máy | Khác mạng Wi-Fi hoặc tường lửa chặn cổng 3000 | Cùng Wi-Fi; mở cổng 3000 trong Windows Defender Firewall |
 | Lần gọi đầu tới Render rất lâu | Render gói Free đang ngủ | Bình thường; chờ tới một phút |
+| Workflow phát hành đỏ ở *Kiểm tra cấu hình* | Thiếu GitHub Secrets | Thêm đủ 5 secret ở [mục 8.1](#81-cấu-hình-một-lần) |
+| Workflow đỏ ở *Chờ Render chạy đúng commit này* | Render đang trỏ nhánh khác, deploy lỗi, hoặc hook sai | Kiểm tra Render: *Branch* = `release`, tab *Events/Logs*; tạo lại Deploy Hook |
 | `./gradlew testDebugUnitTest` đỏ ở `KienTrucTest` | Code vi phạm quy tắc tầng | Sửa code cho đúng tầng, **không** sửa quy tắc. Xem [Architecture](Architecture.md#kiểm-tra-kiến-trúc-hai-app-bằng-máy) |

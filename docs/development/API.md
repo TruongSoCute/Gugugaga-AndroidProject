@@ -44,7 +44,7 @@ Quyền và quy tắc dưới đây theo [Design decisions](Design_decisions.md)
 
 | Phương thức, đường dẫn | Quyền | Mô tả |
 | --- | --- | --- |
-| `GET /health` | Công khai | `200 { "trangThai": "ok", "csdl": "ok", "thoiGian" }`; `503` nếu mất kết nối CSDL. |
+| `GET /health` | Công khai | `200 { "trangThai": "ok", "csdl": "ok", "thoiGian", "phienBan" }`; `phienBan` là mã commit đang chạy trên Render (`null` khi chạy trên máy). `503` nếu mất kết nối CSDL. |
 | `POST /auth/dang-ky` | Công khai | Body `email`, `matKhau` (8–72 byte), `hoTen`, `soDienThoai?`, `loaiTaiKhoan?` (`KHACH` mặc định hoặc `NHA_CUNG_CAP`; giá trị khác bị 400). Không bao giờ tạo nhân sự; `vaiTro` client gửi bị bỏ qua. `201 { token, nguoiDung }`; `409 EMAIL_DA_TON_TAI`. |
 | `POST /auth/dang-nhap` | Công khai | Body `email`, `matKhau`. `200 { token, nguoiDung: { id, email, hoTen, soDienThoai, vaiTro } }`; `401` khi sai email **hoặc** mật khẩu (cùng thông điệp); `403` khi tài khoản bị khóa. |
 | `GET /auth/toi` | Đăng nhập | Thông tin tài khoản hiện tại. App dùng để kiểm tra token còn hạn khi mở lại. |

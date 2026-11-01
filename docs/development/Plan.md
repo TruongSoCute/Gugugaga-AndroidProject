@@ -22,7 +22,7 @@ Cập nhật bảng này mỗi khi xong hoặc nhận một việc, để thành
 
 | Ưu tiên | Phần | Việc | Ghi chú |
 | --- | --- | --- | --- |
-| 1 | Triển khai | Đưa code mới lên `main` để Render deploy; khai báo `SUPABASE_URL`, `SUPABASE_SERVICE_KEY` trên Render để bật tải ảnh | Hiện bản trên Render là bản cũ |
+| 1 | Triển khai | Cấu hình phát hành tự động: Render đổi *Branch* sang `release` và tắt *Auto-Deploy*; thêm 5 GitHub Secrets; tạo nhánh `release` | Workflow đã có trong `.github/workflows/release.yml`; xem [Setup mục 8](Setup.md#8-phát-hành-tự-động-nhánh-release). Tải ảnh đã bật trên Render |
 | 1 | Hai app | Cài APK lên điện thoại thật, chạy hết các luồng, chụp màn hình | Chưa chạy thử giao diện trên thiết bị; camera và chọn ảnh chỉ thử được trên máy thật |
 | 2 | Nộp bài | Ký APK release bằng khóa của nhóm (`keystore.properties`, `key.properties`) | App Admin hiện ra APK chưa ký |
 | 2 | Nhóm | Mỗi thành viên nắm phần của mình, tự commit các cải tiến bằng tài khoản riêng | Minh chứng đóng góp |

@@ -11,6 +11,7 @@ Bắt đầu từ [danh mục tài liệu dự án](docs/README.md) để xem m�
 - **API:** https://ocop-backend.onrender.com — kiểm tra sức khỏe: https://ocop-backend.onrender.com/health
 - **CSDL:** PostgreSQL trên Supabase (project `Gugugaga-Android`), backend kết nối qua Session pooler cổng 5432.
 - Render gói Free ngủ sau 15 phút không có yêu cầu; lần gọi đầu mất tới một phút. Gọi thử `/health` 2–3 phút trước khi demo.
+- **Phát hành:** `main` không deploy. Merge `main` vào nhánh `release` thì GitHub Actions chạy toàn bộ test, deploy backend và đăng APK hai app lên [Releases](https://github.com/TruongSoCute/Gugugaga-AndroidProject/releases). Xem [Setup mục 8](docs/development/Setup.md#8-phát-hành-tự-động-nhánh-release).
 
 Tài khoản thử nghiệm (mật khẩu chung `Demo@12345`):
 

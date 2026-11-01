@@ -22,8 +22,10 @@ android {
         applicationId = "vn.edu.vhu.ltdd.gugugaga.admin"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        // Workflow phát hành (.github/workflows/release.yml) truyền số phiên bản tăng dần qua
+        // -PocopVersionCode/-PocopVersionName; build trên máy thì dùng giá trị mặc định.
+        versionCode = (project.findProperty("ocopVersionCode") as String?)?.toInt() ?: 1
+        versionName = (project.findProperty("ocopVersionName") as String?) ?: "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

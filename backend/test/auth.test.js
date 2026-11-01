@@ -14,6 +14,9 @@ test('GET /health trả 200 và CSDL ok', async () => {
   assert.equal(r.status, 200);
   assert.equal(r.body.trangThai, 'ok');
   assert.equal(r.body.csdl, 'ok');
+  // Mã commit đang chạy; trên máy cá nhân/test không có RENDER_GIT_COMMIT nên là null.
+  assert.ok('phienBan' in r.body);
+  assert.equal(r.body.phienBan, null);
 });
 
 test('Đăng nhập đúng trả token và không trả mật khẩu', async () => {

@@ -65,7 +65,8 @@ Ghi tên người nhận việc vào bảng phân công của nhóm trước khi
    git push -u origin feat/admin-don-hang
    ```
 5. Mở Pull Request vào `main` trên GitHub. Mô tả đã làm gì, cách kiểm tra, và ảnh chụp màn hình nếu có giao diện. Nhờ ít nhất một thành viên khác xem, rồi mới merge.
-6. **Merge vào `main` là Render tự deploy backend.** Chỉ merge khi test backend đã xanh.
+6. Merge vào `main` **không deploy**. `main` là nơi gộp code đang phát triển.
+7. Khi `main` đã ổn định, mở Pull Request **từ `main` vào `release`**. Workflow sẽ chạy toàn bộ test, deploy backend lên Render và tạo GitHub Release kèm APK hai app. Xem [Setup mục 8](Setup.md#8-phát-hành-tự-động-nhánh-release).
 
 Không commit trực tiếp lên `main`, trừ sửa tài liệu nhỏ đã được cả nhóm đồng ý.
 
