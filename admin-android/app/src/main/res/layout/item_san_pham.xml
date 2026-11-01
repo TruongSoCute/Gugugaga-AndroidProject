@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout của MỘT dòng (Lab A9): không có ScrollView. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Widget.Material3.CardView.Outlined"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/khoang_md"
+    android:layout_marginTop="@dimen/khoang_sm"
+    android:layout_marginEnd="@dimen/khoang_md">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="72dp"
+        android:orientation="vertical"
+        android:padding="@dimen/khoang_md">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvTen"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textAppearance="?attr/textAppearanceTitleMedium" />
+
+            <TextView
+                android:id="@+id/tvTrangThai"
+                style="@style/NhanTrangThai"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/khoang_sm" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvNhaCungCap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_xs"
+            android:ellipsize="end"
+            android:maxLines="1" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_xs"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvGia"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvHangSao"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvNccChuaDuyet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_xs"
+            android:text="@string/ncc_chua_duyet"
+            android:textColor="@color/vang_cho_duyet"
+            android:textSize="@dimen/chu_nho"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvLyDo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_xs"
+            android:textColor="@color/do_tu_choi"
+            android:textSize="@dimen/chu_nho"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/hangNut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_sm"
+            android:gravity="end"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnTuChoi"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/nut_tu_choi" />
+
+            <Button
+                android:id="@+id/btnDuyet"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/khoang_sm"
+                android:text="@string/nut_duyet" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

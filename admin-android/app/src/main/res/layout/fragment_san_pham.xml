@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/khoang_md"
+        android:layout_marginTop="@dimen/khoang_sm"
+        android:layout_marginEnd="@dimen/khoang_md"
+        android:text="@string/loc_trang_thai"
+        android:textSize="@dimen/chu_nho" />
+
+    <Spinner
+        android:id="@+id/spLoc"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="@dimen/khoang_sm"
+        android:layout_marginEnd="@dimen/khoang_sm" />
+
+    <!-- FrameLayout: các trạng thái chồng lên nhau, mỗi lúc chỉ hiện một (Lab A3). -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSanPham"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/khoang_md" />
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvTrong"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="@dimen/khoang_lg"
+            android:text="@string/danh_sach_trong"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/khungLoi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/khoang_lg"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvLoi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="?attr/colorError" />
+
+            <Button
+                android:id="@+id/btnThuLai"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/khoang_sm"
+                android:text="@string/nut_thu_lai" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

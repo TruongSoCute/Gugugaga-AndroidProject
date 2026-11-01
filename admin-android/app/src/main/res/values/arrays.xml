@@ -1,0 +1,16 @@
+<resources>
+    <!-- Nhãn hiển thị của Spinner lọc (Lab A6). Thứ tự khớp với trang_thai_gia_tri. -->
+    <string-array name="trang_thai_nhan">
+        <item>Chờ duyệt</item>
+        <item>Đã duyệt</item>
+        <item>Từ chối</item>
+        <item>Tất cả</item>
+    </string-array>
+    <!-- Giá trị gửi lên API; chuỗi rỗng = không lọc. -->
+    <string-array name="trang_thai_gia_tri" translatable="false">
+        <item>CHO_DUYET</item>
+        <item>DA_DUYET</item>
+        <item>TU_CHOI</item>
+        <item></item>
+    </string-array>
+</resources>

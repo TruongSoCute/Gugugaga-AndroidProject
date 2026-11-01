@@ -40,4 +40,5 @@ Theo phần E.1, điểm nhóm tối đa 10 điểm:
 
 ## Thông tin lớp cần xác nhận
 
-- Mã nhóm, thành viên, phân công và lịch tuần thực tế; trạng thái đăng ký đề và các hạn nộp trên LMS.
+- Mã nhóm: **gugugaga** (đã xác nhận).
+- Thành viên, phân công và lịch tuần thực tế; trạng thái đăng ký đề và các hạn nộp trên LMS.

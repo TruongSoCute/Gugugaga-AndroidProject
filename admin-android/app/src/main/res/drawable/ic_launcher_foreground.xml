@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Biểu tượng: chiếc lá (đặc sản vùng) trên nền trắng. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="@color/xanh_ocop"
+        android:pathData="M54,28C38,36 32,52 36,70C52,74 70,66 76,48C78,40 76,34 74,30C68,34 60,30 54,28Z" />
+    <path android:fillColor="@color/nen_icon"
+        android:pathData="M40,68L68,38L70,40L42,70Z" />
+</vector>

@@ -1,0 +1,24 @@
+# Cấu hình Render (Blueprint) cho backend. Các biến có sync: false được nhập tay
+# trên trang Render, không ghi giá trị bí mật vào file này.
+services:
+  - type: web
+    name: ocop-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_SSL
+        value: "true"
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      - key: PUBLIC_BASE_URL
+        sync: false

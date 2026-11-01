@@ -1,0 +1,16 @@
+<resources>
+    <style name="Theme.GugugagaAdmin" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/xanh_ocop</item>
+        <item name="colorPrimaryContainer">@color/xanh_ocop_nhat</item>
+    </style>
+
+    <!-- Nhãn trạng thái nhỏ trên mỗi dòng danh sách. -->
+    <style name="NhanTrangThai">
+        <item name="android:textSize">@dimen/chu_nho</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingStart">@dimen/khoang_sm</item>
+        <item name="android:paddingEnd">@dimen/khoang_sm</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
+    </style>
+</resources>

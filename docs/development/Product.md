@@ -26,6 +26,8 @@ Ví dụ luồng chung: Admin duyệt sản phẩm, tạo lô và các bước t
 - Giỏ hàng, đặt hàng và chọn hình thức giao; theo dõi đơn và xác nhận đã nhận.
 - Đánh giá sản phẩm kèm ảnh thật, báo cáo hàng nghi giả; lưu sản phẩm yêu thích và theo dõi nhà cung cấp.
 
+**Đề xuất của nhóm, cần giảng viên xác nhận:** đề không nói ai gửi hồ sơ nhà cung cấp và sản phẩm để Admin duyệt. Nhóm đề xuất nhà cung cấp có tài khoản riêng trên app Client để gửi hồ sơ và upload sản phẩm chờ duyệt. Tạo lô, sinh QR và nhập bước truy xuất vẫn do app Admin làm, vì đề ghi đây là chức năng của Admin. Xem [Use case](Use_case.md).
+
 ## Tính năng mở rộng, chỉ làm sau phần bắt buộc
 
 Trang truy xuất trên trình duyệt bằng HTML, bản đồ vùng nguyên liệu và tự động khóa bán khi chứng nhận hết hạn là các gợi ý mở rộng trong đề. Endpoint truy xuất công khai là bắt buộc; trang HTML trình duyệt là phần mở rộng.

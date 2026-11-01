@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/khoang_lg"
+    android:paddingTop="@dimen/khoang_sm"
+    android:paddingEnd="@dimen/khoang_lg">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilLyDo"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/hint_ly_do">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edtLyDo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine|textCapSentences"
+            android:maxLength="1000"
+            android:minLines="2" />
+    </com.google.android.material.textfield.TextInputLayout>
+</FrameLayout>

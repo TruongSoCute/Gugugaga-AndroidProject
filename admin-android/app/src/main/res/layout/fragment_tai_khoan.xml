@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/khoang_md">
+
+        <TextView
+            android:id="@+id/tvHoTen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceTitleLarge" />
+
+        <TextView
+            android:id="@+id/tvEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_xs" />
+
+        <TextView
+            android:id="@+id/tvVaiTro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_sm"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvGhiChuNhanVien"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_sm"
+            android:text="@string/nhan_vien_chi_xem" />
+
+        <TextView
+            android:id="@+id/tvMayChu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_md"
+            android:textSize="@dimen/chu_nho" />
+
+        <Button
+            android:id="@+id/btnDangXuat"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_lg"
+            android:text="@string/nut_dang_xuat" />
+    </LinearLayout>
+</ScrollView>

@@ -14,6 +14,8 @@ Nguồn và cách phân biệt yêu cầu: xem [README](../README.md).
 6. Gửi đánh giá có ảnh, báo cáo và xử lý; yêu thích và theo dõi; kiểm tra khách không sửa đơn của người khác.
 7. Kiểm thử báo cáo theo vùng, sao, nhà cung cấp với dữ liệu đã biết; mất mạng, ảnh lỗi, xoay màn hình, token hết hạn.
 
+Kịch bản kiểm thử app Admin rút từ các lab (form, xoay màn hình, back stack, lỗi mạng, 401, quyền): xem [Labs Android](Labs_Android.md#kiểm-thử-app-admin-rút-từ-lab-đề-xuất).
+
 Báo cáo cuối kỳ cần ít nhất 25 trường hợp kiểm thử kèm kết quả thực tế đạt hoặc không đạt. Không đánh dấu đã đạt khi chưa chạy.
 
 Xem [danh sách tự kiểm trước khi nộp](../course/Submission_checklist.md) để kiểm tra các yêu cầu của môn học.
