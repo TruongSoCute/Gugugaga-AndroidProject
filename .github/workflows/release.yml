@@ -1,7 +1,7 @@
 # Phát hành tự động: CHỈ chạy khi nhánh `release` có commit mới (thường là merge từ main).
 # Đẩy lên main hay nhánh tính năng KHÔNG deploy gì.
 #
-# Thứ tự: kiểm tra cấu hình -> test 3 phần (song song) -> deploy backend lên Render qua Deploy Hook
+# Thứ tự: kiểm tra commit đã có trên main và đủ cấu hình -> test 3 phần (song song) -> deploy backend lên Render qua Deploy Hook
 # và chờ Render chạy đúng commit này -> build APK release đã ký cho hai app -> tạo GitHub Release.
 # Bất kỳ bước nào đỏ thì dừng: không deploy, không phát hành.
 #
@@ -36,6 +36,20 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Code phát hành giống hệt một commit trên main
+        run: |
+          # Mọi thay đổi phải vào main trước rồi mới sang release. Merge PR (merge commit/squash/rebase)
+          # luôn tạo commit mới trên release, nên so NỘI DUNG (cây thư mục) thay vì mã commit:
+          # cây của commit phát hành phải trùng với cây của một commit nào đó trên main.
+          cay=$(git rev-parse "$GITHUB_SHA^{tree}")
+          if ! git log origin/main --format=%T | grep -qx "$cay"; then
+            echo "::error::Code trên release ($GITHUB_SHA) không trùng với commit nào trên main: có thay đổi chưa đưa vào main. Hãy đưa thay đổi vào main trước, rồi mở PR main -> release."
+            exit 1
+          fi
+          echo "Code phát hành trùng với một commit trên main."
       - name: Đủ GitHub Secrets
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}

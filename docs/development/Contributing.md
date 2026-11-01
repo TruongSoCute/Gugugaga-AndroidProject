@@ -66,7 +66,7 @@ Ghi tên người nhận việc vào bảng phân công của nhóm trước khi
    ```
 5. Mở Pull Request vào `main` trên GitHub. Mẫu PR (`.github/pull_request_template.md`) có sẵn danh sách kiểm tra; điền mô tả, cách kiểm tra và ảnh chụp màn hình nếu có giao diện. Nhờ ít nhất một thành viên khác xem, rồi mới merge. Báo lỗi và đề xuất dùng mẫu Issue; lỗ hổng bảo mật báo riêng theo [SECURITY.md](../../SECURITY.md).
 6. Merge vào `main` **không deploy**. `main` là nơi gộp code đang phát triển.
-7. Khi `main` đã ổn định, mở Pull Request **từ `main` vào `release`**. Workflow sẽ chạy toàn bộ test, deploy backend lên Render và tạo GitHub Release kèm APK hai app. Xem [Setup mục 8](Setup.md#8-phát-hành-tự-động-nhánh-release).
+7. Khi `main` đã ổn định, mở Pull Request **từ `main` vào `release`**. Nhánh `release` được bảo vệ: không ai sửa thẳng trên đó, không xóa được, chỉ chủ repo merge; PR từ nhánh khác `main` bị chặn. Sửa lỗi gấp cũng phải vào `main` trước. Workflow sẽ chạy toàn bộ test, deploy backend lên Render và tạo GitHub Release kèm APK hai app. Xem [Setup mục 8](Setup.md#8-phát-hành-tự-động-nhánh-release).
 
 Không commit trực tiếp lên `main`, trừ sửa tài liệu nhỏ đã được cả nhóm đồng ý.
 

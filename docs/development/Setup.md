@@ -287,7 +287,7 @@ Thường không cần làm lại. Backend được deploy **tự động qua nh
 
 `main` là nơi gộp code đang phát triển và **không deploy**. Khi `main` đã ổn định, đưa sang nhánh `release`. Workflow [`.github/workflows/release.yml`](../../.github/workflows/release.yml) sẽ tự chạy:
 
-1. Kiểm tra đủ GitHub Secrets.
+1. Kiểm tra code phát hành **giống hệt một commit trên `main`** (thay đổi chỉ có trên `release` thì dừng), và kiểm tra đủ GitHub Secrets.
 2. Chạy song song: test backend (với PostgreSQL thật), test và lint app Admin, `flutter analyze` và `flutter test` app Client.
 3. Nếu tất cả xanh:
    - gọi Render Deploy Hook, rồi chờ `/health` trả `phienBan` đúng bằng commit vừa phát hành (Render tự đặt `RENDER_GIT_COMMIT`);
@@ -328,15 +328,40 @@ Trên macOS/Linux: `base64 -w0 gugugaga-release.jks` (macOS: `base64 -i gugugaga
 | `KEY_ALIAS` | `gugugaga` (alias đã đặt khi tạo khóa) |
 | `KEY_PASSWORD` | Mật khẩu của khóa |
 
-**Nhánh `release`:** tạo từ `main`. Nên bật bảo vệ nhánh: *Settings → Branches → Add rule*, nhánh `release`, chọn *Require a pull request before merging*.
+**Nhánh `release`:** tạo từ `main`, rồi bảo vệ theo [mục 8.3](#83-bảo-vệ-nhánh-release).
 
 ### 8.2. Mỗi lần phát hành
 
-1. Trên GitHub, mở Pull Request **từ `main` vào `release`**. Kiểm tra lại thay đổi, rồi merge.
+1. Trên GitHub, mở Pull Request **từ `main` vào `release`** (base: `release`, compare: `main`). Check *Chỉ nhận PR từ main* phải xanh. Chủ repo kiểm tra lại thay đổi rồi bấm **Create a merge commit**.
 2. Theo dõi tab **Actions**, workflow *Phát hành (nhánh release)*. Một lần chạy mất khoảng 15–25 phút.
 3. Xong thì vào **Releases**, tải APK `v1.0.N`, rồi mở https://ocop-backend.onrender.com/health. Trường `phienBan` phải đúng bằng commit vừa merge.
 
 Chạy lại bằng tay: tab *Actions* → chọn workflow → *Run workflow* → chọn nhánh `release`.
+
+### 8.3. Bảo vệ nhánh `release`
+
+Mục tiêu: không ai xóa hay force push được `release`; chỉ chủ repo được merge; thay đổi chỉ vào `release` qua Pull Request từ `main`. Ba lớp bảo vệ:
+
+| Lớp | Làm gì | Ở đâu |
+| --- | --- | --- |
+| Ruleset của GitHub | Cấm xóa, cấm force push, bắt buộc PR, chỉ chủ repo cập nhật được nhánh | Cài đặt repo (làm một lần, bên dưới) |
+| Check *Chỉ nhận PR từ main* | PR vào `release` từ nhánh khác `main` bị đỏ, không merge được | [`.github/workflows/kiem-tra-pr-release.yml`](../../.github/workflows/kiem-tra-pr-release.yml) |
+| Bước đầu của workflow phát hành | Code trên `release` không trùng commit nào của `main` thì không deploy, không phát hành | [`.github/workflows/release.yml`](../../.github/workflows/release.yml) |
+
+**Tạo ruleset** (chủ repo): *Settings → Rules → Rulesets → New ruleset → New branch ruleset*:
+
+1. **Ruleset name:** `Bảo vệ release`; **Enforcement status:** *Active*.
+2. **Bypass list:** *Add bypass* → **Repository admin**. Chỉ người có quyền admin (chủ repo) mới cập nhật được nhánh; thành viên có quyền ghi không merge được vào `release`.
+3. **Target branches:** *Add target → Include by pattern* → `release`.
+4. **Rules**, chọn:
+   - **Restrict updates**: chỉ người trong bypass list cập nhật được nhánh;
+   - **Restrict deletions**: cấm xóa nhánh;
+   - **Block force pushes**: cấm ghi đè lịch sử;
+   - **Require a pull request before merging**: *Required approvals* để `0` nếu chỉ chủ repo merge (GitHub không cho tự duyệt PR của mình); *Allowed merge methods* chỉ giữ **Merge**;
+   - **Require status checks to pass**: *Add checks* → gõ `Chỉ nhận PR từ main` (check này xuất hiện sau lần đầu có PR vào `release`; nếu chưa thấy, tạo PR thử rồi quay lại thêm).
+5. Bấm **Create**.
+
+Sau khi bật, đẩy thẳng (`git push origin ...:release`) sẽ bị từ chối, kể cả với thành viên có quyền ghi. Mọi thay đổi đi qua PR `main → release`.
 
 **Lưu ý về CSDL:** workflow không đổi cấu trúc CSDL trên Supabase. Nếu bản mới có thay đổi `schema.sql`, phải chạy câu `ALTER` tương ứng trên Supabase **trước** khi merge vào `release` (xem mục 7).
 

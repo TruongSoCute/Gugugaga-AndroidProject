@@ -17,7 +17,7 @@ Cảm ơn bạn quan tâm tới dự án OCOP của nhóm **gugugaga** (đồ á
    - `admin-android/`: `./gradlew testDebugUnitTest lintDebug`;
    - `client-flutter/`: `flutter analyze` và `flutter test`.
 4. Mở Pull Request vào `main` theo mẫu có sẵn. Cần ít nhất một thành viên khác duyệt.
-5. Khi `main` ổn định, mở Pull Request từ `main` vào `release` để phát hành: GitHub Actions chạy test, deploy backend và đăng APK lên Releases ([Setup mục 8](../docs/development/Setup.md#8-phát-hành-tự-động-nhánh-release)).
+5. Khi `main` ổn định, mở Pull Request từ `main` vào `release` để phát hành (nhánh `release` được bảo vệ, chỉ nhận PR từ `main`, chỉ chủ repo merge): GitHub Actions chạy test, deploy backend và đăng APK lên Releases ([Setup mục 8](../docs/development/Setup.md#8-phát-hành-tự-động-nhánh-release)).
 
 ## Báo lỗi, đề xuất
 

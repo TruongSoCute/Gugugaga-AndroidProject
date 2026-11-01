@@ -1,0 +1,28 @@
+# Bảo vệ nhánh release: chỉ nhận Pull Request từ main.
+# Kết hợp với ruleset của nhánh release (bắt buộc check "Chỉ nhận PR từ main" phải đạt),
+# mọi thay đổi vào release đều phải đi qua main trước. Xem docs/development/Setup.md mục 8.3.
+name: Kiểm tra PR vào release
+
+on:
+  pull_request:
+    branches: [release]
+    types: [opened, reopened, synchronize, edited]
+
+permissions:
+  contents: read
+
+jobs:
+  chi-tu-main:
+    name: Chỉ nhận PR từ main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Nhánh nguồn phải là main của repo này
+        env:
+          NHANH_NGUON: ${{ github.head_ref }}
+          REPO_NGUON: ${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          if [ "$NHANH_NGUON" != "main" ] || [ "$REPO_NGUON" != "$GITHUB_REPOSITORY" ]; then
+            echo "::error::PR vào release chỉ được mở từ nhánh main của $GITHUB_REPOSITORY (đang là $REPO_NGUON:$NHANH_NGUON). Hãy merge thay đổi vào main trước, rồi mở PR main -> release."
+            exit 1
+          fi
+          echo "Đúng: PR từ main."
