@@ -56,7 +56,7 @@ Mã truy xuất mẫu để thử: chạy `SELECT ma_truy_xuat FROM lo_san_xuat 
 ## Build APK release để nộp
 
 ```bash
-flutter build apk --release --dart-define=API_BASE_URL=https://<ten-service>.onrender.com
+flutter build apk --release --dart-define=API_BASE_URL=https://ocop-backend.onrender.com
 ```
 
 APK nằm ở `build/app/outputs/flutter-apk/app-release.apk`.

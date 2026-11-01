@@ -2,7 +2,7 @@
 
 REST API Node.js/Express dùng chung cho app Admin Android và app Client Flutter. Dữ liệu nằm trên PostgreSQL (Supabase). Danh sách API, quyền và mã lỗi: [docs/development/API.md](../docs/development/API.md). Các quy tắc đang áp dụng (**Đề xuất**, chưa xác nhận): [Design decisions](../docs/development/Design_decisions.md).
 
-**Trạng thái:** đã có `/health`, đăng ký/đăng nhập JWT, danh mục công khai, quản trị và duyệt nhà cung cấp/sản phẩm, quản lý lô và bước truy xuất, API truy xuất QR công khai, giỏ hàng và đơn hàng (gán lô FIFO, trừ/hoàn tồn trong transaction, chuyển trạng thái theo vai trò). Chưa làm: đánh giá, báo cáo vi phạm, yêu thích, theo dõi, báo cáo doanh số, upload ảnh. CSDL đã chạy `schema.sql` + `seed.sql` trên Supabase (project `Gugugaga-Android`, vùng eu-west-1); chưa deploy backend lên Render.
+**Trạng thái:** đã có `/health`, đăng ký/đăng nhập JWT, danh mục công khai, quản trị và duyệt nhà cung cấp/sản phẩm, quản lý lô và bước truy xuất, API truy xuất QR công khai, giỏ hàng và đơn hàng (gán lô FIFO, trừ/hoàn tồn trong transaction, chuyển trạng thái theo vai trò). Chưa làm: đánh giá, báo cáo vi phạm, yêu thích, theo dõi, báo cáo doanh số, upload ảnh. **Đã deploy:** https://ocop-backend.onrender.com (Render, Frankfurt), CSDL trên Supabase (project `Gugugaga-Android`, eu-west-1).
 
 ## Cấu trúc
 
@@ -100,6 +100,16 @@ Toàn bộ dữ liệu mẫu là giả lập: tên cơ sở có hậu tố "(m�
 1. **Supabase:** tạo project, mở SQL Editor và chạy `db/schema.sql`, rồi `db/seed.sql`. Bạn cũng có thể đặt `DATABASE_URL` trỏ tới Supabase rồi chạy `npm run db:reset -- --yes`. Lấy chuỗi kết nối tại *Connect → Session pooler* (cổng 5432) theo hướng dẫn của tài liệu môn học.
 2. **Render:** tạo Web Service từ repo, đặt *Root Directory* là `backend`, build bằng `npm ci`, start bằng `npm start`, health check `/health`. Bạn cũng có thể dùng Blueprint với file [render.yaml](../render.yaml). Khai báo biến môi trường `DATABASE_URL`, `DATABASE_SSL=true`, `JWT_SECRET` và `PUBLIC_BASE_URL=https://<tên-service>.onrender.com`. Khi dùng Blueprint, Render tự sinh `JWT_SECRET` và đặt service ở Frankfurt (gần Supabase eu-west-1).
 3. Mở `https://<tên-service>.onrender.com/health` từ một máy khác và kiểm tra nhận được mã 200.
+
+**Kết quả kiểm tra trên bản đã deploy (01/11/2026):** gọi từ một máy khác tới https://ocop-backend.onrender.com, 20/20 trường hợp đạt:
+- `/health` trả 200 với `csdl: ok`;
+- danh mục và lọc sản phẩm công khai;
+- đăng nhập đúng cả 3 vai trò; đăng nhập sai mật khẩu bị 401;
+- không token và token giả bị 401; khách gọi API quản trị và nhân viên duyệt sản phẩm bị 403;
+- 100 lô mẫu; quét mã truy xuất không cần đăng nhập thấy đúng lô với 4 bước, không lộ dữ liệu nội bộ; mã không tồn tại bị 404;
+- khách xem được giỏ và đơn của mình.
+
+Lỗi đã gặp khi deploy: Blueprint tạo trước khi `render.yaml` có `generateValue`, nên service thiếu `JWT_SECRET` và backend dừng ngay lúc khởi động (log: `Thiếu biến môi trường JWT_SECRET`). Cách xử lý: thêm `JWT_SECRET` trong mục Environment rồi deploy lại.
 
 Không commit `.env`. Khóa `SUPABASE_SERVICE_KEY` chỉ khai báo trên Render, không đưa vào app di động. Mọi bảng đã bật RLS không kèm policy, nên anon key của Supabase không đọc được dữ liệu qua REST API tự động.
 
