@@ -1,8 +1,10 @@
+import '../models/danh_gia.dart';
+import '../models/nha_cung_cap.dart';
 import '../models/san_pham.dart';
 import '../models/vung.dart';
 import 'api_client.dart';
 
-/// Lấy danh mục và sản phẩm đã công bố. Không cần đăng nhập.
+/// Lấy danh mục, sản phẩm và nhà cung cấp đã công bố. Không cần đăng nhập.
 class SanPhamRepository {
   SanPhamRepository(this._api);
 
@@ -22,4 +24,17 @@ class SanPhamRepository {
     final json = await _api.get('/san-pham', query: query) as Map<String, dynamic>;
     return TrangSanPham.fromJson(json);
   }
+
+  /// GET /san-pham/:id: thông tin, nhà cung cấp, chứng nhận, đánh giá gần đây.
+  Future<ChiTietSanPham> chiTiet(int id) async =>
+      ChiTietSanPham.fromJson(await _api.get('/san-pham/$id') as Map<String, dynamic>);
+
+  /// GET /danh-gia?sanPhamId= (công khai), kèm ảnh thật của người mua.
+  Future<TrangDanhGia> dsDanhGia(int sanPhamId) async => TrangDanhGia.fromJson(
+      await _api.get('/danh-gia', query: {'sanPhamId': '$sanPhamId', 'kichThuoc': '50'})
+          as Map<String, dynamic>);
+
+  /// GET /nha-cung-cap/:id: chứng nhận và sản phẩm đã duyệt.
+  Future<NhaCungCap> nhaCungCap(int id) async =>
+      NhaCungCap.fromJson(await _api.get('/nha-cung-cap/$id') as Map<String, dynamic>);
 }

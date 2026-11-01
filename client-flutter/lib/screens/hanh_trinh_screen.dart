@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 
 import '../data/api_client.dart';
+import '../data/phien_dang_nhap.dart';
 import '../data/truy_xuat_repository.dart';
 import '../models/hanh_trinh_lo.dart';
 import '../utils/dinh_dang.dart';
 import '../widgets/anh_mang.dart';
+import '../widgets/hop_thoai.dart';
 import '../widgets/trang_thai_loi.dart';
+import 'phan_anh_screen.dart';
+import 'yeu_cau_dang_nhap.dart';
 
 /// Hành trình của ĐÚNG lô có mã này (điểm nhấn kỹ thuật của đề 5): thông tin lô, sản phẩm,
 /// nhà cung cấp + chứng nhận, và các bước truy xuất theo thứ tự (ListView.builder).
+/// Xem không cần đăng nhập; nút "Phản ánh" (báo hàng giả/sai mô tả, gắn đúng mã lô) thì cần
+/// tài khoản khách — chưa đăng nhập sẽ mở màn hình đăng nhập rồi quay lại.
 class HanhTrinhScreen extends StatefulWidget {
   const HanhTrinhScreen({super.key, required this.maTruyXuat, this.repository});
 
@@ -53,10 +59,36 @@ class _HanhTrinhScreenState extends State<HanhTrinhScreen> {
     }
   }
 
+  Future<void> _phanAnh() async {
+    final lo = _lo!;
+    if (!await canKhach(context, lyDo: 'Đăng nhập để báo hàng nghi giả hoặc sai mô tả.')) return;
+    if (!mounted) return;
+    final daGui = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PhanAnhScreen(sanPhamId: lo.sanPhamId, tenSanPham: lo.tenSanPham, maTruyXuat: lo.maTruyXuat),
+      ),
+    );
+    if (!mounted) return;
+    if (daGui == true) thongBao(context, 'Đã gửi phản ánh cho lô ${lo.maTruyXuat}.');
+  }
+
   @override
   Widget build(BuildContext context) {
+    final coLo = _lo != null && !_dangTai && _loi == null;
     return Scaffold(
-      appBar: AppBar(title: const Text('Hành trình lô hàng')),
+      appBar: AppBar(
+        title: const Text('Hành trình lô hàng'),
+        actions: [
+          if (coLo && !PhienDangNhap.laNhaCungCap && _lo!.sanPhamId > 0)
+            TextButton.icon(
+              key: const Key('nutPhanAnhLo'),
+              onPressed: _phanAnh,
+              icon: const Icon(Icons.flag_outlined),
+              label: const Text('Phản ánh'),
+            ),
+        ],
+      ),
       body: _noiDung(),
     );
   }

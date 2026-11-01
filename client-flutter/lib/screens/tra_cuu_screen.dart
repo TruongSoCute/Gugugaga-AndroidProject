@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../data/truy_xuat_repository.dart';
 import 'hanh_trinh_screen.dart';
+import 'quet_qr_screen.dart';
 
 /// Màn hình 2: tra cứu nguồn gốc theo mã lô in trên bao bì. KHÔNG cần đăng nhập.
-/// Nhận mã 20 ký tự hoặc dán cả đường dẫn trong QR. Form + validator chặn gửi khi sai (C.2 #4).
-/// (Quét QR bằng camera sẽ thêm sau, dùng chung bước kiểm tra mã này.)
+/// Hai cách: quét QR bằng camera (QuetQrScreen trả mã về qua Navigator), hoặc nhập/dán mã
+/// 20 ký tự hay cả đường dẫn trong QR. Form + validator chặn gửi khi sai (C.2 #4).
 class TraCuuScreen extends StatefulWidget {
   const TraCuuScreen({super.key});
 
@@ -37,9 +38,23 @@ class _TraCuuScreenState extends State<TraCuuScreen> {
     if (!_formKey.currentState!.validate()) return; // chặn gửi khi chưa hợp lệ
     final ma = TruyXuatRepository.tachMa(_maController.text)!;
     FocusScope.of(context).unfocus();
+    _moHanhTrinh(ma);
+  }
+
+  void _moHanhTrinh(String ma) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (_) => HanhTrinhScreen(maTruyXuat: ma)),
     );
+  }
+
+  /// Mở camera, chờ mã quét được (Navigator trả kết quả) rồi xem hành trình.
+  Future<void> _quetQr() async {
+    final ma = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => const QuetQrScreen()),
+    );
+    if (!mounted || ma == null) return;
+    _maController.text = ma;
+    _moHanhTrinh(ma);
   }
 
   @override
@@ -62,6 +77,19 @@ class _TraCuuScreenState extends State<TraCuuScreen> {
                 style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: 16),
+              FilledButton.icon(
+                key: const Key('nutQuetQr'),
+                onPressed: _quetQr,
+                icon: const Icon(Icons.qr_code_scanner),
+                label: const Text('Quét mã QR bằng camera'),
+              ),
+              const SizedBox(height: 16),
+              const Row(children: [
+                Expanded(child: Divider()),
+                Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('hoặc nhập mã')),
+                Expanded(child: Divider()),
+              ]),
+              const SizedBox(height: 16),
               TextFormField(
                 key: const Key('oMaTruyXuat'),
                 controller: _maController,
@@ -77,7 +105,7 @@ class _TraCuuScreenState extends State<TraCuuScreen> {
                 onFieldSubmitted: (_) => _traCuu(),
               ),
               const SizedBox(height: 12),
-              FilledButton.icon(
+              OutlinedButton.icon(
                 onPressed: _traCuu,
                 icon: const Icon(Icons.search),
                 label: const Text('Xem hành trình lô'),

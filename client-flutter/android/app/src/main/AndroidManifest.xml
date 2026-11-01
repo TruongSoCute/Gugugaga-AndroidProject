@@ -1,6 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Gọi API backend. Bản release cũng cần quyền này (quyền thường, không cần xin lúc chạy). -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Quét QR trên bao bì (mobile_scanner) và chụp ảnh đánh giá/phản ánh (image_picker).
+         Quyền nguy hiểm: app hỏi người dùng lúc mở camera lần đầu. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Máy không có camera vẫn cài được; khi đó nhập mã bằng tay. -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <application
         android:label="OCOP Gugugaga"

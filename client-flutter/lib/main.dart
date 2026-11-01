@@ -6,7 +6,8 @@ void main() {
   runApp(const OcopClientApp());
 }
 
-/// App Client của nhóm gugugaga: khách duyệt sản phẩm OCOP và truy xuất nguồn gốc theo lô.
+/// App Client của nhóm gugugaga: khách duyệt sản phẩm OCOP, mua hàng, truy xuất nguồn gốc theo lô;
+/// nhà cung cấp gửi hồ sơ và sản phẩm chờ duyệt. Khung chính tự khôi phục phiên đăng nhập.
 class OcopClientApp extends StatelessWidget {
   const OcopClientApp({super.key});
 

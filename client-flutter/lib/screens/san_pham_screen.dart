@@ -7,6 +7,7 @@ import '../models/vung.dart';
 import '../utils/dinh_dang.dart';
 import '../widgets/anh_mang.dart';
 import '../widgets/trang_thai_loi.dart';
+import 'chi_tiet_san_pham_screen.dart';
 
 /// Màn hình 1: duyệt sản phẩm OCOP đã được duyệt, lọc theo vùng và hạng sao
 /// (chức năng bắt buộc của Client). Danh sách dùng ListView.builder tải từ API (C.2 #3)
@@ -150,37 +151,44 @@ class _DongSanPham extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       clipBehavior: Clip.antiAlias,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AnhMang(url: sp.anhUrl, width: 96, height: 96),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(sp.ten, style: theme.textTheme.titleMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 4),
-                  Text('${sp.tenNhaCungCap} · ${sp.tenVung}',
-                      style: theme.textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text(DinhDang.tien(sp.gia),
-                          style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary)),
-                      const Spacer(),
-                      if (sp.hangSao != null) ...[
-                        const Icon(Icons.star, size: 16, color: Colors.amber),
-                        Text(' ${sp.hangSao} sao OCOP', style: theme.textTheme.bodySmall),
+      child: InkWell(
+        // Chạm để xem chi tiết: nhà cung cấp, chứng nhận, đánh giá; thêm vào giỏ.
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute<void>(builder: (_) => ChiTietSanPhamScreen(sanPhamId: sp.id)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AnhMang(url: sp.anhUrl, width: 96, height: 96),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(sp.ten, style: theme.textTheme.titleMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 4),
+                    Text('${sp.tenNhaCungCap} · ${sp.tenVung}',
+                        style: theme.textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Text(DinhDang.tien(sp.gia),
+                            style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary)),
+                        const Spacer(),
+                        if (sp.hangSao != null) ...[
+                          const Icon(Icons.star, size: 16, color: Colors.amber),
+                          Text(' ${sp.hangSao} sao OCOP', style: theme.textTheme.bodySmall),
+                        ],
                       ],
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
