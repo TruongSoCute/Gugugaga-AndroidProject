@@ -1,0 +1,4 @@
+# Chủ sở hữu code: mọi Pull Request vào main tự động yêu cầu TruongSoCute duyệt.
+# Kết hợp với ruleset "Bảo vệ main" bật "Require review from Code Owners": PR chỉ merge được
+# khi chủ repo đã Approve. Xem docs/development/Contributing.md mục 4.1.
+*   @TruongSoCute

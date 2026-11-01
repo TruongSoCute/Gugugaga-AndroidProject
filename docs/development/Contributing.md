@@ -77,12 +77,13 @@ Mỗi Pull Request vào `main` tự chạy workflow [CI](../../.github/workflows
 | Mục | Chọn | Lý do |
 | --- | --- | --- |
 | Ruleset name, Enforcement | `Bảo vệ main`, *Active* | |
-| Bypass list | **Repository admin**, chế độ **For pull requests only** | Chủ repo được bỏ qua yêu cầu duyệt khi merge PR (lúc gấp), nhưng vẫn không đẩy thẳng được |
+| Bypass list | **Repository admin**, chế độ **For pull requests only** | GitHub không cho tự duyệt PR của chính mình, nên chủ repo cần quyền này để merge PR do mình mở; vẫn không đẩy thẳng được |
 | Target branches | *Include default branch* | |
 | Restrict deletions | ✓ | Không xóa nhầm `main` |
 | Block force pushes | ✓ | Không ghi đè lịch sử, giữ commit của từng người |
 | Require a pull request before merging | ✓ | Mọi thay đổi phải qua PR |
-| ↳ Required approvals | `1` | Mỗi PR có một bạn khác xem; cả nhóm cùng hiểu code để bảo vệ |
+| ↳ Required approvals | `1` | Mỗi PR cần một lượt duyệt |
+| ↳ **Require review from Code Owners** | ✓ | Lượt duyệt đó phải của chủ code trong [`.github/CODEOWNERS`](../../.github/CODEOWNERS) (chủ repo): mọi PR tự động gửi yêu cầu duyệt tới chủ repo và chỉ merge được khi chủ repo Approve |
 | ↳ Dismiss stale pull request approvals when new commits are pushed | ✓ | Sửa sau khi duyệt thì phải duyệt lại |
 | ↳ Require approval of the most recent reviewable push | ✓ | Người đẩy commit cuối không tự duyệt được |
 | ↳ Require conversation resolution before merging | ✓ | Góp ý trong PR phải được xử lý |
@@ -93,6 +94,8 @@ Mỗi Pull Request vào `main` tự chạy workflow [CI](../../.github/workflows
 | Require signed commits | ✗ | Thêm bước cài đặt khóa cho mọi người, chưa cần cho đồ án |
 
 Thêm trong *Settings → General → Pull Requests*: chỉ bật **Allow merge commits**, và bật **Automatically delete head branches** để nhánh tính năng tự xóa sau khi merge.
+
+**Quy trình duyệt:** thành viên mở PR → GitHub tự yêu cầu chủ repo duyệt (theo CODEOWNERS) → CI chạy 3 check → chủ repo xem *Files changed*, góp ý hoặc **Approve** → khi check xanh và đã Approve thì nút **Merge** mới bật. Muốn thêm người duyệt cho từng phần (ví dụ thành viên phụ trách app Client), thêm dòng vào `.github/CODEOWNERS`, ví dụ `/client-flutter/  @TruongSoCute @ten-github-thanh-vien`; người đó phải có quyền Write.
 
 ## 5. Thêm một chức năng xuyên suốt
 
