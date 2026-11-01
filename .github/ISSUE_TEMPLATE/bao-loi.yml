@@ -1,0 +1,63 @@
+name: Báo lỗi
+description: Chức năng chạy sai, app văng, API trả kết quả không đúng
+title: "[Lỗi] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Cảm ơn bạn báo lỗi. **Lỗ hổng bảo mật không báo ở đây**, xem [SECURITY.md](https://github.com/TruongSoCute/Gugugaga-AndroidProject/blob/main/SECURITY.md).
+        Không dán mật khẩu, token hay khóa vào issue.
+  - type: dropdown
+    id: phan
+    attributes:
+      label: Phần bị lỗi
+      options:
+        - Backend (API)
+        - App Admin (Android)
+        - App Client (Flutter)
+        - Tài liệu
+        - Phát hành (GitHub Actions, Render)
+    validations:
+      required: true
+  - type: input
+    id: phien-ban
+    attributes:
+      label: Phiên bản
+      description: Số phiên bản trên Releases (ví dụ 1.0.3) hoặc mã commit; với backend có thể lấy `phienBan` ở /health.
+      placeholder: 1.0.3
+    validations:
+      required: true
+  - type: input
+    id: tai-khoan
+    attributes:
+      label: Vai trò khi gặp lỗi
+      description: Ví dụ khách (khach1@ocop.example), nhà cung cấp, nhân viên, quản trị, hoặc chưa đăng nhập.
+  - type: textarea
+    id: cac-buoc
+    attributes:
+      label: Các bước tái hiện
+      placeholder: |
+        1. Đăng nhập khach1@ocop.example
+        2. Vào Giỏ hàng, bấm Đặt hàng
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: mong-doi
+    attributes:
+      label: Kết quả mong đợi
+    validations:
+      required: true
+  - type: textarea
+    id: thuc-te
+    attributes:
+      label: Kết quả thực tế
+      description: Thông báo lỗi, mã HTTP, ảnh chụp màn hình, log (TAG GUGUGAGA_ADMIN / GUGUGAGA_CLIENT / [GUGUGAGA-API]).
+    validations:
+      required: true
+  - type: input
+    id: thiet-bi
+    attributes:
+      label: Thiết bị
+      placeholder: Samsung A54, Android 14 / máy ảo API 34

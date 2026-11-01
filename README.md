@@ -33,3 +33,10 @@ Mã nhóm: **gugugaga**. Tên app, package và TAG log đều chứa mã này.
 | [`client-flutter/`](client-flutter/README.md) | App Client Flutter, package `vn.edu.vhu.ltdd.gugugaga.ocop_client` | 22 màn hình cho khách (mua hàng, đánh giá kèm ảnh, phản ánh, quét QR) và nhà cung cấp (hồ sơ, sản phẩm chờ duyệt). 60 test, build được APK. Chưa chạy thử trên thiết bị. |
 
 Cách chạy từng phần, tài khoản thử nghiệm và các bước deploy nằm trong README của từng thư mục. Danh sách API: [docs/development/API.md](docs/development/API.md).
+
+## Đóng góp, bảo mật, giấy phép
+
+- [Hướng dẫn đóng góp](.github/CONTRIBUTING.md) (bản đầy đủ: [docs/development/Contributing.md](docs/development/Contributing.md)); báo lỗi và đề xuất qua [Issues](https://github.com/TruongSoCute/Gugugaga-AndroidProject/issues/new/choose) theo mẫu.
+- [Quy tắc ứng xử](CODE_OF_CONDUCT.md).
+- [Chính sách bảo mật](SECURITY.md): báo lỗ hổng riêng tư, không mở issue công khai.
+- Mã nguồn phát hành theo [giấy phép MIT](LICENSE). Đây là đồ án học phần; quy định học phần về sao chép mã giữa các nhóm vẫn áp dụng cho sinh viên cùng học phần.

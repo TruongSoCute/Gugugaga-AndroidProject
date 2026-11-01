@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Báo lỗ hổng bảo mật (riêng tư)
+    url: https://github.com/TruongSoCute/Gugugaga-AndroidProject/security/advisories/new
+    about: Không mở issue công khai cho lỗ hổng bảo mật.
+  - name: Hướng dẫn cài đặt và chạy dự án
+    url: https://github.com/TruongSoCute/Gugugaga-AndroidProject/blob/main/docs/development/Setup.md
+    about: Đọc trước khi báo lỗi cài đặt.
