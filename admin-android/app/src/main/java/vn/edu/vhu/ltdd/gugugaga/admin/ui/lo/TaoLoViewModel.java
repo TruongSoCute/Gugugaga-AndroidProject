@@ -16,7 +16,9 @@ import vn.edu.vhu.ltdd.gugugaga.admin.data.LoSanXuatRepository;
 import vn.edu.vhu.ltdd.gugugaga.admin.data.SanPhamRepository;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.LoSanXuat;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.SanPham;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.VungNguyenLieu;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauTaoLo;
+import vn.edu.vhu.ltdd.gugugaga.admin.data.VungNguyenLieuRepository;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.CoSoViewModel;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.SuKien;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.TrangThai;
@@ -27,8 +29,10 @@ import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.TrangThai;
  */
 public class TaoLoViewModel extends CoSoViewModel {
     private final SanPhamRepository sanPhamRepo;
+    private final VungNguyenLieuRepository vungRepo;
     private final LoSanXuatRepository loRepo;
     private final MutableLiveData<TrangThai<List<SanPham>>> sanPham = new MutableLiveData<>();
+    private final MutableLiveData<TrangThai<List<VungNguyenLieu>>> vungNguyenLieu = new MutableLiveData<>();
     private final MutableLiveData<Boolean> dangGui = new MutableLiveData<>(false);
     private final MutableLiveData<SuKien<LoSanXuat>> daTao = new MutableLiveData<>();
     private final MutableLiveData<SuKien<Map<String, String>>> loiTheoTruong = new MutableLiveData<>();
@@ -36,10 +40,12 @@ public class TaoLoViewModel extends CoSoViewModel {
     public TaoLoViewModel(@NonNull Application app) {
         super(app);
         sanPhamRepo = new SanPhamRepository(app);
+        vungRepo = new VungNguyenLieuRepository(app);
         loRepo = new LoSanXuatRepository(app);
     }
 
     public LiveData<TrangThai<List<SanPham>>> getSanPham() { return sanPham; }
+    public LiveData<TrangThai<List<VungNguyenLieu>>> getVungNguyenLieu() { return vungNguyenLieu; }
     public LiveData<Boolean> getDangGui() { return dangGui; }
     public LiveData<SuKien<LoSanXuat>> getDaTao() { return daTao; }
     /** Lỗi 400 của backend theo từng ô (vd hanSuDung), để Fragment setError đúng ô. */
@@ -47,6 +53,32 @@ public class TaoLoViewModel extends CoSoViewModel {
 
     public void taiSanPhamLanDau() {
         if (sanPham.getValue() == null) taiSanPham();
+        if (vungNguyenLieu.getValue() == null) taiVungNguyenLieu();
+    }
+
+    public void taiLaiDuLieu() {
+        taiSanPham();
+        taiVungNguyenLieu();
+    }
+
+    public void taiVungNguyenLieu() {
+        vungNguyenLieu.setValue(TrangThai.dangTai());
+        vungRepo.danhSach(new KetQuaApi<List<VungNguyenLieu>>() {
+            @Override
+            public void thanhCong(List<VungNguyenLieu> duLieu) {
+                vungNguyenLieu.setValue(TrangThai.thanhCong(duLieu));
+            }
+
+            @Override
+            public void loi(String thongDiep) {
+                vungNguyenLieu.setValue(TrangThai.loi(thongDiep));
+            }
+
+            @Override
+            public void hetPhien() {
+                daHetPhien();
+            }
+        });
     }
 
     /** Không tạo lô cho sản phẩm bị từ chối (backend trả 409), nên bỏ khỏi Spinner cho gọn. */

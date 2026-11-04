@@ -14,6 +14,7 @@ public class SanPham {
     public Integer hangSao;
     public String anhUrl;
     public int nhaCungCapId;
+    public int vungId;
     public String tenNhaCungCap;
     public String tenVung;
     public String trangThaiDuyet;

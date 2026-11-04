@@ -186,6 +186,9 @@
     <string name="da_them_buoc">Đã thêm bước \"%1$s\"</string>
     <string name="nhan_san_pham">Sản phẩm của lô</string>
     <string name="chon_san_pham">Chọn sản phẩm</string>
+    <string name="nhan_vung_nguyen_lieu">Vùng nguyên liệu của lô</string>
+    <string name="chon_vung_nguyen_lieu">Chọn vùng nguyên liệu</string>
+    <string name="loi_chua_chon_vung_nguyen_lieu">Vui lòng chọn vùng nguyên liệu của lô</string>
     <string name="hint_ngay_san_xuat">Ngày sản xuất (bấm để chọn)</string>
     <string name="hint_han_su_dung">Hạn sử dụng (bấm để chọn)</string>
     <string name="hint_so_luong">Số lượng</string>

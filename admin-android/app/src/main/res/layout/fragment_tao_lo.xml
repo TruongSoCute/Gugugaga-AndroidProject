@@ -40,6 +40,26 @@
                 android:textSize="@dimen/chu_nho"
                 android:visibility="gone" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/khoang_sm"
+                android:text="@string/nhan_vung_nguyen_lieu"
+                android:textSize="@dimen/chu_nho" />
+
+            <Spinner
+                android:id="@+id/spVungNguyenLieu"
+                android:layout_width="match_parent"
+                android:layout_height="48dp" />
+
+            <TextView
+                android:id="@+id/tvLoiVungNguyenLieu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorError"
+                android:textSize="@dimen/chu_nho"
+                android:visibility="gone" />
+
             <!-- Hai ô ngày không cho gõ tay: bấm vào để mở DatePickerDialog. -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilNgaySanXuat"
