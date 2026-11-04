@@ -42,7 +42,7 @@ App quản trị cho người quản lý sàn OCOP (đề 05), viết bằng **J
 | 9 | Không mất dữ liệu form khi xoay | EditText có id tự khôi phục; `TaoLoFragment`, `ThemBuocDialog`, `BaoCaoFragment` lưu lựa chọn và ngày bằng `onSaveInstanceState`; dữ liệu tải về giữ trong ViewModel |
 | 10 | Tên app và TAG chứa mã nhóm | `OCOP Admin Gugugaga`, package `vn.edu.vhu.ltdd.gugugaga.admin`, `TAG = "GUGUGAGA_ADMIN"` |
 
-Chưa làm (không bắt buộc): chọn vùng nguyên liệu riêng cho lô (backend mặc định vùng nhà cung cấp), tải ảnh lên từ máy (form nhận URL ảnh), phân trang quá 100 dòng mỗi danh sách, nhập hồ sơ nhà cung cấp/sản phẩm mới từ app Admin.
+Chưa làm (không bắt buộc): tải ảnh lên từ máy (form nhận URL ảnh), phân trang quá 100 dòng mỗi danh sách, nhập hồ sơ nhà cung cấp/sản phẩm mới từ app Admin.
 
 ## Chạy
 
