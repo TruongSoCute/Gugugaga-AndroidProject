@@ -40,3 +40,12 @@ Cách chạy từng phần, tài khoản thử nghiệm và các bước deploy 
 - [Quy tắc ứng xử](CODE_OF_CONDUCT.md).
 - [Chính sách bảo mật](SECURITY.md): báo lỗ hổng riêng tư, không mở issue công khai.
 - Mã nguồn phát hành theo [giấy phép MIT](LICENSE). Đây là đồ án học phần; quy định học phần về sao chép mã giữa các nhóm vẫn áp dụng cho sinh viên cùng học phần.
+- ## 🚀 Hướng dẫn Build APK (Optimized size)
+
+Dự án sử dụng cơ chế chia nhỏ APK theo kiến trúc chip (`--split-per-abi`) để tối ưu hóa dung lượng ứng dụng cho người dùng cuối.
+
+### Các bước thực hiện:
+
+1. Di chuyển vào thư mục ứng dụng Flutter:
+   ```bash
+   cd client-flutter
