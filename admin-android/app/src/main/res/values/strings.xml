@@ -68,6 +68,13 @@
     <string name="nut_thu_hoi">Thu hồi duyệt</string>
     <string name="loi_khong_co_ung_dung">Máy không có ứng dụng phù hợp để mở.</string>
     <string name="loi_tai_anh">Không tải được ảnh.</string>
+    <string name="loi_doc_anh_tu_may">Không đọc được ảnh từ thiết bị.</string>
+    <string name="loi_anh_qua_lon">Ảnh vượt quá 5 MB. Vui lòng chọn ảnh nhỏ hơn.</string>
+    <string name="loi_tai_len_anh">Tải ảnh lên thất bại. Bạn vẫn có thể nhập đường dẫn ảnh.</string>
+    <string name="nut_chon_anh">Chọn ảnh từ thiết bị</string>
+    <string name="dang_tai_anh_len">Đang tải ảnh lên máy chủ…</string>
+    <string name="da_tai_anh_len">Đã tải ảnh lên máy chủ</string>
+    <string name="mo_ta_anh_buoc">Ảnh bước truy xuất</string>
     <string name="loi_url_anh">Đường dẫn ảnh phải bắt đầu bằng http:// hoặc https:// và không có khoảng trắng</string>
     <string name="hint_anh_url">Đường dẫn ảnh (không bắt buộc)</string>
     <string name="ten_kem_trang_thai">%1$s (%2$s)</string>
