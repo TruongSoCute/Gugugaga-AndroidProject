@@ -134,32 +134,64 @@ class _SanPhamScreenState extends State<SanPhamScreen> {
 
                       // Danh sách dạng dọc (vertical list) với Radio button
                       Expanded(
-                        child: ListView(
-                          children: [
-                            RadioListTile<int?>(
-                              title: const Text('Tất cả vùng'),
-                              value: null,
-                              groupValue: _vungId,
-                              onChanged: (val) {
-                                setStateModal(() {
-                                  _vungId = val;
-                                });
-                              },
-                            ),
-                            for (final v in vungHienThi)
-                              RadioListTile<int?>(
-                                title: Text(v.ten),
-                                value: v.id,
-                                groupValue: _vungId,
-                                onChanged: (val) {
-                                  setStateModal(() {
-                                    _vungId = val;
-                                  });
-                                },
-                              ),
-                          ],
-                        ),
-                      ),
+                                           child: ListView(
+                                             children: [
+                                               InkWell(
+                                                 onTap: () {
+                                                   setStateModal(() {
+                                                     _vungId = null;
+                                                   });
+                                                 },
+                                                 child: Padding(
+                                                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                                                   child: Row(
+                                                     children: [
+                                                       Radio<int?>(
+                                                         value: null,
+                                                         groupValue: _vungId,
+                                                         onChanged: (val) {
+                                                           setStateModal(() {
+                                                             _vungId = val;
+                                                           });
+                                                         },
+                                                       ),
+                                                       const SizedBox(width: 8),
+                                                       const Text('Tất cả vùng', style: TextStyle(fontSize: 16)),
+                                                     ],
+                                                   ),
+                                                 ),
+                                               ),
+                                               for (final v in vungHienThi)
+                                                 InkWell(
+                                                   onTap: () {
+                                                     setStateModal(() {
+                                                       _vungId = v.id;
+                                                     });
+                                                   },
+                                                   child: Padding(
+                                                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                                                     child: Row(
+                                                       children: [
+                                                         Radio<int?>(
+                                                           value: v.id,
+                                                           groupValue: _vungId,
+                                                           onChanged: (val) {
+                                                             setStateModal(() {
+                                                               _vungId = val;
+                                                             });
+                                                           },
+                                                         ),
+                                                         const SizedBox(width: 8),
+                                                         Expanded(
+                                                           child: Text(v.ten, style: const TextStyle(fontSize: 16)),
+                                                         ),
+                                                       ],
+                                                     ),
+                                                   ),
+                                                 ),
+                                             ],
+                                           ),
+                                         ),
                       const SizedBox(height: 12),
 
                       // Nút "Áp dụng"
