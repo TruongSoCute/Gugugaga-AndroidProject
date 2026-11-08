@@ -14,8 +14,8 @@ App quản trị cho người quản lý sàn OCOP (đề 05), viết bằng **J
 | Đăng nhập (`LoginActivity`) | `POST /auth/dang-nhap` | Kiểm tra form, lưu token bằng `SharedPreferences`; chỉ nhận `QUAN_TRI`, `NHAN_VIEN` (từ chối `KHACH`, `NHA_CUNG_CAP` và không lưu token); tự vào màn hình chính nếu đã có token |
 | Sản phẩm (`SanPhamFragment`) | `GET /quan-tri/san-pham?trangThai=`, `PATCH /san-pham/:id/duyet` | RecyclerView, Spinner lọc; `QUAN_TRI` duyệt (chọn 3/4/5 sao) hoặc từ chối (bắt buộc lý do); `NHAN_VIEN` chỉ xem |
 | Lô (`lo/LoFragment`) | `GET /lo-san-xuat` | RecyclerView 100 lô mới nhất; nút nổi "Tạo lô" |
-| Chi tiết lô và QR (`lo/ChiTietLoFragment`) | `GET /lo-san-xuat/:id`, `POST /lo-san-xuat/:id/buoc` | Ảnh QR vẽ từ `duongDanTruyXuat` bằng zxing core; các bước; thêm bước (`ThemBuocDialog`, thời điểm `+07:00`); chia sẻ đường dẫn (`ACTION_SEND`) |
-| Tạo lô (`lo/TaoLoFragment`) | `GET /quan-tri/san-pham`, `POST /lo-san-xuat` | Spinner sản phẩm, `DatePickerDialog`, kiểm tra 4 lớp báo lỗi đúng ô (cả lỗi 400 `chiTiet[].truong` của backend); giữ dữ liệu khi xoay bằng `onSaveInstanceState` |
+| Chi tiết lô và QR (`lo/ChiTietLoFragment`) | `GET /lo-san-xuat/:id`, `POST /lo-san-xuat/:id/buoc`, `POST /tai-len/anh` | Ảnh QR vẽ từ `duongDanTruyXuat` bằng zxing core; các bước kèm ảnh; thêm bước (`ThemBuocDialog`, thời điểm `+07:00`, chọn ảnh từ máy hoặc nhập URL); chia sẻ đường dẫn (`ACTION_SEND`) |
+| Tạo lô (`lo/TaoLoFragment`) | `GET /quan-tri/san-pham`, `GET /vung-nguyen-lieu`, `POST /tai-len/anh`, `POST /lo-san-xuat` | Spinner sản phẩm và vùng nguyên liệu, `DatePickerDialog`, chọn ảnh hiện trường từ thiết bị hoặc nhập URL, kiểm tra 4 lớp báo lỗi đúng ô (cả lỗi 400 `chiTiet[].truong` của backend); giữ dữ liệu khi xoay bằng `onSaveInstanceState` |
 | Đơn hàng (`donhang/DonHangFragment`) | `GET /quan-tri/don-hang?trangThai=` | RecyclerView, Spinner lọc 7 trạng thái |
 | Chi tiết đơn (`donhang/ChiTietDonHangFragment`) | `GET /quan-tri/don-hang/:id`, `PATCH /don-hang/:id/trang-thai` | Người nhận (bấm số mở `ACTION_DIAL`), tổng tiền, dòng hàng kèm mã truy xuất lô đã giao, lịch sử; chỉ hiện bước hợp lệ; xác nhận trước mỗi bước, hủy bắt buộc lý do |
 | Phản ánh (`phananh/PhanAnhFragment`) | `GET /quan-tri/bao-cao-vi-pham?trangThai=` | RecyclerView, Spinner lọc |
@@ -42,7 +42,7 @@ App quản trị cho người quản lý sàn OCOP (đề 05), viết bằng **J
 | 9 | Không mất dữ liệu form khi xoay | EditText có id tự khôi phục; `TaoLoFragment`, `ThemBuocDialog`, `BaoCaoFragment` lưu lựa chọn và ngày bằng `onSaveInstanceState`; dữ liệu tải về giữ trong ViewModel |
 | 10 | Tên app và TAG chứa mã nhóm | `OCOP Admin Gugugaga`, package `vn.edu.vhu.ltdd.gugugaga.admin`, `TAG = "GUGUGAGA_ADMIN"` |
 
-Chưa làm (không bắt buộc): tải ảnh lên từ máy (form nhận URL ảnh), phân trang quá 100 dòng mỗi danh sách, nhập hồ sơ nhà cung cấp/sản phẩm mới từ app Admin.
+Chưa làm (không bắt buộc): phân trang quá 100 dòng mỗi danh sách, nhập hồ sơ nhà cung cấp/sản phẩm mới từ app Admin.
 
 ## Chạy
 
