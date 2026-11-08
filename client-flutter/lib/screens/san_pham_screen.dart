@@ -134,64 +134,56 @@ class _SanPhamScreenState extends State<SanPhamScreen> {
 
                       // Danh sách dạng dọc (vertical list) với Radio button
                       Expanded(
-                                           child: ListView(
-                                             children: [
-                                               InkWell(
-                                                 onTap: () {
-                                                   setStateModal(() {
-                                                     _vungId = null;
-                                                   });
-                                                 },
-                                                 child: Padding(
-                                                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                                                   child: Row(
-                                                     children: [
-                                                       Radio<int?>(
-                                                         value: null,
-                                                         groupValue: _vungId,
-                                                         onChanged: (val) {
-                                                           setStateModal(() {
-                                                             _vungId = val;
-                                                           });
-                                                         },
-                                                       ),
-                                                       const SizedBox(width: 8),
-                                                       const Text('Tất cả vùng', style: TextStyle(fontSize: 16)),
-                                                     ],
-                                                   ),
-                                                 ),
-                                               ),
-                                               for (final v in vungHienThi)
-                                                 InkWell(
-                                                   onTap: () {
-                                                     setStateModal(() {
-                                                       _vungId = v.id;
-                                                     });
-                                                   },
-                                                   child: Padding(
-                                                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                                                     child: Row(
-                                                       children: [
-                                                         Radio<int?>(
-                                                           value: v.id,
-                                                           groupValue: _vungId,
-                                                           onChanged: (val) {
-                                                             setStateModal(() {
-                                                               _vungId = val;
-                                                             });
-                                                           },
-                                                         ),
-                                                         const SizedBox(width: 8),
-                                                         Expanded(
-                                                           child: Text(v.ten, style: const TextStyle(fontSize: 16)),
-                                                         ),
-                                                       ],
-                                                     ),
-                                                   ),
-                                                 ),
-                                             ],
-                                           ),
-                                         ),
+                                            child: RadioGroup<int?>(
+                                              groupValue: _vungId,
+                                              onChanged: (val) {
+                                                setStateModal(() {
+                                                  _vungId = val;
+                                                });
+                                              },
+                                              child: ListView(
+                                                children: [
+                                                  InkWell(
+                                                    onTap: () {
+                                                      setStateModal(() {
+                                                        _vungId = null;
+                                                      });
+                                                    },
+                                                    child: const Padding(
+                                                      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                                      child: Row(
+                                                        children: [
+                                                          Radio<int?>(value: null),
+                                                          SizedBox(width: 8),
+                                                          Text('Tất cả vùng', style: TextStyle(fontSize: 16)),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  for (final v in vungHienThi)
+                                                    InkWell(
+                                                      onTap: () {
+                                                        setStateModal(() {
+                                                          _vungId = v.id;
+                                                        });
+                                                      },
+                                                      child: Padding(
+                                                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                                        child: Row(
+                                                          children: [
+                                                            Radio<int?>(value: v.id),
+                                                            const SizedBox(width: 8),
+                                                            Expanded(
+                                                              child: Text(v.ten, style: const TextStyle(fontSize: 16)),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
                       const SizedBox(height: 12),
 
                       // Nút "Áp dụng"
