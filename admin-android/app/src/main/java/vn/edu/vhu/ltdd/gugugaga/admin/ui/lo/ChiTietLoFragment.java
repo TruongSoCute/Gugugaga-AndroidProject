@@ -144,6 +144,7 @@ public class ChiTietLoFragment extends Fragment {
             TextView tvMoTa = v.findViewById(R.id.tvMoTaBuoc);
             tvMoTa.setVisibility(b.moTa == null ? View.GONE : View.VISIBLE);
             tvMoTa.setText(b.moTa);
+            ManHinh.hienAnh(this, v.findViewById(R.id.ivAnhBuoc), b.anhUrl);
             dsBuoc.addView(v);
         }
     }
