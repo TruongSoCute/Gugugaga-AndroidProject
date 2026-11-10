@@ -1,7 +1,10 @@
 package vn.edu.vhu.ltdd.gugugaga.admin.ui.lo;
 
 import android.app.DatePickerDialog;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,11 +12,15 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -29,8 +36,11 @@ import java.util.Map;
 
 import vn.edu.vhu.ltdd.gugugaga.admin.AppConfig;
 import vn.edu.vhu.ltdd.gugugaga.admin.R;
+import vn.edu.vhu.ltdd.gugugaga.admin.data.AnhRepository;
+import vn.edu.vhu.ltdd.gugugaga.admin.data.KetQuaApi;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.LoSanXuat;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.SanPham;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.VungNguyenLieu;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauTaoLo;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.MainActivity;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.KhungTrangThai;
@@ -52,25 +62,40 @@ import vn.edu.vhu.ltdd.gugugaga.admin.util.KiemTraForm;
  */
 public class TaoLoFragment extends Fragment {
     private static final String KEY_SAN_PHAM_ID = "san_pham_id";
+    private static final String KEY_VUNG_ID = "vung_id";
     private static final String KEY_NGAY_SAN_XUAT = "ngay_san_xuat";
     private static final String KEY_HAN_SU_DUNG = "han_su_dung";
+    private static final String KEY_ANH_URL = "anh_url";
     private static final int SO_LUONG_TOI_DA = 10_000_000; // giống giới hạn của backend
 
     private TaoLoViewModel viewModel;
+    private AnhRepository anhRepo;
     private KhungTrangThai khung;
     private View noiDung;
-    private Spinner spSanPham;
-    private TextView tvLoiSanPham;
+    private Spinner spSanPham, spVungNguyenLieu;
+    private TextView tvLoiSanPham, tvLoiVungNguyenLieu, tvTrangThaiAnh;
     private TextInputLayout tilNgaySanXuat, tilHanSuDung, tilSoLuong, tilNguoiSanXuat, tilAnh, tilGhiChu;
     private TextInputEditText edtNgaySanXuat, edtHanSuDung, edtSoLuong, edtNguoiSanXuat, edtAnh, edtGhiChu;
-    private Button btnLuu;
-    private ProgressBar progressLuu;
+    private Button btnChonAnh, btnLuu;
+    private ProgressBar progressTaiAnh, progressLuu;
+    private ImageView ivXemTruocAnh;
+
+    private final ActivityResultLauncher<PickVisualMediaRequest> chonAnhLauncher =
+            registerForActivityResult(new PickVisualMedia(), this::xuLyAnhDaChon);
 
     /** Danh sách id song song với các mục của Spinner; mục 0 là "Chọn sản phẩm" (id -1). */
     private final List<Integer> idSanPham = new ArrayList<>();
+    private final List<SanPham> danhSachSanPham = new ArrayList<>();
+    private final List<Integer> idVungNguyenLieu = new ArrayList<>();
     private int sanPhamIdDaChon = -1;
+    private int vungNguyenLieuIdDaChon = -1;
+    private int vungMacDinhCuaSanPham = -1;
+    private boolean khoiPhucVungDaLuu;
+    private boolean dangGuiLo;
+    private boolean dangTaiAnh;
     private String ngaySanXuat;
     private String hanSuDung;
+    private String anhUrlDaTai;
 
     @Nullable
     @Override
@@ -85,22 +110,62 @@ public class TaoLoFragment extends Fragment {
         // Khôi phục dữ liệu không nằm trong EditText (Lab A2): làm TRƯỚC khi nạp Spinner.
         if (savedInstanceState != null) {
             sanPhamIdDaChon = savedInstanceState.getInt(KEY_SAN_PHAM_ID, -1);
+            vungNguyenLieuIdDaChon = savedInstanceState.getInt(KEY_VUNG_ID, -1);
+            khoiPhucVungDaLuu = vungNguyenLieuIdDaChon != -1;
             ngaySanXuat = savedInstanceState.getString(KEY_NGAY_SAN_XUAT);
             hanSuDung = savedInstanceState.getString(KEY_HAN_SU_DUNG);
+            anhUrlDaTai = savedInstanceState.getString(KEY_ANH_URL);
         }
         anhXa(view);
+        anhRepo = new AnhRepository(requireContext());
         viewModel = new ViewModelProvider(this).get(TaoLoViewModel.class);
-        khung = new KhungTrangThai(view, viewModel::taiSanPham);
+        khung = new KhungTrangThai(view, viewModel::taiLaiDuLieu);
 
         edtNgaySanXuat.setOnClickListener(v -> chonNgay(true));
         edtHanSuDung.setOnClickListener(v -> chonNgay(false));
+        btnChonAnh.setOnClickListener(v -> chonAnhLauncher.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(PickVisualMedia.ImageOnly.INSTANCE)
+                .build()));
+        edtAnh.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                tilAnh.setError(null);
+                capNhatXemTruocAnh();
+            }
+        });
         btnLuu.setOnClickListener(v -> xuLyLuu());
 
         viewModel.getSanPham().observe(getViewLifecycleOwner(), this::hienSanPham);
+        viewModel.getVungNguyenLieu().observe(getViewLifecycleOwner(), this::hienVungNguyenLieu);
+        viewModel.getDangTaiAnh().observe(getViewLifecycleOwner(), dang -> {
+            dangTaiAnh = Boolean.TRUE.equals(dang);
+            capNhatNutLuu();
+            btnChonAnh.setEnabled(!dangTaiAnh);
+            progressTaiAnh.setVisibility(dangTaiAnh ? View.VISIBLE : View.GONE);
+        });
+        viewModel.getTrangThaiAnh().observe(getViewLifecycleOwner(), trangThai -> {
+            if (trangThai != null) {
+                tvTrangThaiAnh.setText(trangThai);
+                tvTrangThaiAnh.setVisibility(View.VISIBLE);
+            }
+        });
+        viewModel.getAnhDaTai().observe(getViewLifecycleOwner(), url -> {
+            if (url != null && !url.isEmpty()) {
+                anhUrlDaTai = url;
+                edtAnh.setText(url);
+                capNhatXemTruocAnh();
+            }
+        });
         viewModel.getDangGui().observe(getViewLifecycleOwner(), dangGui -> {
-            boolean dang = Boolean.TRUE.equals(dangGui);
-            btnLuu.setEnabled(!dang);
-            progressLuu.setVisibility(dang ? View.VISIBLE : View.GONE);
+            dangGuiLo = Boolean.TRUE.equals(dangGui);
+            capNhatNutLuu();
+            progressLuu.setVisibility(dangGuiLo ? View.VISIBLE : View.GONE);
         });
         viewModel.getLoiTheoTruong().observe(getViewLifecycleOwner(), sk -> {
             Map<String, String> loi = sk.layNeuChuaXuLy();
@@ -118,14 +183,19 @@ public class TaoLoFragment extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState); // luôn gọi super để EditText tự lưu chữ đang nhập
         outState.putInt(KEY_SAN_PHAM_ID, sanPhamIdDaChon);
+        outState.putInt(KEY_VUNG_ID, vungNguyenLieuIdDaChon);
         outState.putString(KEY_NGAY_SAN_XUAT, ngaySanXuat);
         outState.putString(KEY_HAN_SU_DUNG, hanSuDung);
+        outState.putString(KEY_ANH_URL, edtAnh != null ? chuoi(edtAnh) : anhUrlDaTai);
     }
 
     private void anhXa(View v) {
         noiDung = v.findViewById(R.id.noiDung);
         spSanPham = v.findViewById(R.id.spSanPham);
+        spVungNguyenLieu = v.findViewById(R.id.spVungNguyenLieu);
         tvLoiSanPham = v.findViewById(R.id.tvLoiSanPham);
+        tvLoiVungNguyenLieu = v.findViewById(R.id.tvLoiVungNguyenLieu);
+        tvTrangThaiAnh = v.findViewById(R.id.tvTrangThaiAnh);
         tilNgaySanXuat = v.findViewById(R.id.tilNgaySanXuat);
         tilHanSuDung = v.findViewById(R.id.tilHanSuDung);
         tilSoLuong = v.findViewById(R.id.tilSoLuong);
@@ -138,6 +208,9 @@ public class TaoLoFragment extends Fragment {
         edtNguoiSanXuat = v.findViewById(R.id.edtNguoiSanXuat);
         edtAnh = v.findViewById(R.id.edtAnhHienTruong);
         edtGhiChu = v.findViewById(R.id.edtGhiChu);
+        btnChonAnh = v.findViewById(R.id.btnChonAnh);
+        progressTaiAnh = v.findViewById(R.id.progressTaiAnh);
+        ivXemTruocAnh = v.findViewById(R.id.ivXemTruocAnh);
         btnLuu = v.findViewById(R.id.btnLuu);
         progressLuu = v.findViewById(R.id.progressLuu);
     }
@@ -149,33 +222,144 @@ public class TaoLoFragment extends Fragment {
 
         List<String> nhan = new ArrayList<>();
         idSanPham.clear();
+        danhSachSanPham.clear();
         nhan.add(getString(R.string.chon_san_pham));
         idSanPham.add(-1);
+        danhSachSanPham.add(null);
         int viTriChon = 0;
         for (SanPham sp : tt.duLieu) {
             String ten = AppConfig.TRANG_THAI_DA_DUYET.equals(sp.trangThaiDuyet) ? sp.ten
                     : getString(R.string.ten_kem_trang_thai, sp.ten, getString(NhanTrangThai.chu(sp.trangThaiDuyet)));
             nhan.add(getString(R.string.ncc_vung, ten, sp.tenNhaCungCap));
             idSanPham.add(sp.id);
+            danhSachSanPham.add(sp);
             if (sp.id == sanPhamIdDaChon) viTriChon = idSanPham.size() - 1;
         }
         ArrayAdapter<String> a = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, nhan);
         a.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spSanPham.setAdapter(a);
-        spSanPham.setSelection(viTriChon);
         spSanPham.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 sanPhamIdDaChon = idSanPham.get(position);
-                if (sanPhamIdDaChon != -1) tvLoiSanPham.setVisibility(View.GONE);
+                if (sanPhamIdDaChon != -1) {
+                    tvLoiSanPham.setVisibility(View.GONE);
+                    SanPham sp = danhSachSanPham.get(position);
+                    vungMacDinhCuaSanPham = sp == null ? -1 : sp.vungId;
+                    if (khoiPhucVungDaLuu) {
+                        khoiPhucVungDaLuu = false;
+                    } else {
+                        vungNguyenLieuIdDaChon = vungMacDinhCuaSanPham;
+                    }
+                    chonLaiViTriVung();
+                }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) { }
         });
+        spSanPham.setSelection(viTriChon);
         // Hiện lại ngày đã chọn (giá trị ISO lưu trong Bundle, ô chỉ để hiển thị).
         edtNgaySanXuat.setText(DinhDang.ngay(ngaySanXuat));
         edtHanSuDung.setText(DinhDang.ngay(hanSuDung));
+        if (chuoi(edtAnh).isEmpty() && anhUrlDaTai != null && !anhUrlDaTai.isEmpty()) {
+            edtAnh.setText(anhUrlDaTai);
+        } else {
+            capNhatXemTruocAnh();
+        }
+    }
+
+    private void xuLyAnhDaChon(Uri uri) {
+        if (uri == null) return;
+        tilAnh.setError(null);
+        viewModel.taiAnh(uri);
+    }
+
+    private void capNhatXemTruocAnh() {
+        String url = chuoi(edtAnh);
+        anhUrlDaTai = url;
+        if (KiemTraForm.laUrlWeb(url)) {
+            hienAnhTheoUrlHienTai(url);
+        } else {
+            ivXemTruocAnh.setVisibility(View.GONE);
+        }
+    }
+
+    private void capNhatNutLuu() {
+        if (btnLuu != null) btnLuu.setEnabled(!dangGuiLo && !dangTaiAnh);
+    }
+
+    private void hienAnhTheoUrlHienTai(String url) {
+        ivXemTruocAnh.setVisibility(View.VISIBLE);
+        ivXemTruocAnh.setImageDrawable(null);
+        anhRepo.tai(url, new KetQuaApi<android.graphics.Bitmap>() {
+            @Override
+            public void thanhCong(android.graphics.Bitmap anh) {
+                if (url.equals(chuoi(edtAnh))) ivXemTruocAnh.setImageBitmap(anh);
+            }
+
+            @Override
+            public void loi(String thongDiep) {
+                if (url.equals(chuoi(edtAnh))) ivXemTruocAnh.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void hetPhien() { }
+        });
+    }
+
+    private void hienVungNguyenLieu(TrangThai<List<VungNguyenLieu>> tt) {
+        if (tt.loai == TrangThai.Loai.DANG_TAI) {
+            spVungNguyenLieu.setEnabled(false);
+            return;
+        }
+        if (tt.loai != TrangThai.Loai.THANH_CONG) {
+            spVungNguyenLieu.setEnabled(false);
+            if (tt.loai == TrangThai.Loai.LOI) {
+                vungNguyenLieuIdDaChon = -1;
+                tvLoiVungNguyenLieu.setText(getString(R.string.loi_tai_vung_dung_mac_dinh, tt.thongDiep));
+                tvLoiVungNguyenLieu.setVisibility(View.VISIBLE);
+                tvLoiVungNguyenLieu.setOnClickListener(v -> viewModel.taiVungNguyenLieu());
+            }
+            return;
+        }
+        tvLoiVungNguyenLieu.setOnClickListener(null);
+        tvLoiVungNguyenLieu.setVisibility(View.GONE);
+        List<String> nhan = new ArrayList<>();
+        idVungNguyenLieu.clear();
+        nhan.add(getString(R.string.chon_vung_nguyen_lieu));
+        idVungNguyenLieu.add(-1);
+        int viTriChon = 0;
+        for (VungNguyenLieu vung : tt.duLieu) {
+            nhan.add(vung.ten);
+            idVungNguyenLieu.add(vung.id);
+            if (vung.id == vungNguyenLieuIdDaChon) viTriChon = idVungNguyenLieu.size() - 1;
+        }
+        ArrayAdapter<String> a = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, nhan);
+        a.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spVungNguyenLieu.setAdapter(a);
+        spVungNguyenLieu.setEnabled(true);
+        spVungNguyenLieu.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                vungNguyenLieuIdDaChon = idVungNguyenLieu.get(position);
+                if (vungNguyenLieuIdDaChon != -1) tvLoiVungNguyenLieu.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
+        spVungNguyenLieu.setSelection(viTriChon);
+    }
+
+    private void chonLaiViTriVung() {
+        if (spVungNguyenLieu.getAdapter() == null) return;
+        for (int i = 0; i < idVungNguyenLieu.size(); i++) {
+            if (idVungNguyenLieu.get(i) == vungNguyenLieuIdDaChon) {
+                spVungNguyenLieu.setSelection(i);
+                return;
+            }
+        }
     }
 
     private void chonNgay(boolean laNgaySanXuat) {
@@ -209,6 +393,16 @@ public class TaoLoFragment extends Fragment {
             tvLoiSanPham.setVisibility(View.VISIBLE);
             Toast.makeText(requireContext(), R.string.loi_chua_chon_san_pham, Toast.LENGTH_SHORT).show();
             spSanPham.requestFocus();
+            return;
+        }
+        // Khi danh mục vùng không tải được, null cho phép backend dùng vùng mặc định của sản phẩm.
+        if (vungNguyenLieuIdDaChon == -1
+                && viewModel.getVungNguyenLieu().getValue() != null
+                && viewModel.getVungNguyenLieu().getValue().loai == TrangThai.Loai.THANH_CONG) {
+            tvLoiVungNguyenLieu.setText(R.string.loi_chua_chon_vung_nguyen_lieu);
+            tvLoiVungNguyenLieu.setVisibility(View.VISIBLE);
+            Toast.makeText(requireContext(), R.string.loi_chua_chon_vung_nguyen_lieu, Toast.LENGTH_SHORT).show();
+            spVungNguyenLieu.requestFocus();
             return;
         }
         if (ngaySanXuat == null) {
@@ -249,14 +443,16 @@ public class TaoLoFragment extends Fragment {
         }
         String ghiChu = chuoi(edtGhiChu);
 
-        Log.d(AppConfig.TAG, "Gửi tạo lô cho sản phẩm " + sanPhamIdDaChon);
+        Log.d(AppConfig.TAG, "Gửi tạo lô cho sản phẩm " + sanPhamIdDaChon
+                + ", vùng " + vungNguyenLieuIdDaChon);
         viewModel.taoLo(new YeuCauTaoLo(sanPhamIdDaChon, ngaySanXuat, hanSuDung,
-                Integer.parseInt(soLuongChu.trim()), nguoiSanXuat,
+                Integer.parseInt(soLuongChu.trim()), vungNguyenLieuIdDaChon == -1 ? null : vungNguyenLieuIdDaChon, nguoiSanXuat,
                 anh.isEmpty() ? null : anh, ghiChu.isEmpty() ? null : ghiChu));
     }
 
     private void xoaLoi() {
         tvLoiSanPham.setVisibility(View.GONE);
+        tvLoiVungNguyenLieu.setVisibility(View.GONE);
         for (TextInputLayout t : new TextInputLayout[]{tilNgaySanXuat, tilHanSuDung, tilSoLuong,
                 tilNguoiSanXuat, tilAnh, tilGhiChu}) {
             t.setError(null);
@@ -274,6 +470,10 @@ public class TaoLoFragment extends Fragment {
             TextInputLayout til = oTheoTruong(e.getKey());
             if (til != null) til.setError(e.getValue());
             else if ("sanPhamId".equals(e.getKey())) tvLoiSanPham.setVisibility(View.VISIBLE);
+            else if ("vungNguyenLieuId".equals(e.getKey())) {
+                tvLoiVungNguyenLieu.setText(e.getValue());
+                tvLoiVungNguyenLieu.setVisibility(View.VISIBLE);
+            }
         }
     }
 

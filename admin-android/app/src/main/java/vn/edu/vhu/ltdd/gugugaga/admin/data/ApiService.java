@@ -1,10 +1,13 @@
 package vn.edu.vhu.ltdd.gugugaga.admin.data;
 
+import java.util.List;
+
 import vn.edu.vhu.ltdd.gugugaga.admin.model.BaoCaoDoanhSo;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.BuocTruyXuat;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.DanhSach;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.DonHang;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.KetQuaDangNhap;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.KetQuaTaiAnh;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.LoSanXuat;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.NhaCungCap;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.PhanAnh;
@@ -15,7 +18,9 @@ import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauDuyet;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauTaoLo;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauThemBuoc;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauXuLyPhanAnh;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.VungNguyenLieu;
 
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -33,6 +38,10 @@ public interface ApiService {
     // ---- Xác thực ----
     @POST("auth/dang-nhap")
     Call<KetQuaDangNhap> dangNhap(@Body YeuCauDangNhap body);
+
+    // ---- Danh mục ----
+    @GET("vung-nguyen-lieu")
+    Call<List<VungNguyenLieu>> dsVungNguyenLieu();
 
     // ---- Sản phẩm ----
     @GET("quan-tri/san-pham")
@@ -67,6 +76,10 @@ public interface ApiService {
 
     @POST("lo-san-xuat/{id}/buoc")
     Call<BuocTruyXuat> themBuoc(@Path("id") int loId, @Body YeuCauThemBuoc body);
+
+    // ---- Tải ảnh ----
+    @POST("tai-len/anh")
+    Call<KetQuaTaiAnh> taiLenAnh(@Query("mucDich") String mucDich, @Body RequestBody body);
 
     // ---- Đơn hàng ----
     @GET("quan-tri/don-hang")

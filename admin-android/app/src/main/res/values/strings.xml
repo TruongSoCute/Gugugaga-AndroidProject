@@ -68,6 +68,13 @@
     <string name="nut_thu_hoi">Thu hồi duyệt</string>
     <string name="loi_khong_co_ung_dung">Máy không có ứng dụng phù hợp để mở.</string>
     <string name="loi_tai_anh">Không tải được ảnh.</string>
+    <string name="loi_doc_anh_tu_may">Không đọc được ảnh từ thiết bị.</string>
+    <string name="loi_anh_qua_lon">Ảnh vượt quá 5 MB. Vui lòng chọn ảnh nhỏ hơn.</string>
+    <string name="loi_tai_len_anh">Tải ảnh lên thất bại. Bạn vẫn có thể nhập đường dẫn ảnh.</string>
+    <string name="nut_chon_anh">Chọn ảnh từ thiết bị</string>
+    <string name="dang_tai_anh_len">Đang tải ảnh lên máy chủ…</string>
+    <string name="da_tai_anh_len">Đã tải ảnh lên máy chủ</string>
+    <string name="mo_ta_anh_buoc">Ảnh bước truy xuất</string>
     <string name="loi_url_anh">Đường dẫn ảnh phải bắt đầu bằng http:// hoặc https:// và không có khoảng trắng</string>
     <string name="hint_anh_url">Đường dẫn ảnh (không bắt buộc)</string>
     <string name="ten_kem_trang_thai">%1$s (%2$s)</string>
@@ -186,6 +193,12 @@
     <string name="da_them_buoc">Đã thêm bước \"%1$s\"</string>
     <string name="nhan_san_pham">Sản phẩm của lô</string>
     <string name="chon_san_pham">Chọn sản phẩm</string>
+    <string name="nhan_vung_nguyen_lieu">Vùng nguyên liệu của lô</string>
+    <string name="chon_vung_nguyen_lieu">Chọn vùng nguyên liệu</string>
+    <string name="loi_chua_chon_vung_nguyen_lieu">Vui lòng chọn vùng nguyên liệu của lô</string>
+    <string name="loi_tai_vung_dung_mac_dinh">%1$s (dùng vùng mặc định của sản phẩm; chạm để thử lại)</string>
+    <string name="muc_thong_tin_lo">Thông tin lô sản xuất</string>
+    <string name="muc_anh_va_ghi_chu_lo">Ảnh hiện trường và ghi chú</string>
     <string name="hint_ngay_san_xuat">Ngày sản xuất (bấm để chọn)</string>
     <string name="hint_han_su_dung">Hạn sử dụng (bấm để chọn)</string>
     <string name="hint_so_luong">Số lượng</string>
