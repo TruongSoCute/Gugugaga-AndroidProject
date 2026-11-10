@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
@@ -49,12 +50,12 @@ public class ThemBuocDialog extends DialogFragment {
     public static final String KEY_MO_TA = "mo_ta";
     public static final String KEY_ANH_URL = "anh_url";
 
-    private static final String MUC_DICH_ANH_LO = "lo";
     private static final TimeZone GIO_VN = TimeZone.getTimeZone("GMT+07:00");
 
     private final ActivityResultLauncher<PickVisualMediaRequest> chonAnhLauncher =
             registerForActivityResult(new PickVisualMedia(), this::xuLyAnhDaChon);
 
+    private ThemBuocViewModel viewModel;
     /** Thời điểm đã chọn, dạng ISO có múi giờ +07:00; null nếu chưa chọn. */
     private String thoiDiem;
     private String anhUrlDaTai;
@@ -67,6 +68,7 @@ public class ThemBuocDialog extends DialogFragment {
             thoiDiem = savedInstanceState.getString(KEY_THOI_DIEM);
             anhUrlDaTai = savedInstanceState.getString(KEY_ANH_URL);
         }
+        viewModel = new ViewModelProvider(this).get(ThemBuocViewModel.class);
         View v = getLayoutInflater().inflate(R.layout.dialog_them_buoc, null);
         return new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.tieu_de_them_buoc)
@@ -97,7 +99,10 @@ public class ThemBuocDialog extends DialogFragment {
         TextInputLayout tilAnh = d.findViewById(R.id.tilAnhUrl);
         TextInputEditText edtAnh = d.findViewById(R.id.edtAnhUrl);
         Button btnChonAnh = d.findViewById(R.id.btnChonAnhBuoc);
+        ProgressBar progress = d.findViewById(R.id.progressTaiAnhBuoc);
+        TextView tvTrangThai = d.findViewById(R.id.tvTrangThaiAnhBuoc);
         ImageView ivXemTruoc = d.findViewById(R.id.ivXemTruocAnhBuoc);
+        Button btnThem = d.getButton(AlertDialog.BUTTON_POSITIVE);
 
         edtThoiDiem.setText(DinhDang.thoiDiemDaChon(thoiDiem));
         edtThoiDiem.setOnClickListener(v -> chonThoiDiem(edtThoiDiem, tilThoiDiem));
@@ -123,7 +128,35 @@ public class ThemBuocDialog extends DialogFragment {
             }
         });
 
-        Button btnThem = d.getButton(AlertDialog.BUTTON_POSITIVE);
+        viewModel.getDangTaiAnh().observe(this, dang -> {
+            dangTaiAnh = Boolean.TRUE.equals(dang);
+            if (btnThem != null) btnThem.setEnabled(!dangTaiAnh);
+            if (btnChonAnh != null) btnChonAnh.setEnabled(!dangTaiAnh);
+            if (progress != null) progress.setVisibility(dangTaiAnh ? View.VISIBLE : View.GONE);
+        });
+        viewModel.getTrangThaiAnh().observe(this, trangThai -> {
+            if (trangThai != null && tvTrangThai != null) {
+                tvTrangThai.setText(trangThai);
+                tvTrangThai.setVisibility(View.VISIBLE);
+            }
+        });
+        viewModel.getAnhDaTai().observe(this, url -> {
+            if (url != null && !url.isEmpty() && edtAnh != null) {
+                anhUrlDaTai = url;
+                edtAnh.setText(url);
+                capNhatXemTruocAnh(edtAnh, ivXemTruoc);
+            }
+        });
+        viewModel.getThongBao().observe(this, sk -> {
+            String tb = sk.layNeuChuaXuLy();
+            if (tb != null) Toast.makeText(requireContext(), tb, Toast.LENGTH_LONG).show();
+        });
+        viewModel.getHetPhien().observe(this, het -> {
+            if (Boolean.TRUE.equals(het) && getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).dangXuat(true);
+            }
+        });
+
         btnThem.setEnabled(!dangTaiAnh);
         btnThem.setOnClickListener(btn -> {
             if (dangTaiAnh) return;
@@ -159,67 +192,11 @@ public class ThemBuocDialog extends DialogFragment {
     }
 
     private void xuLyAnhDaChon(Uri uri) {
-        if (uri == null || getDialog() == null) return;
-        AlertDialog d = (AlertDialog) getDialog();
-        TextInputLayout tilAnh = d.findViewById(R.id.tilAnhUrl);
-        TextInputEditText edtAnh = d.findViewById(R.id.edtAnhUrl);
-        Button btnChonAnh = d.findViewById(R.id.btnChonAnhBuoc);
-        ProgressBar progress = d.findViewById(R.id.progressTaiAnhBuoc);
-        TextView tvTrangThai = d.findViewById(R.id.tvTrangThaiAnhBuoc);
-        ImageView ivXemTruoc = d.findViewById(R.id.ivXemTruocAnhBuoc);
-        Button btnThem = d.getButton(AlertDialog.BUTTON_POSITIVE);
-
-        dangTaiAnh = true;
-        if (btnThem != null) btnThem.setEnabled(false);
-        if (btnChonAnh != null) btnChonAnh.setEnabled(false);
-        if (progress != null) progress.setVisibility(View.VISIBLE);
-        if (tvTrangThai != null) {
-            tvTrangThai.setText(R.string.dang_tai_anh_len);
-            tvTrangThai.setVisibility(View.VISIBLE);
-        }
+        if (uri == null || viewModel == null) return;
+        Dialog d = getDialog();
+        TextInputLayout tilAnh = d != null ? d.findViewById(R.id.tilAnhUrl) : null;
         if (tilAnh != null) tilAnh.setError(null);
-
-        new AnhRepository(requireContext()).taiLen(uri, MUC_DICH_ANH_LO, new KetQuaApi<String>() {
-            @Override
-            public void thanhCong(String url) {
-                if (getDialog() == null) return;
-                dangTaiAnh = false;
-                if (btnThem != null) btnThem.setEnabled(true);
-                if (btnChonAnh != null) btnChonAnh.setEnabled(true);
-                if (progress != null) progress.setVisibility(View.GONE);
-                if (tvTrangThai != null) {
-                    tvTrangThai.setText(R.string.da_tai_anh_len);
-                    tvTrangThai.setVisibility(View.VISIBLE);
-                }
-                anhUrlDaTai = url;
-                if (edtAnh != null) {
-                    edtAnh.setText(url);
-                    capNhatXemTruocAnh(edtAnh, ivXemTruoc);
-                }
-            }
-
-            @Override
-            public void loi(String thongDiep) {
-                if (getDialog() == null) return;
-                dangTaiAnh = false;
-                if (btnThem != null) btnThem.setEnabled(true);
-                if (btnChonAnh != null) btnChonAnh.setEnabled(true);
-                if (progress != null) progress.setVisibility(View.GONE);
-                if (tvTrangThai != null) {
-                    tvTrangThai.setText(thongDiep);
-                    tvTrangThai.setVisibility(View.VISIBLE);
-                }
-                Toast.makeText(requireContext(), thongDiep, Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void hetPhien() {
-                dangTaiAnh = false;
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).dangXuat(true);
-                }
-            }
-        });
+        viewModel.taiAnh(uri);
     }
 
     private void capNhatXemTruocAnh(TextInputEditText edtAnh, ImageView ivXemTruoc) {

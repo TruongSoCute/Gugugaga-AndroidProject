@@ -94,28 +94,23 @@ public class AnhRepository {
         new Thread(() -> {
             byte[] duLieu;
             try {
-                duLieu = docByte(uri);
+                duLieu = docGioiHan(uri, KICH_THUOC_TOI_DA);
             } catch (IOException e) {
                 Log.w(AppConfig.TAG, "Đọc ảnh từ máy thất bại: " + uri, e);
                 mainThread.post(() -> kq.loi(app.getString(R.string.loi_doc_anh_tu_may)));
                 return;
             }
-            if (duLieu == null || duLieu.length == 0) {
+            if (duLieu == null) {
+                mainThread.post(() -> kq.loi(app.getString(R.string.loi_anh_qua_lon)));
+                return;
+            }
+            if (duLieu.length == 0) {
                 mainThread.post(() -> kq.loi(app.getString(R.string.loi_doc_anh_tu_may)));
                 return;
             }
             Bitmap xemTruoc = giaiMa(duLieu);
             String loai = loaiMime(uri, duLieu);
-            if (duLieu.length > KICH_THUOC_TOI_DA && xemTruoc != null) {
-                ByteArrayOutputStream nen = new ByteArrayOutputStream();
-                xemTruoc.compress(Bitmap.CompressFormat.JPEG, 85, nen);
-                duLieu = nen.toByteArray();
-                loai = "image/jpeg";
-            }
-            if (duLieu.length > KICH_THUOC_TOI_DA) {
-                mainThread.post(() -> kq.loi(app.getString(R.string.loi_anh_qua_lon)));
-                return;
-            }
+            Bitmap bmpDem = xemTruoc;
             RequestBody body = RequestBody.create(duLieu, MediaType.parse(loai));
             GoiApi.goi(app, ApiClient.get(app).taiLenAnh(mucDich, body), true, new KetQuaApi<KetQuaTaiAnh>() {
                 @Override
@@ -124,7 +119,7 @@ public class AnhRepository {
                         kq.loi(app.getString(R.string.loi_tai_len_anh));
                         return;
                     }
-                    if (xemTruoc != null) DEM.put(phanHoi.url, xemTruoc);
+                    if (bmpDem != null) DEM.put(phanHoi.url, bmpDem);
                     kq.thanhCong(phanHoi.url);
                 }
 
@@ -141,13 +136,19 @@ public class AnhRepository {
         }).start();
     }
 
-    private byte[] docByte(Uri uri) throws IOException {
+    /** Đọc tối đa gioiHan byte; nếu tệp dài hơn gioiHan thì dừng ngay và trả null để không tràn bộ nhớ. */
+    private byte[] docGioiHan(Uri uri, int gioiHan) throws IOException {
         try (InputStream in = app.getContentResolver().openInputStream(uri)) {
-            if (in == null) return null;
+            if (in == null) return new byte[0];
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             byte[] dem = new byte[8192];
+            int tong = 0;
             int doc;
-            while ((doc = in.read(dem)) != -1) out.write(dem, 0, doc);
+            while ((doc = in.read(dem)) != -1) {
+                tong += doc;
+                if (tong > gioiHan) return null;
+                out.write(dem, 0, doc);
+            }
             return out.toByteArray();
         }
     }

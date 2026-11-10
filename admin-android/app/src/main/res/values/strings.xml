@@ -196,6 +196,9 @@
     <string name="nhan_vung_nguyen_lieu">Vùng nguyên liệu của lô</string>
     <string name="chon_vung_nguyen_lieu">Chọn vùng nguyên liệu</string>
     <string name="loi_chua_chon_vung_nguyen_lieu">Vui lòng chọn vùng nguyên liệu của lô</string>
+    <string name="loi_tai_vung_dung_mac_dinh">%1$s (dùng vùng mặc định của sản phẩm; chạm để thử lại)</string>
+    <string name="muc_thong_tin_lo">Thông tin lô sản xuất</string>
+    <string name="muc_anh_va_ghi_chu_lo">Ảnh hiện trường và ghi chú</string>
     <string name="hint_ngay_san_xuat">Ngày sản xuất (bấm để chọn)</string>
     <string name="hint_han_su_dung">Hạn sử dụng (bấm để chọn)</string>
     <string name="hint_so_luong">Số lượng</string>

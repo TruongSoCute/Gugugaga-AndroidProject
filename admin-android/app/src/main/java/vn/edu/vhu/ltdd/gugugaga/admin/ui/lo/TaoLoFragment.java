@@ -66,7 +66,6 @@ public class TaoLoFragment extends Fragment {
     private static final String KEY_NGAY_SAN_XUAT = "ngay_san_xuat";
     private static final String KEY_HAN_SU_DUNG = "han_su_dung";
     private static final String KEY_ANH_URL = "anh_url";
-    private static final String MUC_DICH_ANH_LO = "lo";
     private static final int SO_LUONG_TOI_DA = 10_000_000; // giống giới hạn của backend
 
     private TaoLoViewModel viewModel;
@@ -144,6 +143,25 @@ public class TaoLoFragment extends Fragment {
 
         viewModel.getSanPham().observe(getViewLifecycleOwner(), this::hienSanPham);
         viewModel.getVungNguyenLieu().observe(getViewLifecycleOwner(), this::hienVungNguyenLieu);
+        viewModel.getDangTaiAnh().observe(getViewLifecycleOwner(), dang -> {
+            dangTaiAnh = Boolean.TRUE.equals(dang);
+            capNhatNutLuu();
+            btnChonAnh.setEnabled(!dangTaiAnh);
+            progressTaiAnh.setVisibility(dangTaiAnh ? View.VISIBLE : View.GONE);
+        });
+        viewModel.getTrangThaiAnh().observe(getViewLifecycleOwner(), trangThai -> {
+            if (trangThai != null) {
+                tvTrangThaiAnh.setText(trangThai);
+                tvTrangThaiAnh.setVisibility(View.VISIBLE);
+            }
+        });
+        viewModel.getAnhDaTai().observe(getViewLifecycleOwner(), url -> {
+            if (url != null && !url.isEmpty()) {
+                anhUrlDaTai = url;
+                edtAnh.setText(url);
+                capNhatXemTruocAnh();
+            }
+        });
         viewModel.getDangGui().observe(getViewLifecycleOwner(), dangGui -> {
             dangGuiLo = Boolean.TRUE.equals(dangGui);
             capNhatNutLuu();
@@ -252,55 +270,16 @@ public class TaoLoFragment extends Fragment {
     }
 
     private void xuLyAnhDaChon(Uri uri) {
-        if (uri == null || getView() == null) return;
-        dangTaiAnh = true;
-        capNhatNutLuu();
-        btnChonAnh.setEnabled(false);
-        progressTaiAnh.setVisibility(View.VISIBLE);
-        tvTrangThaiAnh.setText(R.string.dang_tai_anh_len);
-        tvTrangThaiAnh.setVisibility(View.VISIBLE);
+        if (uri == null) return;
         tilAnh.setError(null);
-        anhRepo.taiLen(uri, MUC_DICH_ANH_LO, new KetQuaApi<String>() {
-            @Override
-            public void thanhCong(String url) {
-                if (getView() == null) return;
-                dangTaiAnh = false;
-                capNhatNutLuu();
-                btnChonAnh.setEnabled(true);
-                progressTaiAnh.setVisibility(View.GONE);
-                tvTrangThaiAnh.setText(R.string.da_tai_anh_len);
-                tvTrangThaiAnh.setVisibility(View.VISIBLE);
-                anhUrlDaTai = url;
-                edtAnh.setText(url);
-                capNhatXemTruocAnh();
-            }
-
-            @Override
-            public void loi(String thongDiep) {
-                if (getView() == null) return;
-                dangTaiAnh = false;
-                capNhatNutLuu();
-                btnChonAnh.setEnabled(true);
-                progressTaiAnh.setVisibility(View.GONE);
-                tvTrangThaiAnh.setText(thongDiep);
-                tvTrangThaiAnh.setVisibility(View.VISIBLE);
-                ManHinh.baoSnackbar(TaoLoFragment.this, thongDiep);
-            }
-
-            @Override
-            public void hetPhien() {
-                if (getView() == null) return;
-                dangTaiAnh = false;
-                ((MainActivity) requireActivity()).dangXuat(true);
-            }
-        });
+        viewModel.taiAnh(uri);
     }
 
     private void capNhatXemTruocAnh() {
         String url = chuoi(edtAnh);
         anhUrlDaTai = url;
         if (KiemTraForm.laUrlWeb(url)) {
-            ManHinh.hienAnh(this, ivXemTruocAnh, url);
+            hienAnhTheoUrlHienTai(url);
         } else {
             ivXemTruocAnh.setVisibility(View.GONE);
         }
@@ -308,6 +287,25 @@ public class TaoLoFragment extends Fragment {
 
     private void capNhatNutLuu() {
         if (btnLuu != null) btnLuu.setEnabled(!dangGuiLo && !dangTaiAnh);
+    }
+
+    private void hienAnhTheoUrlHienTai(String url) {
+        ivXemTruocAnh.setVisibility(View.VISIBLE);
+        ivXemTruocAnh.setImageDrawable(null);
+        anhRepo.tai(url, new KetQuaApi<android.graphics.Bitmap>() {
+            @Override
+            public void thanhCong(android.graphics.Bitmap anh) {
+                if (url.equals(chuoi(edtAnh))) ivXemTruocAnh.setImageBitmap(anh);
+            }
+
+            @Override
+            public void loi(String thongDiep) {
+                if (url.equals(chuoi(edtAnh))) ivXemTruocAnh.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void hetPhien() { }
+        });
     }
 
     private void hienVungNguyenLieu(TrangThai<List<VungNguyenLieu>> tt) {
@@ -318,11 +316,14 @@ public class TaoLoFragment extends Fragment {
         if (tt.loai != TrangThai.Loai.THANH_CONG) {
             spVungNguyenLieu.setEnabled(false);
             if (tt.loai == TrangThai.Loai.LOI) {
-                tvLoiVungNguyenLieu.setText(tt.thongDiep);
+                vungNguyenLieuIdDaChon = -1;
+                tvLoiVungNguyenLieu.setText(getString(R.string.loi_tai_vung_dung_mac_dinh, tt.thongDiep));
                 tvLoiVungNguyenLieu.setVisibility(View.VISIBLE);
+                tvLoiVungNguyenLieu.setOnClickListener(v -> viewModel.taiVungNguyenLieu());
             }
             return;
         }
+        tvLoiVungNguyenLieu.setOnClickListener(null);
         tvLoiVungNguyenLieu.setVisibility(View.GONE);
         List<String> nhan = new ArrayList<>();
         idVungNguyenLieu.clear();
@@ -394,7 +395,10 @@ public class TaoLoFragment extends Fragment {
             spSanPham.requestFocus();
             return;
         }
-        if (vungNguyenLieuIdDaChon == -1) {
+        // Khi danh mục vùng không tải được, null cho phép backend dùng vùng mặc định của sản phẩm.
+        if (vungNguyenLieuIdDaChon == -1
+                && viewModel.getVungNguyenLieu().getValue() != null
+                && viewModel.getVungNguyenLieu().getValue().loai == TrangThai.Loai.THANH_CONG) {
             tvLoiVungNguyenLieu.setText(R.string.loi_chua_chon_vung_nguyen_lieu);
             tvLoiVungNguyenLieu.setVisibility(View.VISIBLE);
             Toast.makeText(requireContext(), R.string.loi_chua_chon_vung_nguyen_lieu, Toast.LENGTH_SHORT).show();
@@ -442,7 +446,7 @@ public class TaoLoFragment extends Fragment {
         Log.d(AppConfig.TAG, "Gửi tạo lô cho sản phẩm " + sanPhamIdDaChon
                 + ", vùng " + vungNguyenLieuIdDaChon);
         viewModel.taoLo(new YeuCauTaoLo(sanPhamIdDaChon, ngaySanXuat, hanSuDung,
-                Integer.parseInt(soLuongChu.trim()), vungNguyenLieuIdDaChon, nguoiSanXuat,
+                Integer.parseInt(soLuongChu.trim()), vungNguyenLieuIdDaChon == -1 ? null : vungNguyenLieuIdDaChon, nguoiSanXuat,
                 anh.isEmpty() ? null : anh, ghiChu.isEmpty() ? null : ghiChu));
     }
 
