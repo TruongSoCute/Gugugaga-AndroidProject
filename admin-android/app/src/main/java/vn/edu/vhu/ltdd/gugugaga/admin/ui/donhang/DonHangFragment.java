@@ -98,8 +98,7 @@ public class DonHangFragment extends Fragment {
         khungTaiThem = view.findViewById(R.id.khungTaiThem);
         pbTaiThem = view.findViewById(R.id.pbTaiThem);
         tvTrangThaiTaiThem = view.findViewById(R.id.tvTrangThaiTaiThem);
-        btnThuLai = view.findViewById(R.id.btnThuLai);
-
+        btnThuLai = view.findViewById(R.id.btnThuLaiTaiThem);
         khungTaiThem.setVisibility(View.GONE);
 
         btnThuLai.setOnClickListener(v ->

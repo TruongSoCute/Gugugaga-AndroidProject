@@ -77,7 +77,7 @@
             android:textSize="@dimen/chu_nho" />
 
         <Button
-            android:id="@+id/btnThuLai"
+            android:id="@+id/btnThuLaiTaiThem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Thử lại"
