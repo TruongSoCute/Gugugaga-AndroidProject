@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layout dùng chung cho các danh sách: Spinner lọc (ẩn nếu không cần) + RecyclerView + 3 trạng thái. -->
+<!-- Layout dùng chung cho các danh sách: Spinner lọc + RecyclerView + trạng thái tải thêm. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -46,4 +46,43 @@
             android:visibility="gone"
             app:icon="@drawable/ic_them" />
     </FrameLayout>
+
+    <!-- Khu vực trạng thái tải thêm, chỉ hiện khi cần -->
+    <LinearLayout
+        android:id="@+id/khungTaiThem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/khoang_md"
+        android:paddingTop="@dimen/khoang_sm"
+        android:paddingEnd="@dimen/khoang_md"
+        android:paddingBottom="@dimen/khoang_sm"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/pbTaiThem"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvTrangThaiTaiThem"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/khoang_sm"
+            android:text="Đang tải thêm..."
+            android:textSize="@dimen/chu_nho" />
+
+        <Button
+            android:id="@+id/btnThuLai"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thử lại"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
 </LinearLayout>

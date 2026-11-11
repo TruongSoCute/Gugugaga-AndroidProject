@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -20,7 +20,6 @@
         android:layout_marginStart="@dimen/khoang_sm"
         android:layout_marginEnd="@dimen/khoang_sm" />
 
-    <!-- FrameLayout: các trạng thái chồng lên nhau, mỗi lúc chỉ hiện một (Lab A3). -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -33,6 +32,7 @@
             android:clipToPadding="false"
             android:paddingBottom="@dimen/khoang_md" />
 
+        <!-- Loading toàn màn hình -->
         <ProgressBar
             android:id="@+id/progress"
             android:layout_width="wrap_content"
@@ -40,6 +40,16 @@
             android:layout_gravity="center"
             android:visibility="gone" />
 
+        <!-- Loading khi tải trang tiếp theo -->
+        <ProgressBar
+            android:id="@+id/progressTaiThem"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="@dimen/khoang_md"
+            android:visibility="gone" />
+
+        <!-- Danh sách trống -->
         <TextView
             android:id="@+id/tvTrong"
             android:layout_width="match_parent"
@@ -50,6 +60,7 @@
             android:text="@string/danh_sach_trong"
             android:visibility="gone" />
 
+        <!-- Hiển thị lỗi tải danh sách -->
         <LinearLayout
             android:id="@+id/khungLoi"
             android:layout_width="match_parent"
@@ -73,6 +84,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/khoang_sm"
                 android:text="@string/nut_thu_lai" />
+
         </LinearLayout>
+
     </FrameLayout>
+
 </LinearLayout>
