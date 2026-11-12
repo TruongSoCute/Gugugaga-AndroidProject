@@ -27,3 +27,7 @@ captures/
 .idea/
 .vscode/
 .DS_Store
+
+# Postman local workspace
+.postman/
+postman/
