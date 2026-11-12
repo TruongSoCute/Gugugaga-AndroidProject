@@ -5,5 +5,18 @@ const routes = require('./routes');
 
 module.exports = function createTaiKhoan(providers) {
   const service = createService(providers);
-  return { service, authRouter: routes({ service, auth: providers.auth }) };
+
+  const {
+    authRouter,
+    adminRouter,
+  } = routes({
+    service,
+    auth: providers.auth,
+  });
+
+  return {
+    service,
+    authRouter,
+    adminRouter,
+  };
 };
