@@ -51,6 +51,83 @@ Quyền và quy tắc dưới đây theo [Design decisions](Design_decisions.md)
 
 Token hết hạn sau `JWT_EXPIRES_IN` (mặc định 8 giờ). Khi nhận 401, app xóa token và đưa về màn hình đăng nhập.
 
+
+### Quản lý tài khoản nhân sự (app Admin)
+
+Các API dưới đây chỉ dành cho **Quản trị** (`QUAN_TRI`).
+
+| Phương thức, đường dẫn | Quyền | Mô tả |
+| --- | --- | --- |
+| `POST /quan-tri/tai-khoan` | Quản trị | Tạo tài khoản nhân viên mới. |
+| `GET /quan-tri/tai-khoan` | Quản trị | Lấy danh sách tài khoản, có phân trang. |
+| `PATCH /quan-tri/tai-khoan/:id` | Quản trị | Khóa hoặc mở tài khoản theo ID. |
+
+**1. Tạo tài khoản nhân viên**
+
+`POST /quan-tri/tai-khoan`
+
+Body:
+
+```json
+{
+  "email": "nhanvien@ocop.example",
+  "matKhau": "NhanVien123",
+  "hoTen": "Nguyen Van A",
+  "soDienThoai": "0901234567"
+}
+```
+
+- `email`, `matKhau`, `hoTen`: bắt buộc.
+- `soDienThoai`: không bắt buộc.
+- Backend tự gán vai trò `NHAN_VIEN`, không cho client tự chọn vai trò.
+- Mật khẩu được băm bằng bcrypt trước khi lưu.
+- `201`: Tạo tài khoản thành công.
+- `400`: Dữ liệu không hợp lệ.
+- `401`: Chưa đăng nhập hoặc token không hợp lệ.
+- `403`: Không có quyền quản trị.
+- `409 EMAIL_DA_TON_TAI`: Email đã được sử dụng.
+
+**2. Danh sách tài khoản**
+
+`GET /quan-tri/tai-khoan?trang=1&kichThuoc=20`
+
+- `trang`: Trang cần lấy, mặc định 1.
+- `kichThuoc`: Số tài khoản mỗi trang, mặc định 20, tối đa 100.
+- `200`: Trả danh sách trong `duLieu` và thông tin phân trang trong `phanTrang`.
+- Không trả mật khẩu hoặc mật khẩu đã băm.
+
+**3. Khóa hoặc mở tài khoản**
+
+`PATCH /quan-tri/tai-khoan/:id`
+
+Body khóa tài khoản:
+
+```json
+{
+  "dangHoatDong": false
+}
+```
+
+Body mở tài khoản:
+
+```json
+{
+  "dangHoatDong": true
+}
+```
+
+Quy tắc:
+- `dangHoatDong` phải là kiểu boolean.
+- Không cho quản trị viên tự khóa tài khoản của mình.
+- Không cho khóa quản trị viên cuối cùng đang hoạt động.
+- Tài khoản bị khóa không thể đăng nhập hoặc tiếp tục sử dụng token cũ.
+- `200`: Cập nhật thành công.
+- `400`: Dữ liệu không hợp lệ hoặc tự khóa tài khoản.
+- `401`: Chưa đăng nhập hoặc token không hợp lệ.
+- `403`: Không có quyền quản trị.
+- `404`: Không tìm thấy tài khoản.
+- `409`: Không thể khóa quản trị viên cuối cùng đang hoạt động.
+
 ### Danh mục công khai (app Client)
 
 | Phương thức, đường dẫn | Quyền | Mô tả |
