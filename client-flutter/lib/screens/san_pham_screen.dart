@@ -9,6 +9,7 @@ import '../models/vung.dart';
 import '../utils/dinh_dang.dart';
 import '../widgets/anh_mang.dart';
 import '../widgets/trang_thai_loi.dart';
+import 'ban_do_vung_screen.dart';
 import 'chi_tiet_san_pham_screen.dart';
 
 /// Màn hình 1: duyệt sản phẩm OCOP đã được duyệt, lọc theo vùng và hạng sao
@@ -208,10 +209,37 @@ class _SanPhamScreenState extends State<SanPhamScreen> {
     _taiSanPham();
   }
 
+  Future<void> _moBanDoVung() async {
+    final chon = await Navigator.push<int>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BanDoVungScreen(
+          dsVung: _vung,
+          vungIdChonSan: _vungId,
+          choPhepLoc: true,
+        ),
+      ),
+    );
+    if (!mounted || chon == null || chon == _vungId) return;
+    setState(() => _vungId = chon);
+    _taiSanPham();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Đặc sản OCOP')),
+      appBar: AppBar(
+        title: const Text('Đặc sản OCOP'),
+        actions: [
+          if (_vung.any((v) => v.coToaDo))
+            IconButton(
+              key: const Key('nutBanDoVung'),
+              tooltip: 'Bản đồ vùng nguyên liệu',
+              icon: const Icon(Icons.map_outlined),
+              onPressed: _moBanDoVung,
+            ),
+        ],
+      ),
       body: Column(
         children: [
           _boLoc(),
