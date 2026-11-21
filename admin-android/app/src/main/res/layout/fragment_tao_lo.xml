@@ -20,131 +20,251 @@
             android:orientation="vertical"
             android:padding="@dimen/khoang_md">
 
-            <TextView
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Material3.CardView.Outlined"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/nhan_san_pham"
-                android:textSize="@dimen/chu_nho" />
+                android:layout_height="wrap_content">
 
-            <Spinner
-                android:id="@+id/spSanPham"
-                android:layout_width="match_parent"
-                android:layout_height="48dp" />
-
-            <TextView
-                android:id="@+id/tvLoiSanPham"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/loi_chua_chon_san_pham"
-                android:textColor="?attr/colorError"
-                android:textSize="@dimen/chu_nho"
-                android:visibility="gone" />
-
-            <!-- Hai ô ngày không cho gõ tay: bấm vào để mở DatePickerDialog. -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilNgaySanXuat"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/khoang_sm"
-                android:hint="@string/hint_ngay_san_xuat">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edtNgaySanXuat"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:cursorVisible="false"
-                    android:focusable="false"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="vertical"
+                    android:padding="@dimen/khoang_md">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilHanSuDung"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/muc_thong_tin_lo"
+                        android:textAppearance="?attr/textAppearanceTitleSmall"
+                        android:textColor="?attr/colorPrimary"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:text="@string/nhan_san_pham"
+                        android:textColor="@color/xam_chu"
+                        android:textSize="@dimen/chu_nho" />
+
+                    <Spinner
+                        android:id="@+id/spSanPham"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="@dimen/khoang_xs"
+                        android:background="@drawable/khung_spinner"
+                        android:paddingStart="@dimen/khoang_sm"
+                        android:paddingEnd="@dimen/khoang_sm" />
+
+                    <TextView
+                        android:id="@+id/tvLoiSanPham"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_xs"
+                        android:text="@string/loi_chua_chon_san_pham"
+                        android:textColor="?attr/colorError"
+                        android:textSize="@dimen/chu_nho"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_md"
+                        android:text="@string/nhan_vung_nguyen_lieu"
+                        android:textColor="@color/xam_chu"
+                        android:textSize="@dimen/chu_nho" />
+
+                    <Spinner
+                        android:id="@+id/spVungNguyenLieu"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="@dimen/khoang_xs"
+                        android:background="@drawable/khung_spinner"
+                        android:paddingStart="@dimen/khoang_sm"
+                        android:paddingEnd="@dimen/khoang_sm" />
+
+                    <TextView
+                        android:id="@+id/tvLoiVungNguyenLieu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_xs"
+                        android:textColor="?attr/colorError"
+                        android:textSize="@dimen/chu_nho"
+                        android:visibility="gone" />
+
+                    <!-- Hai ô ngày không cho gõ tay: bấm vào để mở DatePickerDialog. -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilNgaySanXuat"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_md"
+                        android:hint="@string/hint_ngay_san_xuat">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtNgaySanXuat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:cursorVisible="false"
+                            android:focusable="false"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilHanSuDung"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:hint="@string/hint_han_su_dung">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtHanSuDung"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:cursorVisible="false"
+                            android:focusable="false"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilSoLuong"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:hint="@string/hint_so_luong">
+
+                        <!-- inputType chỉ gợi ý bàn phím; vẫn kiểm tra trong code (Lab A4). -->
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtSoLuong"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:maxLength="9" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilNguoiSanXuat"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:hint="@string/hint_nguoi_san_xuat">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtNguoiSanXuat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapWords"
+                            android:maxLength="120" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Material3.CardView.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/khoang_sm"
-                android:hint="@string/hint_han_su_dung">
+                android:layout_marginTop="@dimen/khoang_md">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edtHanSuDung"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:cursorVisible="false"
-                    android:focusable="false"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="vertical"
+                    android:padding="@dimen/khoang_md">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilSoLuong"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/khoang_sm"
-                android:hint="@string/hint_so_luong">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/muc_anh_va_ghi_chu_lo"
+                        android:textAppearance="?attr/textAppearanceTitleSmall"
+                        android:textColor="?attr/colorPrimary"
+                        android:textStyle="bold" />
 
-                <!-- inputType chỉ gợi ý bàn phím; vẫn kiểm tra trong code (Lab A4). -->
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edtSoLuong"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:maxLength="9" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilAnhHienTruong"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:hint="@string/hint_anh_hien_truong">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilNguoiSanXuat"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/khoang_sm"
-                android:hint="@string/hint_nguoi_san_xuat">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtAnhHienTruong"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textUri" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edtNguoiSanXuat"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textCapWords"
-                    android:maxLength="120" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilAnhHienTruong"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/khoang_sm"
-                android:hint="@string/hint_anh_hien_truong">
+                        <Button
+                            android:id="@+id/btnChonAnh"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/nut_chon_anh" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edtAnhHienTruong"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textUri" />
-            </com.google.android.material.textfield.TextInputLayout>
+                        <ProgressBar
+                            android:id="@+id/progressTaiAnh"
+                            style="?android:attr/progressBarStyleSmall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/khoang_sm"
+                            android:visibility="gone" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilGhiChu"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/khoang_sm"
-                android:hint="@string/hint_ghi_chu_lo">
+                        <TextView
+                            android:id="@+id/tvTrangThaiAnh"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/khoang_sm"
+                            android:layout_weight="1"
+                            android:textColor="@color/xam_chu"
+                            android:textSize="@dimen/chu_nho"
+                            android:visibility="gone" />
+                    </LinearLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edtGhiChu"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textMultiLine|textCapSentences"
-                    android:maxLength="2000"
-                    android:minLines="2" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    <ImageView
+                        android:id="@+id/ivXemTruocAnh"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/anh_lon"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:background="@color/xam_nen"
+                        android:contentDescription="@string/mo_ta_anh_hien_truong"
+                        android:scaleType="centerCrop"
+                        android:visibility="gone" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilGhiChu"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:hint="@string/hint_ghi_chu_lo">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtGhiChu"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textMultiLine|textCapSentences"
+                            android:maxLength="2000"
+                            android:minLines="2" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/khoang_sm"
                 android:text="@string/ghi_chu_ma_do_may_chu_sinh"
+                android:textColor="@color/xam_chu"
                 android:textSize="@dimen/chu_nho" />
 
             <Button
