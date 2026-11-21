@@ -43,7 +43,7 @@ public class TaoLoViewModel extends CoSoViewModel {
     private final MutableLiveData<Boolean> dangTaiAnh = new MutableLiveData<>(false);
     private final MutableLiveData<String> trangThaiAnh = new MutableLiveData<>();
     /** URL upload thành công được giữ lại để View mới nhận được sau khi xoay màn hình. */
-    private final MutableLiveData<String> anhDaTai = new MutableLiveData<>();
+    private final MutableLiveData<SuKien<String>> anhDaTai = new MutableLiveData<>();
     private final MutableLiveData<SuKien<LoSanXuat>> daTao = new MutableLiveData<>();
     private final MutableLiveData<SuKien<Map<String, String>>> loiTheoTruong = new MutableLiveData<>();
 
@@ -60,7 +60,7 @@ public class TaoLoViewModel extends CoSoViewModel {
     public LiveData<Boolean> getDangGui() { return dangGui; }
     public LiveData<Boolean> getDangTaiAnh() { return dangTaiAnh; }
     public LiveData<String> getTrangThaiAnh() { return trangThaiAnh; }
-    public LiveData<String> getAnhDaTai() { return anhDaTai; }
+    public LiveData<SuKien<String>> getAnhDaTai() { return anhDaTai; }
     public LiveData<SuKien<LoSanXuat>> getDaTao() { return daTao; }
     /** Lỗi 400 của backend theo từng ô (vd hanSuDung), để Fragment setError đúng ô. */
     public LiveData<SuKien<Map<String, String>>> getLoiTheoTruong() { return loiTheoTruong; }
@@ -132,7 +132,7 @@ public class TaoLoViewModel extends CoSoViewModel {
             public void thanhCong(String url) {
                 dangTaiAnh.setValue(false);
                 trangThaiAnh.setValue(chuoi(R.string.da_tai_anh_len));
-                anhDaTai.setValue(url);
+                anhDaTai.setValue(new SuKien<>(url));
             }
 
             @Override

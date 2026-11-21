@@ -155,7 +155,9 @@ public class TaoLoFragment extends Fragment {
                 tvTrangThaiAnh.setVisibility(View.VISIBLE);
             }
         });
-        viewModel.getAnhDaTai().observe(getViewLifecycleOwner(), url -> {
+        // SuKien: URL vừa tải chỉ điền vào ô một lần; xoay màn hình không ghi đè chữ người dùng đã sửa.
+        viewModel.getAnhDaTai().observe(getViewLifecycleOwner(), sk -> {
+            String url = sk == null ? null : sk.layNeuChuaXuLy();
             if (url != null && !url.isEmpty()) {
                 anhUrlDaTai = url;
                 edtAnh.setText(url);

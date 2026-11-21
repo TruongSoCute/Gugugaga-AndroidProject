@@ -11,6 +11,7 @@ import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.data.AnhRepository;
 import vn.edu.vhu.ltdd.gugugaga.admin.data.KetQuaApi;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.CoSoViewModel;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.SuKien;
 
 /** Giữ trạng thái và kết quả tải ảnh của ThemBuocDialog qua xoay màn hình. */
 public class ThemBuocViewModel extends CoSoViewModel {
@@ -20,7 +21,7 @@ public class ThemBuocViewModel extends CoSoViewModel {
     private final MutableLiveData<Boolean> dangTaiAnh = new MutableLiveData<>(false);
     private final MutableLiveData<String> trangThaiAnh = new MutableLiveData<>();
     /** URL upload thành công được giữ lại để Dialog mới nhận được sau khi xoay màn hình. */
-    private final MutableLiveData<String> anhDaTai = new MutableLiveData<>();
+    private final MutableLiveData<SuKien<String>> anhDaTai = new MutableLiveData<>();
 
     public ThemBuocViewModel(@NonNull Application app) {
         super(app);
@@ -29,7 +30,7 @@ public class ThemBuocViewModel extends CoSoViewModel {
 
     public LiveData<Boolean> getDangTaiAnh() { return dangTaiAnh; }
     public LiveData<String> getTrangThaiAnh() { return trangThaiAnh; }
-    public LiveData<String> getAnhDaTai() { return anhDaTai; }
+    public LiveData<SuKien<String>> getAnhDaTai() { return anhDaTai; }
 
     public void taiAnh(Uri uri) {
         if (uri == null || Boolean.TRUE.equals(dangTaiAnh.getValue())) return;
@@ -40,7 +41,7 @@ public class ThemBuocViewModel extends CoSoViewModel {
             public void thanhCong(String url) {
                 dangTaiAnh.setValue(false);
                 trangThaiAnh.setValue(chuoi(R.string.da_tai_anh_len));
-                anhDaTai.setValue(url);
+                anhDaTai.setValue(new SuKien<>(url));
             }
 
             @Override

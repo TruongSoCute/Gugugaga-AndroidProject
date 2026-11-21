@@ -60,6 +60,8 @@ public class ThemBuocDialog extends DialogFragment {
     private String thoiDiem;
     private String anhUrlDaTai;
     private boolean dangTaiAnh;
+    /** onStart chạy lại mỗi lần quay về từ Photo Picker; chỉ gắn listener và observer một lần. */
+    private boolean daGanSuKien;
 
     @NonNull
     @Override
@@ -90,6 +92,8 @@ public class ThemBuocDialog extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
+        if (daGanSuKien) return;
+        daGanSuKien = true;
         AlertDialog d = (AlertDialog) requireDialog();
         TextInputLayout tilTen = d.findViewById(R.id.tilTenBuoc);
         TextInputEditText edtTen = d.findViewById(R.id.edtTenBuoc);
@@ -140,7 +144,8 @@ public class ThemBuocDialog extends DialogFragment {
                 tvTrangThai.setVisibility(View.VISIBLE);
             }
         });
-        viewModel.getAnhDaTai().observe(this, url -> {
+        viewModel.getAnhDaTai().observe(this, sk -> {
+            String url = sk == null ? null : sk.layNeuChuaXuLy();
             if (url != null && !url.isEmpty() && edtAnh != null) {
                 anhUrlDaTai = url;
                 edtAnh.setText(url);

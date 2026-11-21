@@ -34,7 +34,11 @@ import okhttp3.ResponseBody;
 public class AnhRepository {
     /** Cạnh dài nhất sau khi thu nhỏ: đủ nét cho màn hình điện thoại, không tốn bộ nhớ. */
     private static final int CANH_TOI_DA = 1024;
+    /** Giới hạn của backend (express.raw 5 MB). */
     private static final int KICH_THUOC_TOI_DA = 5 * 1024 * 1024;
+    /** Ảnh chụp từ camera thường lớn hơn 5 MB: cho đọc tới 20 MB rồi nén lại trước khi gửi. */
+    private static final int KICH_THUOC_DOC_TOI_DA = 20 * 1024 * 1024;
+    private static final int CHAT_LUONG_JPEG = 85;
     private static final LruCache<String, Bitmap> DEM = new LruCache<String, Bitmap>(8 * 1024 * 1024) {
         @Override
         protected int sizeOf(String key, Bitmap value) {
@@ -94,7 +98,7 @@ public class AnhRepository {
         new Thread(() -> {
             byte[] duLieu;
             try {
-                duLieu = docGioiHan(uri, KICH_THUOC_TOI_DA);
+                duLieu = docGioiHan(uri, KICH_THUOC_DOC_TOI_DA);
             } catch (IOException e) {
                 Log.w(AppConfig.TAG, "Đọc ảnh từ máy thất bại: " + uri, e);
                 mainThread.post(() -> kq.loi(app.getString(R.string.loi_doc_anh_tu_may)));
@@ -109,9 +113,24 @@ public class AnhRepository {
                 return;
             }
             Bitmap xemTruoc = giaiMa(duLieu);
-            String loai = loaiMime(uri, duLieu);
+            String loai;
+            if (xemTruoc != null) {
+                // Gửi bản đã thu nhỏ, nén JPEG: ảnh lớn vẫn dưới 5 MB, và ảnh HEIC của điện thoại
+                // (backend chỉ nhận JPEG/PNG/WebP) cũng thành JPEG hợp lệ.
+                ByteArrayOutputStream nen = new ByteArrayOutputStream();
+                xemTruoc.compress(Bitmap.CompressFormat.JPEG, CHAT_LUONG_JPEG, nen);
+                duLieu = nen.toByteArray();
+                loai = "image/jpeg";
+            } else {
+                loai = loaiMime(uri, duLieu);
+            }
+            if (duLieu.length > KICH_THUOC_TOI_DA) {
+                mainThread.post(() -> kq.loi(app.getString(R.string.loi_anh_qua_lon)));
+                return;
+            }
             Bitmap bmpDem = xemTruoc;
-            RequestBody body = RequestBody.create(duLieu, MediaType.parse(loai));
+            byte[] guiDi = duLieu;
+            RequestBody body = RequestBody.create(guiDi, MediaType.parse(loai));
             GoiApi.goi(app, ApiClient.get(app).taiLenAnh(mucDich, body), true, new KetQuaApi<KetQuaTaiAnh>() {
                 @Override
                 public void thanhCong(KetQuaTaiAnh phanHoi) {
