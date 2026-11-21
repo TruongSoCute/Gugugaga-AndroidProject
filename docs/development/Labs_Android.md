@@ -258,7 +258,7 @@ Lab A10–A15 và F1–F8 chưa có slide trong repo. Các dòng ghi "chưa có 
 
 **Áp dụng cho đề 5 (Đề xuất):**
 - **Ảnh hiện trường lô:** ưu tiên `PickVisualMedia` (không cần quyền). Nếu chụp trực tiếp thì làm đủ mẫu ba nhánh cho `CAMERA`.
-- **Upload ảnh lên Supabase Storage chưa có API.** Hiện backend chỉ nhận đường dẫn `anhUrl`/`anhHienTruongUrl`.
+- **Upload ảnh:** app Admin chọn ảnh bằng `PickVisualMedia`, thu nhỏ và nén JPEG rồi gửi `POST /tai-len/anh` (backend lưu vào Supabase Storage, trả `url`). Khi máy chủ chưa cấu hình Storage (503) vẫn nhập được URL ảnh thủ công.
 - **Thông báo** (ví dụ khi có phản ánh mới) là phần thêm, không bắt buộc.
 
 ## Lab A8: Giao diện modular với Fragment

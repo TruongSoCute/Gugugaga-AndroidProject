@@ -34,7 +34,8 @@
                         android:layout_width="@dimen/kich_thuoc_qr"
                         android:layout_height="@dimen/kich_thuoc_qr"
                         android:background="@color/nen_icon"
-                        android:contentDescription="@string/mo_ta_qr_chung" />
+                        android:contentDescription="@string/mo_ta_qr_chung"
+                        android:padding="@dimen/khoang_xs" />
 
                     <TextView
                         android:id="@+id/tvMaTruyXuat"
@@ -42,6 +43,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/khoang_sm"
+                        android:textColor="@color/xanh_ocop"
                         android:textIsSelectable="true"
                         android:textSize="@dimen/chu_ma" />
 
@@ -49,88 +51,114 @@
                         android:id="@+id/tvDuongDan"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:gravity="center"
+                        android:textColor="@color/xam_chu"
                         android:textIsSelectable="true"
                         android:textSize="@dimen/chu_nho" />
 
                     <Button
                         android:id="@+id/btnChiaSe"
-                        style="@style/Widget.Material3.Button.TextButton"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
                         android:text="@string/nut_chia_se" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Material3.CardView.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/khoang_md"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_marginTop="@dimen/khoang_md">
 
-                <TextView
-                    android:id="@+id/tvTenSanPham"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAppearance="?attr/textAppearanceTitleMedium" />
+                    android:orientation="vertical"
+                    android:padding="@dimen/khoang_md">
 
-                <TextView
-                    android:id="@+id/tvTrangThaiSanPham"
-                    style="@style/NhanTrangThai"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/khoang_sm" />
-            </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tvNgay"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/khoang_xs" />
+                        <TextView
+                            android:id="@+id/tvTenSanPham"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textAppearance="?attr/textAppearanceTitleMedium"
+                            android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/tvSoLuong"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                        <TextView
+                            android:id="@+id/tvTrangThaiSanPham"
+                            style="@style/NhanTrangThai"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/khoang_sm" />
+                    </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvVung"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                    <TextView
+                        android:id="@+id/tvNgay"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm" />
 
-            <TextView
-                android:id="@+id/tvNguoiSanXuat"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                    <TextView
+                        android:id="@+id/tvSoLuong"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp" />
 
-            <TextView
-                android:id="@+id/tvGhiChu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textStyle="italic" />
+                    <TextView
+                        android:id="@+id/tvVung"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textColor="@color/xanh_ocop"
+                        android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/ivAnhHienTruong"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/anh_lon"
-                android:layout_marginTop="@dimen/khoang_sm"
-                android:background="@color/xam_nen"
-                android:contentDescription="@string/mo_ta_anh_hien_truong"
-                android:scaleType="centerCrop" />
+                    <TextView
+                        android:id="@+id/tvNguoiSanXuat"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp" />
+
+                    <TextView
+                        android:id="@+id/tvGhiChu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_xs"
+                        android:textColor="@color/xam_chu"
+                        android:textStyle="italic" />
+
+                    <ImageView
+                        android:id="@+id/ivAnhHienTruong"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/anh_lon"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:background="@color/xam_nen"
+                        android:contentDescription="@string/mo_ta_anh_hien_truong"
+                        android:scaleType="centerCrop" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <TextView
                 style="@style/TieuDeMuc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/muc_cac_buoc" />
+                android:text="@string/muc_cac_buoc"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvChuaCoBuoc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/chua_co_buoc"
+                android:textColor="@color/xam_chu"
                 android:visibility="gone" />
 
             <LinearLayout
@@ -143,7 +171,7 @@
                 android:id="@+id/btnThemBuoc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/khoang_sm"
+                android:layout_marginTop="@dimen/khoang_md"
                 android:layout_marginBottom="@dimen/khoang_lg"
                 android:text="@string/nut_them_buoc" />
         </LinearLayout>

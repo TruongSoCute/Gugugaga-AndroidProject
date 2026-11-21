@@ -9,18 +9,28 @@ public class YeuCauTaoLo {
     public final String ngaySanXuat;
     public final String hanSuDung;
     public final int soLuong;
+    public final Integer vungNguyenLieuId;
     public final String nguoiSanXuat;
     public final String anhHienTruongUrl;
     public final String ghiChu;
 
     public YeuCauTaoLo(int sanPhamId, String ngaySanXuat, String hanSuDung, int soLuong,
-                       String nguoiSanXuat, String anhHienTruongUrl, String ghiChu) {
+                       Integer vungNguyenLieuId, String nguoiSanXuat, String anhHienTruongUrl,
+                       String ghiChu) {
         this.sanPhamId = sanPhamId;
         this.ngaySanXuat = ngaySanXuat;
         this.hanSuDung = hanSuDung;
         this.soLuong = soLuong;
+        this.vungNguyenLieuId = vungNguyenLieuId;
         this.nguoiSanXuat = nguoiSanXuat;
         this.anhHienTruongUrl = anhHienTruongUrl;
         this.ghiChu = ghiChu;
+    }
+
+    /** Constructor cũ để các luồng kiểm thử không chọn vùng vẫn dùng được mặc định backend. */
+    public YeuCauTaoLo(int sanPhamId, String ngaySanXuat, String hanSuDung, int soLuong,
+                       String nguoiSanXuat, String anhHienTruongUrl, String ghiChu) {
+        this(sanPhamId, ngaySanXuat, hanSuDung, soLuong, null, nguoiSanXuat,
+                anhHienTruongUrl, ghiChu);
     }
 }
