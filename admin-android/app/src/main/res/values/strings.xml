@@ -26,6 +26,8 @@
     <string name="loc_trang_thai">Lọc theo trạng thái</string>
     <string name="danh_sach_trong">Không có sản phẩm nào ở trạng thái này.</string>
     <string name="nut_thu_lai">Thử lại</string>
+    <!-- Dòng cuối danh sách khi tải trang tiếp theo (phân trang) -->
+    <string name="dang_tai_them">Đang tải thêm…</string>
     <string name="nut_duyet">Duyệt</string>
     <string name="nut_tu_choi">Từ chối</string>
     <string name="nut_huy">Hủy</string>
