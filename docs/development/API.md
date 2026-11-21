@@ -142,6 +142,9 @@ Quy tắc:
 
 `GET /truy-xuat/:maTruyXuat`. **Công khai, không cần JWT.** Mã gồm 20 ký tự hex và không phân biệt hoa thường. Trả `404` khi mã không tồn tại, sai định dạng hoặc lô thuộc sản phẩm/nhà cung cấp không còn được duyệt.
 
+- Khi client gửi `Accept: text/html` (trình duyệt quét QR bằng camera thường), trả trang HTML hiển thị thông tin lô, sản phẩm, nhà cung cấp, chứng nhận và các bước truy xuất (404 cũng trả trang HTML "Không xác minh được nguồn gốc").
+- Mặc định hoặc `Accept: application/json` (app Client) vẫn trả JSON như bên dưới.
+
 ```json
 {
   "maTruyXuat": "B056FB25CA6642785532",

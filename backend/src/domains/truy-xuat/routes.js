@@ -4,7 +4,14 @@ const express = require('express');
 const { ah } = require('../../utils/http');
 const { idParam } = require('../../utils/validator');
 const { phanTrang } = require('../../utils/sql');
-const { parseTaoLo, parseBuoc, parseLocLo, chuanHoaMa } = require('./types');
+const {
+  parseTaoLo,
+  parseBuoc,
+  parseLocLo,
+  chuanHoaMa,
+  renderTruyXuatHtml,
+  renderKhongXacMinhHtml,
+} = require('./types');
 
 module.exports = function truyXuatRoutes({ service, auth, http, config }) {
   // Nội dung in trên QR: đường dẫn tới API truy xuất công khai của đúng lô.
@@ -40,7 +47,17 @@ module.exports = function truyXuatRoutes({ service, auth, http, config }) {
   // ---- /truy-xuat/:ma: CÔNG KHAI, không cần JWT ----
   const congKhai = express.Router();
   congKhai.get('/:ma', ah(async (req, res) => {
-    res.json(await service.truyXuatCongKhai(chuanHoaMa(req.params.ma)));
+    const muonHtml = req.accepts(['json', 'html']) === 'html';
+    try {
+      const kq = await service.truyXuatCongKhai(chuanHoaMa(req.params.ma));
+      if (muonHtml) return res.type('html').send(renderTruyXuatHtml(kq));
+      return res.json(kq);
+    } catch (err) {
+      if (muonHtml && err && err.status === 404) {
+        return res.status(404).type('html').send(renderKhongXacMinhHtml(req.params.ma));
+      }
+      throw err;
+    }
   }));
 
   return { lo, congKhai };
