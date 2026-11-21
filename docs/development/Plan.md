@@ -26,7 +26,7 @@ Cập nhật bảng này mỗi khi xong hoặc nhận một việc, để thành
 | 1 | Hai app | Cài APK lên điện thoại thật, chạy hết các luồng, chụp màn hình | Chưa chạy thử giao diện trên thiết bị; camera và chọn ảnh chỉ thử được trên máy thật |
 | 2 | Nộp bài | Ký APK release bằng khóa của nhóm (`keystore.properties`, `key.properties`) | App Admin hiện ra APK chưa ký |
 | 2 | Nhóm | Mỗi thành viên nắm phần của mình, tự commit các cải tiến bằng tài khoản riêng | Minh chứng đóng góp |
-| 3 | Admin | Tải ảnh lô từ máy (hiện nhập URL); phân trang danh sách (hiện tối đa 100 dòng) | Cải tiến |
+| 3 | Admin | Tải ảnh lô từ máy (hiện nhập URL) | Cải tiến. Phân trang 5 danh sách (20 dòng, cuộn để tải thêm) đã xong |
 | 3 | Client | `--split-per-abi` để APK nhỏ hơn (hiện ~71 MB do `mobile_scanner`) | Cải tiến |
 | 4 | Nộp bài | Báo cáo PDF, video demo, ít nhất 25 trường hợp kiểm thử có kết quả thật | Xem [Submission checklist](../course/Submission_checklist.md) |
 | 5 | Mở rộng | Trang truy xuất HTML, bản đồ vùng nguyên liệu, tự khóa bán khi chứng nhận hết hạn | Chỉ làm sau phần bắt buộc |
