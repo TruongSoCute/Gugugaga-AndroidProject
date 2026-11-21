@@ -18,6 +18,7 @@ import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.PhanAnh;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.MainActivity;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.BoLoc;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ChanTaiThem;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.KhungTrangThai;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ManHinh;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.TrangThai;
@@ -50,6 +51,7 @@ public class PhanAnhFragment extends Fragment {
                 ((MainActivity) requireActivity()).moManHinh(ChiTietPhanAnhFragment.newInstance(pa.id)));
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         rv.setAdapter(adapter);
+        ChanTaiThem.gan(this, view, rv, viewModel); // cuộn gần cuối thì tải trang sau
 
         BoLoc.caiDat(view.findViewById(R.id.spLoc), R.array.phan_anh_nhan, R.array.phan_anh_gia_tri,
                 viewModel::chonLoc);

@@ -75,4 +75,7 @@
                 android:text="@string/nut_thu_lai" />
         </LinearLayout>
     </FrameLayout>
+
+    <!-- Tải trang tiếp theo khi cuộn gần cuối (phân trang) -->
+    <include layout="@layout/khung_tai_them" />
 </LinearLayout>

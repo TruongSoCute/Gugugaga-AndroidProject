@@ -14,6 +14,7 @@ import java.util.List;
 
 import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.NhaCungCap;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.CuonTaiThem;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.NhanTrangThai;
 
 /** Adapter + ViewHolder cho danh sách hồ sơ nhà cung cấp (C.1 #3). */
@@ -30,10 +31,9 @@ public class NhaCungCapAdapter extends RecyclerView.Adapter<NhaCungCapAdapter.Vi
         this.khiChon = khiChon;
     }
 
+    /** Trang sau thì chỉ chèn thêm các dòng mới; tải lại thì thay toàn bộ (CuonTaiThem.capNhat). */
     public void capNhat(List<NhaCungCap> moi) {
-        danhSach.clear();
-        if (moi != null) danhSach.addAll(moi);
-        notifyDataSetChanged();
+        CuonTaiThem.capNhat(this, danhSach, moi);
     }
 
     @NonNull

@@ -4,14 +4,13 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 
-import java.util.List;
-
 import vn.edu.vhu.ltdd.gugugaga.admin.data.KetQuaApi;
 import vn.edu.vhu.ltdd.gugugaga.admin.data.LoSanXuatRepository;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.DanhSach;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.LoSanXuat;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.LocDanhSachViewModel;
 
-/** Danh sách lô không có bộ lọc: dùng taiLanDau(). */
+/** Danh sách lô không có bộ lọc: dùng taiLanDau(); cuộn gần cuối thì tải thêm trang sau. */
 public class LoViewModel extends LocDanhSachViewModel<LoSanXuat> {
     private final LoSanXuatRepository repo;
 
@@ -21,7 +20,7 @@ public class LoViewModel extends LocDanhSachViewModel<LoSanXuat> {
     }
 
     @Override
-    protected void goiDanhSach(String loc, KetQuaApi<List<LoSanXuat>> kq) {
-        repo.danhSach(kq);
+    protected void goiTrang(String loc, int trang, int kichThuoc, KetQuaApi<DanhSach<LoSanXuat>> kq) {
+        repo.danhSach(trang, kichThuoc, kq);
     }
 }

@@ -16,6 +16,7 @@ import java.util.List;
 import vn.edu.vhu.ltdd.gugugaga.admin.AppConfig;
 import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.SanPham;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.CuonTaiThem;
 import vn.edu.vhu.ltdd.gugugaga.admin.util.DinhDang;
 
 /**
@@ -39,10 +40,9 @@ public class SanPhamAdapter extends RecyclerView.Adapter<SanPhamAdapter.ViewHold
         this.hanhDong = hanhDong;
     }
 
+    /** Trang sau thì chỉ chèn thêm các dòng mới; tải lại thì thay toàn bộ (CuonTaiThem.capNhat). */
     public void capNhat(List<SanPham> moi) {
-        danhSach.clear();
-        if (moi != null) danhSach.addAll(moi);
-        notifyDataSetChanged(); // sửa dữ liệu xong phải báo cho danh sách vẽ lại (Lab A9)
+        CuonTaiThem.capNhat(this, danhSach, moi);
     }
 
     @NonNull

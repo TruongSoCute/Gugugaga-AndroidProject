@@ -27,6 +27,7 @@ import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.data.TokenStore;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.SanPham;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.MainActivity;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ChanTaiThem;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.TrangThai;
 
 /**
@@ -66,6 +67,7 @@ public class SanPhamFragment extends Fragment implements SanPhamAdapter.HanhDong
         rv.setAdapter(adapter);
 
         viewModel = new ViewModelProvider(this).get(SanPhamViewModel.class);
+        ChanTaiThem.gan(this, view, rv, viewModel); // cuộn gần cuối thì tải trang sau
         caiDatSpinner(view.findViewById(R.id.spLoc));
 
         viewModel.getDanhSach().observe(getViewLifecycleOwner(), this::hienThi);

@@ -18,6 +18,7 @@ import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.DonHang;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.MainActivity;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.BoLoc;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ChanTaiThem;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.KhungTrangThai;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ManHinh;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.TrangThai;
@@ -54,6 +55,7 @@ public class DonHangFragment extends Fragment {
                 ((MainActivity) requireActivity()).moManHinh(ChiTietDonHangFragment.newInstance(don.id)));
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         rv.setAdapter(adapter);
+        ChanTaiThem.gan(this, view, rv, viewModel); // cuộn gần cuối thì tải trang sau
 
         BoLoc.caiDat(view.findViewById(R.id.spLoc), R.array.don_hang_nhan, R.array.don_hang_gia_tri,
                 viewModel::chonLoc);

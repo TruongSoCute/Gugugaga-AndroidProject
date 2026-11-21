@@ -18,6 +18,7 @@ import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.NhaCungCap;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.MainActivity;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.BoLoc;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ChanTaiThem;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.KhungTrangThai;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ManHinh;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.TrangThai;
@@ -50,6 +51,7 @@ public class NhaCungCapFragment extends Fragment {
                 ((MainActivity) requireActivity()).moManHinh(ChiTietNhaCungCapFragment.newInstance(ncc.id)));
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         rv.setAdapter(adapter);
+        ChanTaiThem.gan(this, view, rv, viewModel); // cuộn gần cuối thì tải trang sau
 
         BoLoc.caiDat(view.findViewById(R.id.spLoc), R.array.trang_thai_nhan, R.array.trang_thai_gia_tri,
                 viewModel::chonLoc);
