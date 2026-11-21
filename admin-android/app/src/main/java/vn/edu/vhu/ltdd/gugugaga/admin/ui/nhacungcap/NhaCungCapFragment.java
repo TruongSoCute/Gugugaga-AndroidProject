@@ -26,6 +26,7 @@ import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.TrangThai;
 /** Danh sách hồ sơ nhà cung cấp (mở từ tab Tài khoản), lọc theo trạng thái duyệt. */
 public class NhaCungCapFragment extends Fragment {
     public static final String KET_QUA_CAP_NHAT = "cap_nhat_nha_cung_cap";
+    public static final String KEY_THONG_BAO = "thong_bao";
 
     private NhaCungCapViewModel viewModel;
     private NhaCungCapAdapter adapter;
@@ -41,8 +42,15 @@ public class NhaCungCapFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        ((MainActivity) requireActivity()).datTieuDe(R.string.tieu_de_nha_cung_cap);
+        MainActivity main = (MainActivity) requireActivity();
+        main.datTieuDe(R.string.tieu_de_nha_cung_cap);
         viewModel = new ViewModelProvider(this).get(NhaCungCapViewModel.class);
+
+        com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton fab =
+                view.findViewById(R.id.fabThem);
+        fab.setText(R.string.nut_them_nha_cung_cap);
+        fab.setVisibility(View.VISIBLE);
+        fab.setOnClickListener(v -> main.moManHinh(new TaoNhaCungCapFragment()));
 
         rv = view.findViewById(R.id.rvDanhSach);
         khung = new KhungTrangThai(view, viewModel::taiLai);
@@ -58,8 +66,11 @@ public class NhaCungCapFragment extends Fragment {
 
         viewModel.getDanhSach().observe(getViewLifecycleOwner(), this::hienThi);
         ManHinh.quanSatChung(this, viewModel);
-        getParentFragmentManager().setFragmentResultListener(KET_QUA_CAP_NHAT, getViewLifecycleOwner(),
-                (k, b) -> viewModel.taiLai());
+        getParentFragmentManager().setFragmentResultListener(KET_QUA_CAP_NHAT, getViewLifecycleOwner(), (k, b) -> {
+            String tb = b.getString(KEY_THONG_BAO);
+            if (tb != null) ManHinh.baoSnackbar(this, tb);
+            viewModel.taiLai();
+        });
     }
 
     private void hienThi(TrangThai<List<NhaCungCap>> tt) {

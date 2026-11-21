@@ -9,13 +9,18 @@ import vn.edu.vhu.ltdd.gugugaga.admin.model.DonHang;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.KetQuaDangNhap;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.KetQuaTaiAnh;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.LoSanXuat;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.NguoiDung;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.NhaCungCap;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.PhanAnh;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.SanPham;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauDangNhap;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauDoiTrangThai;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauDuyet;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauKhoaTaiKhoan;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauTaoLo;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauTaoNhaCungCap;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauTaoNhanVien;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauTaoSanPham;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauThemBuoc;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauXuLyPhanAnh;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.VungNguyenLieu;
@@ -49,6 +54,9 @@ public interface ApiService {
                                              @Query("trang") int trang,
                                              @Query("kichThuoc") int kichThuoc);
 
+    @POST("san-pham")
+    Call<SanPham> taoSanPham(@Body YeuCauTaoSanPham body);
+
     @PATCH("san-pham/{id}/duyet")
     Call<SanPham> duyetSanPham(@Path("id") int id, @Body YeuCauDuyet body);
 
@@ -60,6 +68,9 @@ public interface ApiService {
 
     @GET("quan-tri/nha-cung-cap/{id}")
     Call<NhaCungCap> chiTietNhaCungCap(@Path("id") int id);
+
+    @POST("nha-cung-cap")
+    Call<NhaCungCap> taoNhaCungCap(@Body YeuCauTaoNhaCungCap body);
 
     @PATCH("nha-cung-cap/{id}/duyet")
     Call<NhaCungCap> duyetNhaCungCap(@Path("id") int id, @Body YeuCauDuyet body);
@@ -109,4 +120,14 @@ public interface ApiService {
     /** tu, den dạng yyyy-MM-dd hoặc null (không lọc). Chỉ QUAN_TRI, NHAN_VIEN nhận 403. */
     @GET("bao-cao/doanh-so")
     Call<BaoCaoDoanhSo> baoCaoDoanhSo(@Query("tu") String tu, @Query("den") String den);
+
+    // ---- Tài khoản nhân sự (chỉ QUAN_TRI) ----
+    @GET("quan-tri/tai-khoan")
+    Call<DanhSach<NguoiDung>> dsTaiKhoanQuanTri(@Query("trang") int trang, @Query("kichThuoc") int kichThuoc);
+
+    @POST("quan-tri/tai-khoan")
+    Call<NguoiDung> taoNhanVien(@Body YeuCauTaoNhanVien body);
+
+    @PATCH("quan-tri/tai-khoan/{id}")
+    Call<NguoiDung> capNhatTrangThaiTaiKhoan(@Path("id") int id, @Body YeuCauKhoaTaiKhoan body);
 }
