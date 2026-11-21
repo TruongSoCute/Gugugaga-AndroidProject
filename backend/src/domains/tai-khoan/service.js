@@ -2,7 +2,7 @@
 
 const repo = require('./repo');
 const { nguoiDungCongKhai } = require('./types');
-const { HttpError } = require('../../utils/errors');
+const { HttpError, notFound } = require('../../utils/errors');
 const { VAI_TRO } = require('../../providers/auth');
 const { phanTrang, ketQuaPhanTrang } = require('../../utils/sql');
 

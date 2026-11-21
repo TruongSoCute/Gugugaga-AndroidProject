@@ -1,4 +1,3 @@
-
 'use strict';
 
 const { test, before, after } = require('node:test');
@@ -179,4 +178,29 @@ test('Không cho cập nhật trạng thái với dữ liệu sai', async () => 
   });
 
   assert.equal(r.status, 400);
+});
+
+test('Khóa tài khoản không tồn tại trả 404', async () => {
+  const r = await t.api('PATCH', '/quan-tri/tai-khoan/999999', {
+    token: adminToken,
+    body: { dangHoatDong: false },
+  });
+
+  assert.equal(r.status, 404);
+  assert.equal(r.body.loi.ma, 'KHONG_TIM_THAY');
+});
+
+test('Body tạo nhân viên có vaiTro QUAN_TRI vẫn chỉ tạo NHAN_VIEN', async () => {
+  const r = await t.api('POST', '/quan-tri/tai-khoan', {
+    token: adminToken,
+    body: {
+      email: 'nhanvien-vaitro@ocop.example',
+      matKhau: 'NhanVien123',
+      hoTen: 'Thử gửi vai trò',
+      vaiTro: 'QUAN_TRI',
+    },
+  });
+
+  assert.equal(r.status, 201);
+  assert.equal(r.body.vaiTro, 'NHAN_VIEN');
 });
