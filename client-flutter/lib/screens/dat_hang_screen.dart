@@ -60,9 +60,6 @@ class _DatHangScreenState extends State<DatHangScreen> {
       if (!mounted) return;
       setState(() {
         _dsHinhThuc = ds;
-        if (_hinhThuc == null && ds.isNotEmpty) {
-          _hinhThuc = ds.first.ma;
-        }
         _dangTai = false;
       });
     } on ApiException catch (e) {
