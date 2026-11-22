@@ -1,29 +1,36 @@
 import 'package:flutter/material.dart';
 
 import '../data/api_client.dart';
+import '../data/don_hang_repository.dart';
+import '../data/phien_dang_nhap.dart';
 import '../data/san_pham_repository.dart';
 import '../models/san_pham.dart';
 import '../models/vung.dart';
 import '../utils/dinh_dang.dart';
 import '../widgets/anh_mang.dart';
+import '../widgets/hop_thoai.dart';
 import '../widgets/trang_thai_loi.dart';
 import 'chi_tiet_san_pham_screen.dart';
+import 'gio_hang_screen.dart';
+import 'yeu_cau_dang_nhap.dart';
 
 /// Màn hình 1: duyệt sản phẩm OCOP đã được duyệt, lọc theo vùng và hạng sao
 /// (chức năng bắt buộc của Client). Danh sách dùng ListView.builder tải từ API (C.2 #3)
 /// và đủ 3 trạng thái: đang tải / có dữ liệu / lỗi (C.2 #7).
 class SanPhamScreen extends StatefulWidget {
-  const SanPhamScreen({super.key, this.repository});
+  const SanPhamScreen({super.key, this.repository, this.donHangRepository});
 
   /// Cho phép truyền repository giả khi kiểm thử.
   final SanPhamRepository? repository;
+  final DonHangRepository? donHangRepository;
 
   @override
   State<SanPhamScreen> createState() => _SanPhamScreenState();
 }
 
 class _SanPhamScreenState extends State<SanPhamScreen> {
-  late final SanPhamRepository _repo = widget.repository ?? SanPhamRepository(ApiClient());
+  late final SanPhamRepository _repo = widget.repository ?? SanPhamRepository(ApiClient.macDinh);
+  late final DonHangRepository _donRepo = widget.donHangRepository ?? DonHangRepository(ApiClient.macDinh);
 
   List<Vung> _vung = const [];
   int? _vungId;
@@ -32,7 +39,8 @@ class _SanPhamScreenState extends State<SanPhamScreen> {
   bool _dangTai = true;
   String? _loi;
   TrangSanPham? _ketQua;
-  String? _tuKhoa; //biến lưu từ khóa tìm kiếm
+  String? _tuKhoa; // biến lưu từ khóa tìm kiếm
+  int? _dangThemSanPhamId;
   @override
   void initState() {
     super.initState();
@@ -72,146 +80,175 @@ class _SanPhamScreenState extends State<SanPhamScreen> {
   }
 
   void _moBottomSheetChonVung() {
-      String tuKhoaBottomSheet = '';
+    String tuKhoaBottomSheet = '';
 
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        ),
-        builder: (BuildContext context) {
-          return StatefulBuilder(
-            builder: (BuildContext context, StateSetter setStateModal) {
-              // Lọc danh sách vùng theo từ khóa gõ bên trong Bottom Sheet
-              final vungHienThi = _vung.where((v) =>
-                v.ten.toLowerCase().contains(tuKhoaBottomSheet.toLowerCase())
-              ).toList();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setStateModal) {
+            // Lọc danh sách vùng theo từ khóa gõ bên trong Bottom Sheet
+            final vungHienThi = _vung
+                .where((v) => v.ten.toLowerCase().contains(tuKhoaBottomSheet.toLowerCase()))
+                .toList();
 
-              return Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                  left: 16,
-                  right: 16,
-                  top: 16,
-                ),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Tiêu đề và nút đóng
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Chọn vùng nguyên liệu',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-
-                      // Ô tìm kiếm riêng cho danh sách vùng
-                      TextField(
-                        decoration: const InputDecoration(
-                          hintText: 'Tìm kiếm vùng nguyên liệu...',
-                          prefixIcon: Icon(Icons.search),
-                          isDense: true,
-                          border: OutlineInputBorder(),
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 16,
+                right: 16,
+                top: 16,
+              ),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.6,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Tiêu đề và nút đóng
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Chọn vùng nguyên liệu',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
-                        onChanged: (value) {
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Ô tìm kiếm riêng cho danh sách vùng
+                    TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'Tìm kiếm vùng nguyên liệu...',
+                        prefixIcon: Icon(Icons.search),
+                        isDense: true,
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) {
+                        setStateModal(() {
+                          tuKhoaBottomSheet = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Danh sách dạng dọc (vertical list) với RadioGroup
+                    Expanded(
+                      child: RadioGroup<int?>(
+                        groupValue: _vungId,
+                        onChanged: (val) {
                           setStateModal(() {
-                            tuKhoaBottomSheet = value;
+                            _vungId = val;
                           });
                         },
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Danh sách dạng dọc (vertical list) với Radio button
-                      Expanded(
-                                            child: RadioGroup<int?>(
-                                              groupValue: _vungId,
-                                              onChanged: (val) {
-                                                setStateModal(() {
-                                                  _vungId = val;
-                                                });
-                                              },
-                                              child: ListView(
-                                                children: [
-                                                  InkWell(
-                                                    onTap: () {
-                                                      setStateModal(() {
-                                                        _vungId = null;
-                                                      });
-                                                    },
-                                                    child: const Padding(
-                                                      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                                                      child: Row(
-                                                        children: [
-                                                          Radio<int?>(value: null),
-                                                          SizedBox(width: 8),
-                                                          Text('Tất cả vùng', style: TextStyle(fontSize: 16)),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  for (final v in vungHienThi)
-                                                    InkWell(
-                                                      onTap: () {
-                                                        setStateModal(() {
-                                                          _vungId = v.id;
-                                                        });
-                                                      },
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                                                        child: Row(
-                                                          children: [
-                                                            Radio<int?>(value: v.id),
-                                                            const SizedBox(width: 8),
-                                                            Expanded(
-                                                              child: Text(v.ten, style: const TextStyle(fontSize: 16)),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                      const SizedBox(height: 12),
-
-                      // Nút "Áp dụng"
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
-                          onPressed: () {
-                            Navigator.pop(context); // Đóng Bottom Sheet
-                            setState(() {}); // Cập nhật lại UI
-                            _taiSanPham(); // Gọi lại API
-                          },
-                          child: const Text('Áp dụng', style: TextStyle(fontSize: 16)),
+                        child: ListView(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                setStateModal(() {
+                                  _vungId = null;
+                                });
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                child: Row(
+                                  children: [
+                                    Radio<int?>(value: null),
+                                    SizedBox(width: 8),
+                                    Text('Tất cả vùng', style: TextStyle(fontSize: 16)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            for (final v in vungHienThi)
+                              InkWell(
+                                onTap: () {
+                                  setStateModal(() {
+                                    _vungId = v.id;
+                                  });
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                  child: Row(
+                                    children: [
+                                      Radio<int?>(value: v.id),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(v.ten, style: const TextStyle(fontSize: 16)),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 16),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      );
-    }
+                    ),
+                    const SizedBox(height: 12),
 
+                    // Nút "Áp dụng"
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context); // Đóng Bottom Sheet
+                          setState(() {}); // Cập nhật lại UI
+                          _taiSanPham(); // Gọi lại API
+                        },
+                        child: const Text('Áp dụng', style: TextStyle(fontSize: 16)),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+Future<void> _themNhanhVaoGio(SanPham sp) async {
+    // 1. Kiểm tra đăng nhập khách (giống bên ChiTietSanPhamScreen)
+    if (!await canKhach(context, lyDo: 'Đăng nhập để thêm sản phẩm vào giỏ.')) return;
+    if (!mounted) return;
+
+    setState(() => _dangThemSanPhamId = sp.id);
+    try {
+      // 2. Mặc định thêm số lượng = 1
+      final gio = await _donRepo.themVaoGio(sp.id, 1);
+      if (!mounted) return;
+      setState(() => _dangThemSanPhamId = null);
+
+      // 3. Hiển thị thông báo kèm nút mở nhanh Giỏ hàng
+      thongBao(
+        context,
+        'Đã thêm "${sp.ten}" vào giỏ (trong giỏ: ${gio.soLuongCua(sp.id)}).',
+        action: SnackBarAction(
+          label: 'Xem giỏ',
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute<void>(builder: (_) => const GioHangScreen()),
+          ),
+        ),
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _dangThemSanPhamId = null);
+      thongBao(context, e.thongDiepDayDu);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -227,47 +264,47 @@ class _SanPhamScreenState extends State<SanPhamScreen> {
   }
 
   Widget _boLoc() {
-  // Lấy tên vùng đang được chọn để hiển thị lên nút bấm mở rộng
-      String tenVungHienTai = 'Tất cả vùng';
-      if (_vungId != null) {
-        final vungTimThay = _vung.where((v) => v.id == _vungId);
-        if (vungTimThay.isNotEmpty) {
-          tenVungHienTai = vungTimThay.first.ten;
-        }
+    // Lấy tên vùng đang được chọn để hiển thị lên nút bấm mở rộng
+    String tenVungHienTai = 'Tất cả vùng';
+    if (_vungId != null) {
+      final vungTimThay = _vung.where((v) => v.id == _vungId);
+      if (vungTimThay.isNotEmpty) {
+        tenVungHienTai = vungTimThay.first.ten;
       }
+    }
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextField(
-                      decoration: const InputDecoration(
-                        labelText: 'Tìm kiếm sản phẩm, cơ sở...',
-                        prefixIcon: Icon(Icons.search),
-                        isDense: true,
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (value) {
-                        setState(() => _tuKhoa = value);
-                        _taiSanPham(); // Gọi lại API khi người dùng gõ tìm kiếm
-                      },
-                    ),
+            decoration: const InputDecoration(
+              labelText: 'Tìm kiếm sản phẩm, cơ sở...',
+              prefixIcon: Icon(Icons.search),
+              isDense: true,
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (value) {
+              setState(() => _tuKhoa = value);
+              _taiSanPham(); // Gọi lại API khi người dùng gõ tìm kiếm
+            },
+          ),
           const SizedBox(height: 8),
           InkWell(
-                      onTap: _moBottomSheetChonVung,
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'Vùng nguyên liệu',
-                          isDense: true,
-                          border: OutlineInputBorder(),
-                          suffixIcon: Icon(Icons.arrow_drop_down),
-                        ),
-                        child: Text(
-                          tenVungHienTai,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
+            onTap: _moBottomSheetChonVung,
+            child: InputDecorator(
+              decoration: const InputDecoration(
+                labelText: 'Vùng nguyên liệu',
+                isDense: true,
+                border: OutlineInputBorder(),
+                suffixIcon: Icon(Icons.arrow_drop_down),
+              ),
+              child: Text(
+                tenVungHienTai,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -299,16 +336,25 @@ class _SanPhamScreenState extends State<SanPhamScreen> {
       onRefresh: _taiSanPham,
       child: ListView.builder(
         itemCount: ds.length,
-        itemBuilder: (context, i) => _DongSanPham(sp: ds[i]),
+        itemBuilder: (context, i) {
+          final sp = ds[i];
+          return _DongSanPham(
+            sp: sp,
+            dangThem: _dangThemSanPhamId == sp.id,
+            onThemVaoGio: PhienDangNhap.laNhaCungCap ? null : () => _themNhanhVaoGio(sp),
+          );
+        },
       ),
     );
   }
 }
 
 class _DongSanPham extends StatelessWidget {
-  const _DongSanPham({required this.sp});
+  const _DongSanPham({required this.sp,this.dangThem = false, this.onThemVaoGio,});
 
   final SanPham sp;
+  final bool dangThem;
+  final VoidCallback? onThemVaoGio;
 
   @override
   Widget build(BuildContext context) {
@@ -325,27 +371,96 @@ class _DongSanPham extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AnhMang(url: sp.anhUrl, width: 96, height: 96),
+            // Dùng Stack bọc AnhMang và Positioned để làm badge OCOP góc ảnh
+            Stack(
+              children: [
+                AnhMang(url: sp.anhUrl, width: 100, height: 100),
+                if (sp.hangSao != null)
+                  Positioned(
+                    top: 6,
+                    left: 6,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.shade800,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        '${sp.hangSao}★ OCOP',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(sp.ten, style: theme.textTheme.titleMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 4),
-                    Text('${sp.tenNhaCungCap} · ${sp.tenVung}',
-                        style: theme.textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 4),
+                    // Tên sản phẩm
+                    Text(
+                      sp.ten,
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+
                     Row(
                       children: [
-                        Text(DinhDang.tien(sp.gia),
-                            style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary)),
-                        const Spacer(),
-                        if (sp.hangSao != null) ...[
-                          const Icon(Icons.star, size: 16, color: Colors.amber),
-                          Text(' ${sp.hangSao} sao OCOP', style: theme.textTheme.bodySmall),
-                        ],
+                        Icon(Icons.location_on, size: 14, color: Colors.grey.shade600),
+                        const SizedBox(width: 2),
+                        Expanded(
+                          child: Text(
+                            '${sp.tenNhaCungCap} · ${sp.tenVung}',
+                            style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey.shade700),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Text(
+                           DinhDang.tien(sp.gia),
+                           style: theme.textTheme.titleMedium?.copyWith(
+                             color: theme.colorScheme.primary,
+                             fontWeight: FontWeight.bold,
+                             fontSize: 16,
+                           ),
+                          ),
+                        ),
+                        if (onThemVaoGio != null)
+                          SizedBox(
+                           height: 34,
+                           child: FilledButton.tonalIcon(
+                              style: FilledButton.styleFrom(
+                               padding: const EdgeInsets.symmetric(horizontal: 10),
+                               minimumSize: Size.zero,
+                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                             ),
+                              onPressed: dangThem ? null : onThemVaoGio,
+                                 icon: dangThem
+                                     ? const SizedBox(
+                                         width: 14,
+                                         height: 14,
+                                         child: CircularProgressIndicator(strokeWidth: 2),
+                                       )
+                                     : const Icon(Icons.add_shopping_cart, size: 16),
+                                 label: const Text('Giỏ', style: TextStyle(fontSize: 13)),
+                               ),
+                             ),
                       ],
                     ),
                   ],

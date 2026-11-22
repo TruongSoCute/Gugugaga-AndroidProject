@@ -60,6 +60,9 @@ class _DatHangScreenState extends State<DatHangScreen> {
       if (!mounted) return;
       setState(() {
         _dsHinhThuc = ds;
+        if (_hinhThuc == null && ds.isNotEmpty) {
+          _hinhThuc = ds.first.ma;
+        }
         _dangTai = false;
       });
     } on ApiException catch (e) {
@@ -78,16 +81,40 @@ class _DatHangScreenState extends State<DatHangScreen> {
     return null;
   }
 
+  bool get _laNhanTaiDiemBan {
+    final ma = (_daChon?.ma ?? _hinhThuc ?? '').toLowerCase();
+    final ten = (_daChon?.ten ?? '').toLowerCase();
+    return ma.contains('diem_ban') ||
+        ma.contains('tai_cho') ||
+        ma.contains('pickup') ||
+        ten.contains('điểm bán') ||
+        ten.contains('nhận tại');
+  }
+
+  void _doiHinhThuc(String? v) {
+    setState(() {
+      _hinhThuc = v;
+      if (_laNhanTaiDiemBan && _diaChi.text.trim().isEmpty) {
+        _diaChi.text = 'Nhận tại điểm bán';
+      } else if (!_laNhanTaiDiemBan && _diaChi.text.trim() == 'Nhận tại điểm bán') {
+        _diaChi.clear();
+      }
+    });
+  }
+
   Future<void> _gui() async {
     if (!_formKey.currentState!.validate()) return; // chặn gửi khi form sai
     setState(() => _dangGui = true);
     try {
+      final diaChiGui = _laNhanTaiDiemBan && _diaChi.text.trim().isEmpty
+          ? 'Nhận tại điểm bán'
+          : _diaChi.text.trim();
       final don = await _repo.datHang(
         hinhThucGiao: _hinhThuc!,
-        tenNguoiNhan: _ten.text,
-        sdtNguoiNhan: _sdt.text,
-        diaChiGiao: _diaChi.text,
-        ghiChu: _ghiChu.text,
+        tenNguoiNhan: _ten.text.trim(),
+        sdtNguoiNhan: _sdt.text.trim(),
+        diaChiGiao: diaChiGui,
+        ghiChu: _ghiChu.text.trim(),
       );
       if (!mounted) return;
       Navigator.pop(context, don); // trả đơn mới cho màn hình giỏ hàng
@@ -111,81 +138,137 @@ class _DatHangScreenState extends State<DatHangScreen> {
     if (_loi != null) return TrangThaiLoi(thongDiep: _loi!, onThuLai: _taiHinhThuc);
     final theme = Theme.of(context);
     final phi = _daChon?.phiGiao ?? 0;
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            DropdownButtonFormField<String>(
-              key: const Key('oHinhThucGiao'),
-              initialValue: _hinhThuc,
-              decoration: const InputDecoration(labelText: 'Hình thức giao', border: OutlineInputBorder()),
-              items: [
-                for (final h in _dsHinhThuc)
-                  DropdownMenuItem(value: h.ma, child: Text('${h.ten} · ${DinhDang.tien(h.phiGiao)}')),
-              ],
-              onChanged: (v) => setState(() => _hinhThuc = v),
-              validator: (v) => v == null ? 'Vui lòng chọn hình thức giao' : null,
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              key: const Key('oTenNguoiNhan'),
-              controller: _ten,
-              decoration: const InputDecoration(labelText: 'Tên người nhận', border: OutlineInputBorder()),
-              validator: (v) => KiemTra.batBuoc(v, 'tên người nhận') ?? KiemTra.doDaiToiDa(v, 120),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              key: const Key('oSdtNguoiNhan'),
-              controller: _sdt,
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(labelText: 'Số điện thoại người nhận', border: OutlineInputBorder()),
-              validator: KiemTra.soDienThoai,
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              key: const Key('oDiaChi'),
-              controller: _diaChi,
-              maxLines: 2,
-              decoration: const InputDecoration(
-                  labelText: 'Địa chỉ giao (hoặc ghi "Nhận tại điểm bán")', border: OutlineInputBorder()),
-              validator: (v) => KiemTra.batBuoc(v, 'địa chỉ giao') ?? KiemTra.doDaiToiDa(v, 500),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _ghiChu,
-              maxLines: 2,
-              decoration: const InputDecoration(labelText: 'Ghi chú (không bắt buộc)', border: OutlineInputBorder()),
-              validator: (v) => KiemTra.doDaiToiDa(v, 1000),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  children: [
-                    _dongTien('Tạm tính', widget.tamTinh),
-                    _dongTien('Phí giao', phi),
-                    const Divider(),
-                    _dongTien('Tổng (ước tính)', widget.tamTinh + phi, dam: true),
-                    Text('Giá và tổng tiền cuối cùng do hệ thống tính khi đặt.', style: theme.textTheme.bodySmall),
-                  ],
-                ),
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text('Hình thức giao', style: TextStyle(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  DropdownButtonFormField<String>(
+                    key: const Key('oHinhThucGiao'),
+                    initialValue: _hinhThuc,
+                    decoration: const InputDecoration(
+                      hintText: 'Chọn hình thức giao',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    items: [
+                      for (final h in _dsHinhThuc)
+                        DropdownMenuItem(
+                          value: h.ma,
+                          child: Text('${h.ten} · ${DinhDang.tien(h.phiGiao)}'),
+                        ),
+                    ],
+                    onChanged: _doiHinhThuc,
+                    validator: (v) => v == null ? 'Vui lòng chọn hình thức giao' : null,
+                  ),
+                  const SizedBox(height: 14),
+                  const Text('Tên người nhận', style: TextStyle(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  TextFormField(
+                    key: const Key('oTenNguoiNhan'),
+                    controller: _ten,
+                    decoration: const InputDecoration(
+                      hintText: 'Nhập họ và tên người nhận',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    validator: (v) => KiemTra.batBuoc(v, 'tên người nhận') ?? KiemTra.doDaiToiDa(v, 120),
+                  ),
+                  const SizedBox(height: 14),
+                  const Text('Số điện thoại người nhận', style: TextStyle(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  TextFormField(
+                    key: const Key('oSdtNguoiNhan'),
+                    controller: _sdt,
+                    keyboardType: TextInputType.phone,
+                    decoration: const InputDecoration(
+                      hintText: 'Nhập số điện thoại liên hệ',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    validator: KiemTra.soDienThoai,
+                  ),
+                  const SizedBox(height: 14),
+                  const Text('Địa chỉ giao', style: TextStyle(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  TextFormField(
+                    key: const Key('oDiaChi'),
+                    controller: _diaChi,
+                    maxLines: _laNhanTaiDiemBan ? 1 : 2,
+                    decoration: InputDecoration(
+                      hintText: _laNhanTaiDiemBan
+                          ? 'Nhận tại điểm bán của cơ sở'
+                          : 'Nhập địa chỉ nhận hàng chi tiết',
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    validator: (v) => KiemTra.batBuoc(v, 'địa chỉ giao') ?? KiemTra.doDaiToiDa(v, 500),
+                  ),
+                  const SizedBox(height: 14),
+                  const Text('Ghi chú (không bắt buộc)', style: TextStyle(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 6),
+                  TextFormField(
+                    controller: _ghiChu,
+                    maxLines: 2,
+                    decoration: const InputDecoration(
+                      hintText: 'Ví dụ: giao giờ hành chính, gọi trước khi giao...',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    validator: (v) => KiemTra.doDaiToiDa(v, 1000),
+                  ),
+                  const SizedBox(height: 18),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _dongTien('Tạm tính', widget.tamTinh),
+                          _dongTien('Phí giao', phi),
+                          const Divider(height: 16),
+                          _dongTien('Tổng (ước tính)', widget.tamTinh + phi, dam: true),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Tổng thanh toán cuối cùng được hệ thống xác nhận khi tạo đơn.',
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-            FilledButton(
-              key: const Key('nutXacNhanDat'),
-              onPressed: _dangGui ? null : _gui,
-              child: _dangGui
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('Xác nhận đặt hàng'),
-            ),
-          ],
+          ),
         ),
-      ),
+        Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            border: Border(top: BorderSide(color: theme.dividerColor, width: 0.8)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+              child: FilledButton(
+                key: const Key('nutXacNhanDat'),
+                onPressed: _dangGui ? null : _gui,
+                child: _dangGui
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                    : Text('Xác nhận đặt hàng · ${DinhDang.tien(widget.tamTinh + phi)}'),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
