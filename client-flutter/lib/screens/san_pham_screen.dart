@@ -10,6 +10,7 @@ import '../utils/dinh_dang.dart';
 import '../widgets/anh_mang.dart';
 import '../widgets/hop_thoai.dart';
 import '../widgets/trang_thai_loi.dart';
+import 'ban_do_vung_screen.dart';
 import 'chi_tiet_san_pham_screen.dart';
 import 'gio_hang_screen.dart';
 import 'yeu_cau_dang_nhap.dart';
@@ -252,7 +253,18 @@ Future<void> _themNhanhVaoGio(SanPham sp) async {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Đặc sản OCOP')),
+      appBar: AppBar(
+        title: const Text('Đặc sản OCOP'),
+        actions: [
+          if (_vung.any((v) => v.coToaDo))
+            IconButton(
+              key: const Key('nutBanDoVung'),
+              tooltip: 'Bản đồ vùng nguyên liệu',
+              icon: const Icon(Icons.map_outlined),
+              onPressed: _moBanDoVung,
+            ),
+        ],
+      ),
       body: Column(
         children: [
           _boLoc(),

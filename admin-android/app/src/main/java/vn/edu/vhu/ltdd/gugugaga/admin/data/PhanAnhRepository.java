@@ -2,25 +2,25 @@ package vn.edu.vhu.ltdd.gugugaga.admin.data;
 
 import android.content.Context;
 
-import java.util.List;
-
+import vn.edu.vhu.ltdd.gugugaga.admin.model.DanhSach;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.PhanAnh;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauXuLyPhanAnh;
 
 /** API phản ánh hàng giả, sai mô tả cho nhân sự. */
 public class PhanAnhRepository {
-    private static final int KICH_THUOC_TRANG = 100;
-
     private final Context app;
 
     public PhanAnhRepository(Context ctx) {
         this.app = ctx.getApplicationContext();
     }
 
-    /** @param trangThai MOI / DANG_XU_LY / DA_XU_LY / BAC_BO, hoặc null để lấy tất cả. */
-    public void danhSach(String trangThai, KetQuaApi<List<PhanAnh>> kq) {
-        GoiApi.goi(app, ApiClient.get(app).dsPhanAnh(trangThai, 1, KICH_THUOC_TRANG), true,
-                GoiApi.chiLayDuLieu(kq));
+    /**
+     * Một trang phản ánh (mới xếp trước), kèm phanTrang.
+     *
+     * @param trangThai MOI / DANG_XU_LY / DA_XU_LY / BAC_BO, hoặc null để lấy tất cả.
+     */
+    public void danhSach(String trangThai, int trang, int kichThuoc, KetQuaApi<DanhSach<PhanAnh>> kq) {
+        GoiApi.goi(app, ApiClient.get(app).dsPhanAnh(trangThai, trang, kichThuoc), true, kq);
     }
 
     public void chiTiet(int id, KetQuaApi<PhanAnh> kq) {

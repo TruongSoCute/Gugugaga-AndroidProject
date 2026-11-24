@@ -53,6 +53,10 @@ public class TaiKhoanFragment extends Fragment {
         btnBaoCao.setVisibility(quanTri ? View.VISIBLE : View.GONE); // backend vẫn trả 403 cho NHAN_VIEN
         btnBaoCao.setOnClickListener(v -> main.moManHinh(new BaoCaoFragment()));
 
+        View btnQuanLyTaiKhoan = view.findViewById(R.id.btnQuanLyTaiKhoan);
+        btnQuanLyTaiKhoan.setVisibility(quanTri ? View.VISIBLE : View.GONE);
+        btnQuanLyTaiKhoan.setOnClickListener(v -> main.moManHinh(new TaiKhoanQuanTriFragment()));
+
         view.findViewById(R.id.btnDangXuat).setOnClickListener(v ->
                 new MaterialAlertDialogBuilder(requireContext())
                         .setMessage(R.string.xac_nhan_dang_xuat)

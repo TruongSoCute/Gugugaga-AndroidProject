@@ -18,27 +18,37 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAppearance="?attr/textAppearanceTitleMedium" />
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvMaTruyXuat"
             style="@style/MaTruyXuat"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/khoang_xs" />
+            android:layout_marginTop="@dimen/khoang_xs"
+            android:background="@color/nen_da_duyet"
+            android:paddingStart="@dimen/khoang_sm"
+            android:paddingTop="2dp"
+            android:paddingEnd="@dimen/khoang_sm"
+            android:paddingBottom="2dp"
+            android:textColor="@color/xanh_ocop"
+            android:textSize="@dimen/chu_nho" />
 
         <TextView
             android:id="@+id/tvNgay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/khoang_xs" />
+            android:layout_marginTop="@dimen/khoang_sm" />
 
         <TextView
             android:id="@+id/tvTon"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
             android:ellipsize="end"
             android:maxLines="1"
+            android:textColor="@color/xam_chu"
             android:textSize="@dimen/chu_nho" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

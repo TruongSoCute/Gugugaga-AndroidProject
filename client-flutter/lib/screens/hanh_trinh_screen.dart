@@ -4,10 +4,12 @@ import '../data/api_client.dart';
 import '../data/phien_dang_nhap.dart';
 import '../data/truy_xuat_repository.dart';
 import '../models/hanh_trinh_lo.dart';
+import '../models/vung.dart';
 import '../utils/dinh_dang.dart';
 import '../widgets/anh_mang.dart';
 import '../widgets/hop_thoai.dart';
 import '../widgets/trang_thai_loi.dart';
+import 'ban_do_vung_screen.dart';
 import 'phan_anh_screen.dart';
 import 'yeu_cau_dang_nhap.dart';
 
@@ -160,6 +162,32 @@ class _ThongTinLo extends StatelessWidget {
               _Dong(nhan: 'Ngày sản xuất', giaTri: DinhDang.ngay(lo.ngaySanXuat)),
               _Dong(nhan: 'Hạn sử dụng', giaTri: DinhDang.ngay(lo.hanSuDung)),
               _Dong(nhan: 'Vùng nguyên liệu', giaTri: lo.vungNguyenLieu),
+              if (lo.vungViDo != null && lo.vungKinhDo != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, bottom: 4),
+                  child: OutlinedButton.icon(
+                    key: const Key('nutXemBanDoVung'),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BanDoVungScreen(
+                          dsVung: [
+                            Vung(
+                              id: lo.vungId ?? 0,
+                              ten: lo.vungNguyenLieu,
+                              moTa: lo.vungMoTa,
+                              viDo: lo.vungViDo,
+                              kinhDo: lo.vungKinhDo,
+                            ),
+                          ],
+                          vungIdChonSan: lo.vungId ?? 0,
+                        ),
+                      ),
+                    ),
+                    icon: const Icon(Icons.map_outlined, size: 18),
+                    label: const Text('Xem vùng nguyên liệu trên bản đồ'),
+                  ),
+                ),
               _Dong(nhan: 'Người sản xuất', giaTri: lo.nguoiSanXuat),
               _Dong(nhan: 'Nhà cung cấp', giaTri: lo.tenNhaCungCap),
               _Dong(nhan: 'Địa chỉ', giaTri: lo.diaChiNhaCungCap),

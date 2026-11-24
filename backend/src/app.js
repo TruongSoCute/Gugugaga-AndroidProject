@@ -48,6 +48,7 @@ function createApp({ pool, config, storage }) {
   });
   app.use('/health', heThong.healthRouter);
   app.use('/auth', taiKhoan.authRouter);
+  app.use('/quan-tri/tai-khoan', taiKhoan.adminRouter);
   app.use('/vung-nguyen-lieu', danhMuc.vungRouter);
   app.use('/nha-cung-cap', nhaCungCap.publicRouter);
   app.use('/san-pham', sanPham.publicRouter);

@@ -201,7 +201,8 @@ model/                    lớp dữ liệu khớp JSON
 ui/
   MainActivity.java       BottomNavigationView 5 tab: Sản phẩm, Lô, Đơn hàng, Phản ánh, Tài khoản
   chung/                  TrangThai, KhungTrangThai (đang tải / dữ liệu / trống / lỗi + Thử lại), XacNhanDialog,
-                          CoSoViewModel, LocDanhSachViewModel, ChiTietViewModel, SuKien, NhanTrangThai, NutThaoTac, BoLoc, ManHinh
+                          CoSoViewModel, LocDanhSachViewModel (bộ lọc + phân trang 20 dòng), ChiTietViewModel, SuKien,
+                          CuonTaiThem + ChanTaiThem (cuộn gần cuối thì tải trang sau), NhanTrangThai, NutThaoTac, BoLoc, ManHinh
   dangnhap/               LoginActivity + DangNhapViewModel (chỉ nhận QUAN_TRI, NHAN_VIEN)
   sanpham/                danh sách + duyệt/từ chối (2 DialogFragment)
   nhacungcap/             danh sách + chi tiết hồ sơ, chứng nhận, duyệt (QUAN_TRI)

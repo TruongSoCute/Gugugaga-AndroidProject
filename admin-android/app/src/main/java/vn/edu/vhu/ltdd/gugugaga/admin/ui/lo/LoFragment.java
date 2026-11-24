@@ -19,6 +19,7 @@ import java.util.List;
 import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.LoSanXuat;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.MainActivity;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ChanTaiThem;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.KhungTrangThai;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ManHinh;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.TrangThai;
@@ -64,6 +65,7 @@ public class LoFragment extends Fragment {
         adapter = new LoAdapter(lo -> main.moManHinh(ChiTietLoFragment.newInstance(lo.id)));
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         rv.setAdapter(adapter);
+        ChanTaiThem.gan(this, view, rv, viewModel); // cuộn gần cuối thì tải trang sau
 
         viewModel.getDanhSach().observe(getViewLifecycleOwner(), this::hienThi);
         ManHinh.quanSatChung(this, viewModel);

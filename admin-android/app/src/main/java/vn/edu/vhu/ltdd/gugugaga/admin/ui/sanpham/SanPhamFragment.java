@@ -27,6 +27,7 @@ import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.data.TokenStore;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.SanPham;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.MainActivity;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ChanTaiThem;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.TrangThai;
 
 /**
@@ -35,6 +36,9 @@ import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.TrangThai;
  * Hiển thị đủ 3 trạng thái gọi API: đang tải / có dữ liệu (hoặc trống) / lỗi + Thử lại (C.1 #8).
  */
 public class SanPhamFragment extends Fragment implements SanPhamAdapter.HanhDong {
+    public static final String KET_QUA_CAP_NHAT = "cap_nhat_san_pham";
+    public static final String KEY_THONG_BAO = "thong_bao";
+
     private SanPhamViewModel viewModel;
     private SanPhamAdapter adapter;
     private RecyclerView rv;
@@ -53,6 +57,8 @@ public class SanPhamFragment extends Fragment implements SanPhamAdapter.HanhDong
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         ((MainActivity) requireActivity()).datTieuDe(R.string.tieu_de_san_pham);
+        view.findViewById(R.id.fabThem).setOnClickListener(v ->
+                ((MainActivity) requireActivity()).moManHinh(new TaoSanPhamFragment()));
         rv = view.findViewById(R.id.rvSanPham);
         progress = view.findViewById(R.id.progress);
         tvTrong = view.findViewById(R.id.tvTrong);
@@ -66,6 +72,7 @@ public class SanPhamFragment extends Fragment implements SanPhamAdapter.HanhDong
         rv.setAdapter(adapter);
 
         viewModel = new ViewModelProvider(this).get(SanPhamViewModel.class);
+        ChanTaiThem.gan(this, view, rv, viewModel); // cuộn gần cuối thì tải trang sau
         caiDatSpinner(view.findViewById(R.id.spLoc));
 
         viewModel.getDanhSach().observe(getViewLifecycleOwner(), this::hienThi);
@@ -85,6 +92,11 @@ public class SanPhamFragment extends Fragment implements SanPhamAdapter.HanhDong
         fm.setFragmentResultListener(TuChoiSanPhamDialog.REQUEST_KEY, getViewLifecycleOwner(), (k, b) ->
                 viewModel.tuChoi(b.getInt(TuChoiSanPhamDialog.KEY_ID), b.getString(TuChoiSanPhamDialog.KEY_TEN),
                         b.getString(TuChoiSanPhamDialog.KEY_LY_DO)));
+        getParentFragmentManager().setFragmentResultListener(KET_QUA_CAP_NHAT, getViewLifecycleOwner(), (k, b) -> {
+            String tb = b.getString(KEY_THONG_BAO);
+            if (tb != null) Snackbar.make(view, tb, Snackbar.LENGTH_LONG).show();
+            viewModel.taiLai();
+        });
     }
 
     /** Spinner + ArrayAdapter đổ dữ liệu từ arrays.xml (Lab A6). */

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -31,7 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingBottom="@dimen/khoang_md" />
+            android:paddingBottom="@dimen/dem_duoi_danh_sach" />
 
         <ProgressBar
             android:id="@+id/progress"
@@ -74,5 +75,17 @@
                 android:layout_marginTop="@dimen/khoang_sm"
                 android:text="@string/nut_thu_lai" />
         </LinearLayout>
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fabThem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/khoang_md"
+            android:text="@string/nut_them_san_pham"
+            app:icon="@drawable/ic_them" />
     </FrameLayout>
+
+    <!-- Tải trang tiếp theo khi cuộn gần cuối (phân trang) -->
+    <include layout="@layout/khung_tai_them" />
 </LinearLayout>
