@@ -250,6 +250,25 @@ Future<void> _themNhanhVaoGio(SanPham sp) async {
       thongBao(context, e.thongDiepDayDu);
     }
   }
+
+Future<void> _moBanDoVung() async {
+  final chon = await Navigator.push<int>(
+    context,
+    MaterialPageRoute(
+      builder: (_) => BanDoVungScreen(
+        dsVung: _vung,
+        vungIdChonSan: _vungId,
+        choPhepLoc: true,
+      ),
+    ),
+  );
+
+  if (!mounted || chon == null || chon == _vungId) return;
+
+  setState(() => _vungId = chon);
+  await _taiSanPham();
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
