@@ -57,7 +57,7 @@ public class DonHangFragment extends Fragment {
         rv.setAdapter(adapter);
         ChanTaiThem.gan(this, view, rv, viewModel); // cuộn gần cuối thì tải trang sau
 
-        BoLoc.caiDat(view.findViewById(R.id.spLoc), R.array.don_hang_nhan, R.array.don_hang_gia_tri,
+        BoLoc.caiDatChip(view.findViewById(R.id.cgLoc), R.array.don_hang_nhan, R.array.don_hang_gia_tri,
                 viewModel::chonLoc);
 
         viewModel.getDanhSach().observe(getViewLifecycleOwner(), this::hienThi);

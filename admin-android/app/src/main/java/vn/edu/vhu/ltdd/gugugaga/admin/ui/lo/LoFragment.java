@@ -20,6 +20,7 @@ import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.LoSanXuat;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.MainActivity;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ChanTaiThem;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ChuyenDong;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.KhungTrangThai;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ManHinh;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.TrangThai;
@@ -52,14 +53,15 @@ public class LoFragment extends Fragment {
         viewModel = new ViewModelProvider(this).get(LoViewModel.class);
 
         // Danh sách lô không có bộ lọc trạng thái.
-        view.findViewById(R.id.tvNhanLoc).setVisibility(View.GONE);
-        view.findViewById(R.id.spLoc).setVisibility(View.GONE);
+        view.findViewById(R.id.khungLoc).setVisibility(View.GONE);
         ExtendedFloatingActionButton fab = view.findViewById(R.id.fabThem);
         fab.setText(R.string.nut_tao_lo);
         fab.setVisibility(View.VISIBLE);
         fab.setOnClickListener(v -> main.moManHinh(new TaoLoFragment()));
+        ChuyenDong.ganNhanNhe(fab);
 
         rv = view.findViewById(R.id.rvDanhSach);
+        ChuyenDong.ganThuGonFab(rv, fab);
         khung = new KhungTrangThai(view, viewModel::taiLai);
         khung.datChuTrong(R.string.trong_lo);
         adapter = new LoAdapter(lo -> main.moManHinh(ChiTietLoFragment.newInstance(lo.id)));

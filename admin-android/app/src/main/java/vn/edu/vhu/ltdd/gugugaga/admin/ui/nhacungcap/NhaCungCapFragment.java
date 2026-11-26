@@ -61,7 +61,7 @@ public class NhaCungCapFragment extends Fragment {
         rv.setAdapter(adapter);
         ChanTaiThem.gan(this, view, rv, viewModel); // cuộn gần cuối thì tải trang sau
 
-        BoLoc.caiDat(view.findViewById(R.id.spLoc), R.array.trang_thai_nhan, R.array.trang_thai_gia_tri,
+        BoLoc.caiDatChip(view.findViewById(R.id.cgLoc), R.array.trang_thai_nhan, R.array.trang_thai_gia_tri,
                 viewModel::chonLoc);
 
         viewModel.getDanhSach().observe(getViewLifecycleOwner(), this::hienThi);

@@ -1,38 +1,188 @@
 <resources>
+    <!-- Chủ đề tối giản hiện đại (Mobbin / 21st style): không viền thừa, phân tầng bề mặt sạch -->
     <style name="Theme.GugugagaAdmin" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/xanh_ocop</item>
+        <item name="colorOnPrimary">@color/nen_icon</item>
         <item name="colorPrimaryContainer">@color/xanh_ocop_nhat</item>
+        <item name="colorOnPrimaryContainer">@color/xanh_ocop_tren_nhat</item>
+
+        <item name="colorSecondary">@color/xanh_phu</item>
+        <item name="colorSecondaryContainer">@color/xanh_phu_nhat</item>
+        <item name="colorOnSecondaryContainer">@color/xanh_phu_tren_nhat</item>
+
+        <item name="colorTertiary">@color/vang_ocop</item>
+        <item name="colorTertiaryContainer">@color/vang_ocop_nhat</item>
+        <item name="colorOnTertiaryContainer">@color/vang_ocop_tren_nhat</item>
+
+        <item name="android:colorBackground">@color/nen_man_hinh</item>
+        <item name="colorSurface">@color/nen_man_hinh</item>
+        <item name="colorSurfaceContainerLowest">@color/nen_the</item>
+        <item name="colorSurfaceContainerLow">@color/nen_nhap</item>
+        <item name="colorSurfaceContainer">@color/nen_nhap_dam</item>
+        <item name="colorOnSurface">@color/chu_chinh</item>
+        <item name="colorOnSurfaceVariant">@color/chu_phu</item>
+        <item name="colorOutlineVariant">@color/vien_the</item>
+        <item name="colorError">@color/do_tu_choi</item>
+
+        <item name="android:windowBackground">@color/nen_man_hinh</item>
+        <item name="shapeAppearanceSmallComponent">@style/HinhDangNho</item>
+        <item name="shapeAppearanceMediumComponent">@style/HinhDangVua</item>
+        <item name="shapeAppearanceLargeComponent">@style/HinhDangLon</item>
+
+        <item name="materialButtonStyle">@style/NutChinhOcop</item>
+        <item name="materialButtonOutlinedStyle">@style/NutVienOcop</item>
+        <item name="textInputStyle">@style/ONhapOcop</item>
+        <item name="bottomNavigationStyle">@style/ThanhDieuHuongDuoiOcop</item>
+        <item name="chipStyle">@style/ChipLocOcop</item>
     </style>
 
-    <!-- Nhãn trạng thái nhỏ trên mỗi dòng danh sách. -->
+    <style name="HinhDangNho" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerSize">@dimen/bo_goc_md</item>
+    </style>
+
+    <style name="HinhDangVua" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">@dimen/bo_goc_the</item>
+    </style>
+
+    <style name="HinhDangLon" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerSize">@dimen/bo_goc_lon</item>
+    </style>
+
+    <style name="HinhAnhBoGoc">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/bo_goc_md</item>
+    </style>
+
+    <style name="HinhAnhBoGocNho">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/bo_goc_sm</item>
+    </style>
+
+    <!-- Nút chính tối giản bo góc 14dp, phẳng không bóng thừa -->
+    <style name="NutChinhOcop" parent="Widget.Material3.Button">
+        <item name="cornerRadius">@dimen/bo_goc_md</item>
+        <item name="android:minHeight">@dimen/nut_cao</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:elevation">0dp</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <!-- Nút phụ dạng nền xám nhẹ KHÔNG viền thay cho nút viền cũ -->
+    <style name="NutVienOcop" parent="Widget.Material3.Button.TonalButton">
+        <item name="cornerRadius">@dimen/bo_goc_md</item>
+        <item name="backgroundTint">@color/nen_nhap</item>
+        <item name="android:textColor">@color/chu_chinh</item>
+        <item name="android:minHeight">46dp</item>
+    </style>
+
+    <style name="NutPhuOcop" parent="Widget.Material3.Button.TonalButton">
+        <item name="cornerRadius">@dimen/bo_goc_md</item>
+        <item name="android:minHeight">46dp</item>
+        <item name="backgroundTint">@color/xanh_ocop_nhat</item>
+        <item name="android:textColor">@color/xanh_ocop_tren_nhat</item>
+    </style>
+
+    <!-- Ô nhập hiện đại nền xám siêu mịn, KHÔNG khung viền khi chưa focus -->
+    <style name="ONhapOcop" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">@dimen/bo_goc_md</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/bo_goc_md</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/bo_goc_md</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/bo_goc_md</item>
+        <item name="boxBackgroundColor">@color/nen_nhap</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">1.5dp</item>
+        <item name="boxStrokeColor">@color/xanh_ocop</item>
+    </style>
+
+    <!-- Thanh điều hướng nổi dạng viên thuốc (Floating Capsule Dock) đồng bộ với app Client -->
+    <style name="ThanhDieuHuongDuoiOcop" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:minHeight">64dp</item>
+        <item name="itemActiveIndicatorStyle">@style/ChiBaoTabOcop</item>
+        <item name="itemIconTint">@color/mau_tab_bottom</item>
+        <item name="itemTextColor">@color/mau_tab_bottom</item>
+        <item name="itemIconSize">22dp</item>
+        <item name="itemPaddingTop">10dp</item>
+        <item name="itemPaddingBottom">10dp</item>
+        <item name="itemTextAppearanceActive">@style/ChuTabDockChon</item>
+        <item name="itemTextAppearanceInactive">@style/ChuTabDock</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="ChiBaoTabOcop" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/chi_bao_dock</item>
+        <item name="android:width">54dp</item>
+        <item name="android:height">30dp</item>
+    </style>
+
+    <style name="ChuTabDock" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">@dimen/chu_tab_dock</item>
+    </style>
+
+    <style name="ChuTabDockChon" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">@dimen/chu_tab_dock</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Chip lọc tối giản KHÔNG VIỀN: nền xám nhẹ -> đen chữ trắng khi chọn -->
+    <style name="ChipLocOcop" parent="Widget.Material3.Chip.Filter">
+        <item name="chipCornerRadius">@dimen/bo_goc_vien</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="chipBackgroundColor">@color/mau_nen_chip_loc</item>
+        <item name="android:textColor">@color/mau_chu_chip_loc</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipMinTouchTargetSize">38dp</item>
+    </style>
+
+    <!-- Nhãn trạng thái dạng pill không viền -->
     <style name="NhanTrangThai">
+        <item name="android:background">@drawable/nen_nhan_trang_thai</item>
         <item name="android:textSize">@dimen/chu_nho</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:paddingStart">@dimen/khoang_sm</item>
-        <item name="android:paddingEnd">@dimen/khoang_sm</item>
-        <item name="android:paddingTop">2dp</item>
-        <item name="android:paddingBottom">2dp</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
     </style>
 
-    <!-- Thẻ một dòng trong danh sách (MaterialCardView, Lab A3). -->
-    <style name="TheDong" parent="Widget.Material3.CardView.Outlined">
+    <!-- Thẻ danh sách KHÔNG VIỀN, KHÔNG BÓNG THỪA: tách lớp nhờ trắng tinh trên nền #F6F7F9 -->
+    <style name="TheDong" parent="Widget.Material3.CardView.Filled">
+        <item name="cardBackgroundColor">@color/nen_the</item>
+        <item name="cardCornerRadius">@dimen/bo_goc_the</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeWidth">0dp</item>
         <item name="android:layout_marginStart">@dimen/khoang_md</item>
-        <item name="android:layout_marginTop">@dimen/khoang_sm</item>
+        <item name="android:layout_marginTop">5dp</item>
         <item name="android:layout_marginEnd">@dimen/khoang_md</item>
+        <item name="android:layout_marginBottom">5dp</item>
     </style>
 
-    <!-- Thẻ tóm tắt ở đầu màn hình chi tiết. -->
-    <style name="TheChiTiet" parent="Widget.Material3.CardView.Filled" />
+    <!-- Thẻ chi tiết / form KHÔNG VIỀN -->
+    <style name="TheChiTiet" parent="Widget.Material3.CardView.Filled">
+        <item name="cardBackgroundColor">@color/nen_the</item>
+        <item name="cardCornerRadius">@dimen/bo_goc_the</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
 
-    <!-- Tiêu đề từng mục trong màn hình chi tiết. -->
+    <style name="TheHero" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/bo_goc_lon</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <!-- Tiêu đề mục tối giản, chữ phụ tinh tế -->
     <style name="TieuDeMuc">
         <item name="android:layout_marginTop">@dimen/khoang_lg</item>
-        <item name="android:layout_marginBottom">@dimen/khoang_xs</item>
-        <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
-        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:layout_marginBottom">@dimen/khoang_sm</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelLarge</item>
+        <item name="android:textColor">@color/chu_phu</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.03</item>
     </style>
 
-    <!-- Mã truy xuất 20 ký tự hex: chữ đơn cách cho dễ đọc, dễ đối chiếu với tem. -->
+    <!-- Mã truy xuất 20 ký tự hex -->
     <style name="MaTruyXuat">
         <item name="android:fontFamily">monospace</item>
         <item name="android:textStyle">bold</item>

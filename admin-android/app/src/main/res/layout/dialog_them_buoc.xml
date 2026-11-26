@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -14,7 +15,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilTenBuoc"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/ONhapOcop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/hint_ten_buoc">
@@ -30,11 +31,12 @@
         <!-- Không cho gõ tay: bấm vào để mở DatePickerDialog rồi TimePickerDialog. -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilThoiDiem"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/ONhapOcop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/khoang_sm"
-            android:hint="@string/hint_thoi_diem">
+            android:hint="@string/hint_thoi_diem"
+            app:startIconDrawable="@drawable/ic_lich">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edtThoiDiem"
@@ -47,7 +49,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilMoTa"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/ONhapOcop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/khoang_sm"
@@ -64,7 +66,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilAnhUrl"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/ONhapOcop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/khoang_sm"
@@ -84,9 +86,9 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnChonAnhBuoc"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/NutPhuOcop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/nut_chon_anh" />
@@ -105,19 +107,20 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/khoang_sm"
                 android:layout_weight="1"
-                android:textColor="@color/xam_chu"
+                android:textColor="@color/chu_phu"
                 android:textSize="@dimen/chu_nho"
                 android:visibility="gone" />
         </LinearLayout>
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivXemTruocAnhBuoc"
             android:layout_width="match_parent"
             android:layout_height="@dimen/anh_lon"
             android:layout_marginTop="@dimen/khoang_sm"
-            android:background="@color/xam_nen"
+            android:background="@color/nen_nhap"
             android:contentDescription="@string/mo_ta_anh_buoc"
             android:scaleType="centerCrop"
-            android:visibility="gone" />
+            android:visibility="gone"
+            app:shapeAppearanceOverlay="@style/HinhAnhBoGoc" />
     </LinearLayout>
 </ScrollView>

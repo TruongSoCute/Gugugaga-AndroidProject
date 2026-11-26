@@ -13,6 +13,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilHoTen"
+            style="@style/ONhapOcop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/hint_ho_ten">
@@ -26,10 +27,12 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilEmail"
+            style="@style/ONhapOcop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/khoang_sm"
-            android:hint="@string/hint_email">
+            android:hint="@string/hint_email"
+            app:startIconDrawable="@drawable/ic_email">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edtEmail"
@@ -40,11 +43,13 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilMatKhau"
+            style="@style/ONhapOcop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/khoang_sm"
             android:hint="@string/hint_mat_khau"
-            app:endIconMode="password_toggle">
+            app:endIconMode="password_toggle"
+            app:startIconDrawable="@drawable/ic_mat_khau">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edtMatKhau"
@@ -55,6 +60,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilSoDienThoai"
+            style="@style/ONhapOcop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/khoang_sm"

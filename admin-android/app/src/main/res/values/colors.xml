@@ -1,15 +1,52 @@
 <resources>
-    <color name="xanh_ocop">#1B6B3A</color>
-    <color name="xanh_ocop_nhat">#A7F0B8</color>
-    <color name="vang_cho_duyet">#8A5A00</color>
-    <color name="nen_cho_duyet">#FFE9C2</color>
-    <color name="xanh_da_duyet">#1B6B3A</color>
-    <color name="nen_da_duyet">#D6F5DE</color>
-    <color name="do_tu_choi">#A1271B</color>
-    <color name="nen_tu_choi">#FFDAD4</color>
+    <!-- Bảng màu tối giản chuẩn Mobbin / 21st: Trung tính sạch + 1 màu nhấn Xanh OCOP -->
+    <color name="xanh_ocop">#15803D</color>
+    <color name="xanh_ocop_dam">#115E3B</color>
+    <color name="xanh_ocop_sang">#16A34A</color>
+    <color name="xanh_ocop_nhat">#E7F6EC</color>
+    <color name="xanh_ocop_tren_nhat">#14532D</color>
+
+    <color name="xanh_phu">#374151</color>
+    <color name="xanh_phu_nhat">#F1F2F4</color>
+    <color name="xanh_phu_tren_nhat">#111827</color>
+
+    <color name="vang_ocop">#D97706</color>
+    <color name="vang_ocop_nhat">#FEF7E6</color>
+    <color name="vang_ocop_tren_nhat">#92400E</color>
+    <color name="vang_ocop_vien">#00000000</color>
+
+    <!-- Phân tầng bề mặt không viền: nền xám siêu nhạt + thẻ trắng tinh -->
+    <color name="nen_man_hinh">#F6F7F9</color>
+    <color name="nen_the">#FFFFFF</color>
+    <color name="nen_nhap">#F1F2F5</color>
+    <color name="nen_nhap_dam">#E5E7EB</color>
+    <color name="vien_the">#EAECEF</color>
+    <color name="chu_chinh">#111827</color>
+    <color name="chu_phu">#6B7280</color>
+    <color name="chu_tren_hero">#FFFFFF</color>
+    <color name="chu_phu_tren_hero">#D1D5DB</color>
+
+    <!-- Nhãn trạng thái dịu mắt, không viền -->
+    <color name="vang_cho_duyet">#B45309</color>
+    <color name="nen_cho_duyet">#FEF3C7</color>
+    <color name="xanh_da_duyet">#15803D</color>
+    <color name="nen_da_duyet">#E7F6EC</color>
+    <color name="do_tu_choi">#DC2626</color>
+    <color name="nen_tu_choi">#FEECEC</color>
     <color name="nen_icon">#FFFFFF</color>
-    <color name="xanh_duong_chu">#0B57A4</color>
-    <color name="xanh_duong_nen">#D8E6FA</color>
-    <color name="xam_chu">#4A4A4A</color>
-    <color name="xam_nen">#E6E6E6</color>
+    <color name="xanh_duong_chu">#2563EB</color>
+    <color name="xanh_duong_nen">#EFF6FF</color>
+    <color name="xam_chu">#4B5563</color>
+    <color name="xam_nen">#F1F2F5</color>
+
+    <!-- Thanh điều hướng nổi dạng viên thuốc đồng bộ màu sáng sạch với thẻ & thương hiệu OCOP -->
+    <color name="nen_dock">#FFFFFF</color>
+    <color name="tab_dock_chon">#15803D</color>
+    <color name="tab_dock_khong_chon">#6B7280</color>
+    <color name="chi_bao_dock">#E7F6EC</color>
+
+    <!-- Thứ hạng top nhà cung cấp -->
+    <color name="huy_chuong_vang">#111827</color>
+    <color name="huy_chuong_bac">#4B5563</color>
+    <color name="huy_chuong_dong">#6B7280</color>
 </resources>

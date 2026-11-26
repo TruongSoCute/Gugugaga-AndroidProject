@@ -5,24 +5,36 @@
     android:layout_height="wrap_content"
     android:minHeight="48dp"
     android:orientation="vertical"
-    android:paddingTop="@dimen/khoang_sm"
-    android:paddingBottom="@dimen/khoang_sm">
+    android:paddingTop="@dimen/khoang_sm_md"
+    android:paddingBottom="@dimen/khoang_sm_md">
 
     <TextView
         android:id="@+id/tvTenSanPham"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/chu_chinh"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvGiaDong"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textColor="@color/xanh_ocop"
+        android:textSize="@dimen/chu_phu"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvLoDong"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/khoang_xs"
+        android:background="@drawable/nen_ma_lo"
+        android:paddingStart="8dp"
+        android:paddingTop="3dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="3dp"
+        android:textColor="@color/xanh_ocop"
         android:textIsSelectable="true"
         android:textSize="@dimen/chu_nho" />
 </LinearLayout>

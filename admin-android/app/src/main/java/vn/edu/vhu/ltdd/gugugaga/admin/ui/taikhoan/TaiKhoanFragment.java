@@ -17,6 +17,7 @@ import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.data.TokenStore;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.MainActivity;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.baocao.BaoCaoFragment;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ChuyenDong;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.nhacungcap.NhaCungCapFragment;
 
 /**
@@ -40,24 +41,40 @@ public class TaiKhoanFragment extends Fragment {
         String vaiTro = TokenStore.layVaiTro(requireContext());
         boolean quanTri = AppConfig.VAI_TRO_QUAN_TRI.equals(vaiTro);
 
-        ((TextView) view.findViewById(R.id.tvHoTen)).setText(TokenStore.layHoTen(requireContext()));
+        String hoTen = TokenStore.layHoTen(requireContext());
+        ((TextView) view.findViewById(R.id.tvHoTen)).setText(hoTen);
+        String chuDau = (hoTen != null && !hoTen.trim().isEmpty())
+                ? hoTen.trim().substring(0, 1).toUpperCase(java.util.Locale.ROOT)
+                : "?";
+        TextView tvAvatar = view.findViewById(R.id.tvAvatar);
+        if (tvAvatar != null) tvAvatar.setText(chuDau);
         ((TextView) view.findViewById(R.id.tvEmail)).setText(TokenStore.layEmail(requireContext()));
-        ((TextView) view.findViewById(R.id.tvVaiTro)).setText(getString(R.string.tai_khoan_vai_tro,
-                getString(quanTri ? R.string.vai_tro_quan_tri : R.string.vai_tro_nhan_vien)));
-        ((TextView) view.findViewById(R.id.tvMayChu)).setText(getString(R.string.tai_khoan_may_chu, AppConfig.API_BASE_URL));
+        ((TextView) view.findViewById(R.id.tvVaiTro)).setText(
+                quanTri ? R.string.vai_tro_quan_tri : R.string.vai_tro_nhan_vien);
+        ((TextView) view.findViewById(R.id.tvMayChu)).setText(AppConfig.API_BASE_URL.replaceFirst("^https?://", "").replaceAll("/$", ""));
         view.findViewById(R.id.tvGhiChuNhanVien).setVisibility(quanTri ? View.GONE : View.VISIBLE);
 
         // Mở màn hình con bằng replace + addToBackStack (Lab A8), Back quay lại tab này.
-        view.findViewById(R.id.btnNhaCungCap).setOnClickListener(v -> main.moManHinh(new NhaCungCapFragment()));
+        View btnNhaCungCap = view.findViewById(R.id.btnNhaCungCap);
+        btnNhaCungCap.setOnClickListener(v -> main.moManHinh(new NhaCungCapFragment()));
+        ChuyenDong.ganNhanNhe(btnNhaCungCap);
         View btnBaoCao = view.findViewById(R.id.btnBaoCao);
         btnBaoCao.setVisibility(quanTri ? View.VISIBLE : View.GONE); // backend vẫn trả 403 cho NHAN_VIEN
         btnBaoCao.setOnClickListener(v -> main.moManHinh(new BaoCaoFragment()));
+        ChuyenDong.ganNhanNhe(btnBaoCao);
+        View vachBaoCao = view.findViewById(R.id.vachBaoCao);
+        if (vachBaoCao != null) vachBaoCao.setVisibility(quanTri ? View.VISIBLE : View.GONE);
 
         View btnQuanLyTaiKhoan = view.findViewById(R.id.btnQuanLyTaiKhoan);
         btnQuanLyTaiKhoan.setVisibility(quanTri ? View.VISIBLE : View.GONE);
         btnQuanLyTaiKhoan.setOnClickListener(v -> main.moManHinh(new TaiKhoanQuanTriFragment()));
+        ChuyenDong.ganNhanNhe(btnQuanLyTaiKhoan);
+        View vachTaiKhoan = view.findViewById(R.id.vachTaiKhoan);
+        if (vachTaiKhoan != null) vachTaiKhoan.setVisibility(quanTri ? View.VISIBLE : View.GONE);
 
-        view.findViewById(R.id.btnDangXuat).setOnClickListener(v ->
+        View btnDangXuat = view.findViewById(R.id.btnDangXuat);
+        ChuyenDong.ganNhanNhe(btnDangXuat);
+        btnDangXuat.setOnClickListener(v ->
                 new MaterialAlertDialogBuilder(requireContext())
                         .setMessage(R.string.xac_nhan_dang_xuat)
                         .setPositiveButton(R.string.nut_dang_xuat, (d, w) -> main.dangXuat(false))

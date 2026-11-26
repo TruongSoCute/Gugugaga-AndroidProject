@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/nen_man_hinh">
 
     <ScrollView
         android:id="@+id/noiDung"
@@ -15,134 +17,167 @@
             android:orientation="vertical"
             android:padding="@dimen/khoang_md">
 
-            <TextView
+            <com.google.android.material.card.MaterialCardView
+                style="@style/TheChiTiet"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/nhan_ncc_bat_buoc"
-                android:textSize="@dimen/chu_nho" />
+                android:layout_height="wrap_content">
 
-            <Spinner
-                android:id="@+id/spNhaCungCap"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="@dimen/khoang_xs"
-                android:background="@drawable/khung_spinner" />
-
-            <TextView
-                android:id="@+id/tvLoiNcc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/colorError"
-                android:textSize="@dimen/chu_nho"
-                android:visibility="gone" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilTen"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/khoang_sm"
-                android:hint="@string/hint_ten_sp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edtTen"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="vertical"
+                    android:padding="@dimen/khoang_md">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilGia"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/khoang_sm"
-                android:hint="@string/hint_gia_ban">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/muc_thong_tin_chung"
+                        android:textAppearance="?attr/textAppearanceTitleSmall"
+                        android:textColor="?attr/colorPrimary"
+                        android:textStyle="bold" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edtGia"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm_md"
+                        android:text="@string/nhan_ncc_bat_buoc"
+                        android:textColor="@color/chu_phu"
+                        android:textSize="@dimen/chu_nho" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilDonViTinh"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/khoang_sm"
-                android:hint="@string/hint_don_vi_tinh">
+                    <Spinner
+                        android:id="@+id/spNhaCungCap"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="@dimen/khoang_xs"
+                        android:background="@drawable/khung_spinner"
+                        android:paddingStart="@dimen/khoang_sm_md"
+                        android:paddingEnd="@dimen/khoang_sm_md" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edtDonViTinh"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    <TextView
+                        android:id="@+id/tvLoiNcc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="?attr/colorError"
+                        android:textSize="@dimen/chu_nho"
+                        android:visibility="gone" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilMoTa"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/khoang_sm"
-                android:hint="@string/hint_mo_ta_sp">
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilTen"
+                        style="@style/ONhapOcop"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:hint="@string/hint_ten_sp">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edtMoTa"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textMultiLine"
-                    android:minLines="2" />
-            </com.google.android.material.textfield.TextInputLayout>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtTen"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilAnh"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/khoang_sm"
-                android:hint="@string/hint_anh_sp">
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilGia"
+                        style="@style/ONhapOcop"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:hint="@string/hint_gia_ban">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edtAnh"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textUri" />
-            </com.google.android.material.textfield.TextInputLayout>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtGia"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/khoang_xs"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilDonViTinh"
+                        style="@style/ONhapOcop"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:hint="@string/hint_don_vi_tinh">
 
-                <Button
-                    android:id="@+id/btnChonAnh"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/nut_chon_anh" />
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtDonViTinh"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                <ProgressBar
-                    android:id="@+id/progressAnh"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginStart="@dimen/khoang_sm"
-                    android:visibility="gone" />
-            </LinearLayout>
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilMoTa"
+                        style="@style/ONhapOcop"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:hint="@string/hint_mo_ta_sp">
 
-            <ImageView
-                android:id="@+id/ivAnh"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_marginTop="@dimen/khoang_xs"
-                android:contentDescription="@string/hint_anh_sp"
-                android:scaleType="centerCrop"
-                android:visibility="gone" />
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtMoTa"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textMultiLine"
+                            android:minLines="2" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-            <Button
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilAnh"
+                        style="@style/ONhapOcop"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:hint="@string/hint_anh_sp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtAnh"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textUri" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnChonAnh"
+                            style="@style/NutPhuOcop"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/nut_chon_anh" />
+
+                        <ProgressBar
+                            android:id="@+id/progressAnh"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginStart="@dimen/khoang_sm"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivAnh"
+                        android:layout_width="match_parent"
+                        android:layout_height="160dp"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:contentDescription="@string/hint_anh_sp"
+                        android:scaleType="centerCrop"
+                        android:visibility="gone"
+                        app:shapeAppearanceOverlay="@style/HinhAnhBoGoc" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLuu"
+                style="@style/NutChinhOcop"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/khoang_lg"
+                android:layout_marginBottom="@dimen/khoang_md"
                 android:text="@string/nut_luu" />
 
             <ProgressBar

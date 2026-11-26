@@ -1,16 +1,18 @@
 package vn.edu.vhu.ltdd.gugugaga.admin.ui.chung;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.widget.TextView;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 
 import vn.edu.vhu.ltdd.gugugaga.admin.R;
 
 /**
- * Đổi mã trạng thái của backend (CHO_XAC_NHAN, MOI, DA_DUYET...) thành chữ tiếng Việt và màu nhãn.
+ * Đổi mã trạng thái của backend (CHO_XAC_NHAN, MOI, DA_DUYET...) thành chữ tiếng Việt và nhãn pill.
  * Mã trạng thái của đơn, phản ánh và hồ sơ không trùng nhau nên dùng chung một bảng.
  */
 public final class NhanTrangThai {
@@ -62,13 +64,19 @@ public final class NhanTrangThai {
         }
     }
 
-    /** Gán chữ và màu cho nhãn trạng thái (TextView dùng style NhanTrangThai). */
+    /** Gán chữ và màu cho nhãn trạng thái dạng pill bo tròn. */
     public static void gan(TextView tv, String ma) {
-        Context ctx = tv.getContext();
         int[] m = mau(ma);
-        tv.setText(chu(ma));
-        tv.setTextColor(ContextCompat.getColor(ctx, m[0]));
-        tv.setBackgroundColor(ContextCompat.getColor(ctx, m[1]));
+        ganMau(tv, chu(ma), m[0], m[1]);
+    }
+
+    /** Gán chữ, màu chữ và màu nền pill bo tròn (dùng lại cho trạng thái tài khoản, sản phẩm...). */
+    public static void ganMau(TextView tv, @StringRes int chuRes, @ColorRes int mauChu, @ColorRes int mauNen) {
+        Context ctx = tv.getContext();
+        tv.setText(chuRes);
+        tv.setTextColor(ContextCompat.getColor(ctx, mauChu));
+        tv.setBackgroundResource(R.drawable.nen_nhan_trang_thai);
+        ViewCompat.setBackgroundTintList(tv, ColorStateList.valueOf(ContextCompat.getColor(ctx, mauNen)));
     }
 
     /** Nhãn của nút chuyển sang trạng thái `ma` (vd DANG_GIAO -> "Bắt đầu giao"). */

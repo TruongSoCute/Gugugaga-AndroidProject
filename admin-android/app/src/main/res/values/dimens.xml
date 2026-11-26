@@ -1,17 +1,43 @@
 <resources>
     <dimen name="khoang_xs">4dp</dimen>
     <dimen name="khoang_sm">8dp</dimen>
+    <dimen name="khoang_sm_md">12dp</dimen>
     <dimen name="khoang_md">16dp</dimen>
     <dimen name="khoang_lg">24dp</dimen>
+    <dimen name="khoang_xl">32dp</dimen>
+
+    <!-- Bo góc thống nhất toàn hệ thống -->
+    <dimen name="bo_goc_sm">10dp</dimen>
+    <dimen name="bo_goc_md">14dp</dimen>
+    <dimen name="bo_goc_the">16dp</dimen>
+    <dimen name="bo_goc_lon">22dp</dimen>
+    <dimen name="bo_goc_vien">999dp</dimen>
+
+    <!-- Cỡ chữ -->
     <dimen name="chu_nho">12sp</dimen>
-    <dimen name="chu_ma">18sp</dimen>
+    <dimen name="chu_phu">13sp</dimen>
+    <dimen name="chu_ma">17sp</dimen>
     <dimen name="chu_bieu_do">13sp</dimen>
-    <dimen name="kich_thuoc_qr">220dp</dimen>
-    <dimen name="anh_lon">180dp</dimen>
-    <dimen name="anh_nho">56dp</dimen>
+    <dimen name="chu_kpi">28sp</dimen>
+
+    <!-- Kích thước thành phần -->
+    <dimen name="nut_cao">50dp</dimen>
+    <dimen name="kich_thuoc_qr">216dp</dimen>
+    <dimen name="anh_lon">190dp</dimen>
+    <dimen name="anh_nho">60dp</dimen>
     <dimen name="vong_thu_tu">32dp</dimen>
-    <dimen name="bieu_do_cao_dong">36dp</dimen>
-    <dimen name="bieu_do_cao_cot">18dp</dimen>
+    <dimen name="vong_avatar">56dp</dimen>
+    <dimen name="vong_icon_menu">42dp</dimen>
+    <dimen name="bieu_do_cao_dong">42dp</dimen>
+    <dimen name="bieu_do_cao_cot">16dp</dimen>
+
+    <!-- Thanh điều hướng nổi dạng viên thuốc -->
+    <dimen name="khoang_dock_ngang">14dp</dimen>
+    <dimen name="khoang_dock_duoi">10dp</dimen>
+    <dimen name="bo_goc_dock">28dp</dimen>
+    <dimen name="cao_bong_dock">6dp</dimen>
+    <dimen name="chu_tab_dock">10.5sp</dimen>
+
     <!-- Chừa chỗ dưới cùng danh sách để nút nổi không che dòng cuối. -->
-    <dimen name="dem_duoi_danh_sach">88dp</dimen>
+    <dimen name="dem_duoi_danh_sach">96dp</dimen>
 </resources>

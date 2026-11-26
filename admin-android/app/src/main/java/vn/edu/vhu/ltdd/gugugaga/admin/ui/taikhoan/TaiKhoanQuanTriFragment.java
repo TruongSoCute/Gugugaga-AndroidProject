@@ -45,8 +45,7 @@ public class TaiKhoanQuanTriFragment extends Fragment {
         ((MainActivity) requireActivity()).datTieuDe(R.string.tieu_de_tai_khoan_quan_tri);
         viewModel = new ViewModelProvider(this).get(TaiKhoanQuanTriViewModel.class);
 
-        view.findViewById(R.id.tvNhanLoc).setVisibility(View.GONE);
-        view.findViewById(R.id.spLoc).setVisibility(View.GONE);
+        view.findViewById(R.id.khungLoc).setVisibility(View.GONE);
         ExtendedFloatingActionButton fab = view.findViewById(R.id.fabThem);
         fab.setText(R.string.nut_tao_nhan_vien);
         fab.setVisibility(View.VISIBLE);
