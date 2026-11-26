@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="?android:colorBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TẠO HỒ SƠ NHÀ CUNG CẤP"
+            android:textSize="21sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thông tin cơ sở"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/edtTenNhaCungCap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tên nhà cung cấp"
+            android:inputType="textCapWords" />
+
+        <EditText
+            android:id="@+id/edtNguoiDaiDien"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Người đại diện"
+            android:inputType="textCapWords" />
+
+        <EditText
+            android:id="@+id/edtSoDienThoai"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Số điện thoại"
+            android:inputType="phone" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Vùng nguyên liệu"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp" />
+
+        <Spinner
+            android:id="@+id/spVungNguyenLieu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp" />
+
+        <TextView
+            android:id="@+id/tvTrangThaiTaiVung"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Đang tải danh sách vùng nguyên liệu..."
+            android:textSize="12sp"
+            android:layout_marginTop="4dp" />
+
+        <EditText
+            android:id="@+id/edtDiaChi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Địa chỉ cơ sở"
+            android:inputType="textMultiLine"
+            android:minLines="2"
+            android:gravity="top" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ảnh cơ sở"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp" />
+
+        <Button
+            android:id="@+id/btnChonAnhCoSo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chọn ảnh cơ sở" />
+
+        <ImageView
+            android:id="@+id/imgAnhCoSo"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_marginTop="8dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Ảnh cơ sở"
+            android:visibility="gone" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chứng nhận"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvChuaCoChungNhan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chưa có chứng nhận nào."
+            android:layout_marginTop="8dp" />
+
+        <LinearLayout
+            android:id="@+id/layoutDanhSachChungNhan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <Button
+            android:id="@+id/btnThemChungNhan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="+ Thêm chứng nhận" />
+
+        <Button
+            android:id="@+id/btnLuuNhaCungCap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lưu hồ sơ"
+            android:layout_marginTop="24dp" />
+
+    </LinearLayout>
+</ScrollView>

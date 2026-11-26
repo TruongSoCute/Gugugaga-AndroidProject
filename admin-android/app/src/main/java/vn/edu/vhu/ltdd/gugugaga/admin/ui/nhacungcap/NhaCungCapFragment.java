@@ -1,3 +1,4 @@
+
 package vn.edu.vhu.ltdd.gugugaga.admin.ui.nhacungcap;
 
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+
 import java.util.List;
 
 import vn.edu.vhu.ltdd.gugugaga.admin.R;
@@ -23,47 +26,115 @@ import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.KhungTrangThai;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ManHinh;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.TrangThai;
 
-/** Danh sách hồ sơ nhà cung cấp (mở từ tab Tài khoản), lọc theo trạng thái duyệt. */
+/**
+ * Danh sách hồ sơ nhà cung cấp.
+ */
 public class NhaCungCapFragment extends Fragment {
-    public static final String KET_QUA_CAP_NHAT = "cap_nhat_nha_cung_cap";
+
+    public static final String KET_QUA_CAP_NHAT =
+            "cap_nhat_nha_cung_cap";
 
     private NhaCungCapViewModel viewModel;
     private NhaCungCapAdapter adapter;
     private RecyclerView rv;
     private KhungTrangThai khung;
+    private ExtendedFloatingActionButton fabThem;
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_danh_sach, container, false);
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState
+    ) {
+        return inflater.inflate(
+                R.layout.fragment_danh_sach,
+                container,
+                false
+        );
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        ((MainActivity) requireActivity()).datTieuDe(R.string.tieu_de_nha_cung_cap);
-        viewModel = new ViewModelProvider(this).get(NhaCungCapViewModel.class);
+    public void onViewCreated(
+            @NonNull View view,
+            @Nullable Bundle savedInstanceState
+    ) {
+        super.onViewCreated(view, savedInstanceState);
 
+        MainActivity activity = (MainActivity) requireActivity();
+
+        activity.datTieuDe(R.string.tieu_de_nha_cung_cap);
+
+        viewModel = new ViewModelProvider(this)
+                .get(NhaCungCapViewModel.class);
+
+        // RecyclerView
         rv = view.findViewById(R.id.rvDanhSach);
+
         khung = new KhungTrangThai(view, viewModel::taiLai);
         khung.datChuTrong(R.string.trong_nha_cung_cap);
+
         adapter = new NhaCungCapAdapter(ncc ->
-                ((MainActivity) requireActivity()).moManHinh(ChiTietNhaCungCapFragment.newInstance(ncc.id)));
-        rv.setLayoutManager(new LinearLayoutManager(requireContext()));
+                activity.moManHinh(
+                        ChiTietNhaCungCapFragment.newInstance(ncc.id)
+                )
+        );
+
+        rv.setLayoutManager(
+                new LinearLayoutManager(requireContext())
+        );
+
         rv.setAdapter(adapter);
         ChanTaiThem.gan(this, view, rv, viewModel); // cuộn gần cuối thì tải trang sau
 
-        BoLoc.caiDat(view.findViewById(R.id.spLoc), R.array.trang_thai_nhan, R.array.trang_thai_gia_tri,
-                viewModel::chonLoc);
+        // Bộ lọc trạng thái
+        BoLoc.caiDat(
+                view.findViewById(R.id.spLoc),
+                R.array.trang_thai_nhan,
+                R.array.trang_thai_gia_tri,
+                viewModel::chonLoc
+        );
 
-        viewModel.getDanhSach().observe(getViewLifecycleOwner(), this::hienThi);
+        // Nút thêm nhà cung cấp
+        fabThem = view.findViewById(R.id.fabThem);
+
+        if (fabThem != null) {
+            fabThem.setVisibility(View.VISIBLE);
+            fabThem.setText("Thêm nhà cung cấp");
+
+            fabThem.setOnClickListener(v ->
+                    activity.moManHinh(
+                            new TaoNhaCungCapFragment()
+                    )
+            );
+        }
+
+        // Theo dõi danh sách
+        viewModel.getDanhSach().observe(
+                getViewLifecycleOwner(),
+                this::hienThi
+        );
+
         ManHinh.quanSatChung(this, viewModel);
-        getParentFragmentManager().setFragmentResultListener(KET_QUA_CAP_NHAT, getViewLifecycleOwner(),
-                (k, b) -> viewModel.taiLai());
+
+        // Tải lại danh sách sau khi cập nhật
+        getParentFragmentManager().setFragmentResultListener(
+                KET_QUA_CAP_NHAT,
+                getViewLifecycleOwner(),
+                (k, b) -> viewModel.taiLai()
+        );
     }
 
     private void hienThi(TrangThai<List<NhaCungCap>> tt) {
-        if (tt.loai == TrangThai.Loai.THANH_CONG) adapter.capNhat(tt.duLieu);
-        khung.hien(tt, rv, tt.duLieu == null || tt.duLieu.isEmpty());
+
+        if (tt.loai == TrangThai.Loai.THANH_CONG) {
+            adapter.capNhat(tt.duLieu);
+        }
+
+        khung.hien(
+                tt,
+                rv,
+                tt.duLieu == null || tt.duLieu.isEmpty()
+        );
     }
 }

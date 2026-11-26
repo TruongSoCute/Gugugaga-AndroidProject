@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/khoang_md">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="THÔNG TIN SẢN PHẨM"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="@dimen/khoang_md" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nhà cung cấp *" />
+
+        <Spinner
+            android:id="@+id/spNhaCungCap"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginBottom="@dimen/khoang_sm" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tên sản phẩm *" />
+
+        <EditText
+            android:id="@+id/edtTenSanPham"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nhập tên sản phẩm"
+            android:inputType="textCapSentences"
+            android:maxLength="200" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_sm"
+            android:text="Mô tả sản phẩm" />
+
+        <EditText
+            android:id="@+id/edtMoTa"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:gravity="top"
+            android:hint="Nhập mô tả sản phẩm"
+            android:inputType="textMultiLine|textCapSentences"
+            android:maxLength="5000" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_sm"
+            android:text="Đơn vị tính" />
+
+        <EditText
+            android:id="@+id/edtDonViTinh"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Ví dụ: kg, hộp, gói"
+            android:inputType="textCapSentences"
+            android:maxLength="40" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_sm"
+            android:text="Giá sản phẩm (VNĐ) *" />
+
+        <EditText
+            android:id="@+id/edtGia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nhập giá sản phẩm"
+            android:inputType="number" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_md"
+            android:text="Ảnh sản phẩm"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/imgAnhSanPham"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_marginTop="@dimen/khoang_sm"
+            android:background="#EEEEEE"
+            android:contentDescription="Ảnh sản phẩm"
+            android:scaleType="centerCrop" />
+
+        <Button
+            android:id="@+id/btnChonAnhSanPham"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_sm"
+            android:text="Chọn ảnh sản phẩm" />
+
+        <Button
+            android:id="@+id/btnLuuSanPham"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_lg"
+            android:text="Tạo sản phẩm" />
+
+    </LinearLayout>
+
+</ScrollView>
