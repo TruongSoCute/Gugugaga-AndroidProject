@@ -5,6 +5,7 @@ import '../data/tuong_tac_repository.dart';
 import '../models/san_pham.dart';
 import '../utils/dinh_dang.dart';
 import '../widgets/anh_mang.dart';
+import '../widgets/giao_dien.dart';
 import '../widgets/hop_thoai.dart';
 import '../widgets/trang_thai_loi.dart';
 import '../widgets/trang_trong.dart';
@@ -91,31 +92,36 @@ class _YeuThichScreenState extends State<YeuThichScreen> {
     if (_dangTai) return const Center(child: CircularProgressIndicator());
     if (_loi != null) return TrangThaiLoi(thongDiep: _loi!, onThuLai: _tai);
     if (_ds.isEmpty) {
-      return const TrangTrong(icon: Icons.favorite_border, thongDiep: 'Chưa có sản phẩm yêu thích.');
+      return const TrangTrong(icon: Icons.favorite_border_rounded, thongDiep: 'Chưa có sản phẩm yêu thích.');
     }
     return RefreshIndicator(
       onRefresh: _tai,
       child: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
         itemCount: _ds.length,
         itemBuilder: (context, i) {
           final sp = _ds[i];
-          return ListTile(
-            leading: ClipRRect(
-                borderRadius: BorderRadius.circular(8), child: AnhMang(url: sp.anhUrl, width: 56, height: 56)),
-            title: Text(sp.ten),
-            subtitle: Text('${DinhDang.tien(sp.gia)} / ${sp.donViTinh}\n${sp.tenNhaCungCap ?? ''}'),
-            isThreeLine: true,
-            trailing: IconButton(
-              key: Key('boYeuThich${sp.id}'),
-              tooltip: 'Bỏ yêu thích',
-              icon: const Icon(Icons.favorite, color: Colors.red),
-              onPressed: () => _bo(i),
+          return Card(
+            margin: const EdgeInsets.only(bottom: 10),
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(10), child: AnhMang(url: sp.anhUrl, width: 58, height: 58)),
+              title: Text(sp.ten, style: const TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: Text('${DinhDang.tien(sp.gia)} / ${sp.donViTinh}\n${sp.tenNhaCungCap ?? ''}'),
+              isThreeLine: true,
+              trailing: IconButton(
+                key: Key('boYeuThich${sp.id}'),
+                tooltip: 'Bỏ yêu thích',
+                icon: const Icon(Icons.favorite_rounded, color: OcopMau.doLoi),
+                onPressed: () => _bo(i),
+              ),
+              onTap: () async {
+                await Navigator.push(
+                    context, MaterialPageRoute<void>(builder: (_) => ChiTietSanPhamScreen(sanPhamId: sp.id)));
+                if (mounted) await _tai();
+              },
             ),
-            onTap: () async {
-              await Navigator.push(
-                  context, MaterialPageRoute<void>(builder: (_) => ChiTietSanPhamScreen(sanPhamId: sp.id)));
-              if (mounted) await _tai(); // có thể đã bỏ yêu thích trong trang chi tiết
-            },
           );
         },
       ),

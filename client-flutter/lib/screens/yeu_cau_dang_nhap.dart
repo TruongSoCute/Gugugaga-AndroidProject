@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../data/phien_dang_nhap.dart';
 import '../models/nguoi_dung.dart';
+import '../widgets/giao_dien.dart';
 import '../widgets/hop_thoai.dart';
 import 'dang_nhap_screen.dart';
 
 /// Thao tác của khách (giỏ, yêu thích, đánh giá, phản ánh…) cần đăng nhập.
-/// Chưa đăng nhập thì mở màn hình đăng nhập và CHỜ KẾT QUẢ (Navigator trả kết quả), rồi quay lại
-/// làm tiếp. Trả true nếu đang là khách. Xem sản phẩm và truy xuất thì không cần gọi hàm này.
 Future<bool> canKhach(BuildContext context, {required String lyDo}) async {
   if (!PhienDangNhap.daDangNhap) {
     final nd = await Navigator.push<NguoiDung>(
@@ -21,7 +20,7 @@ Future<bool> canKhach(BuildContext context, {required String lyDo}) async {
   return false;
 }
 
-/// Khối nhắc đăng nhập cho tab cần tài khoản (giỏ hàng, đơn hàng) khi đang là khách vãng lai.
+/// Khối nhắc đăng nhập tối giản đặt trực tiếp trên nền, bỏ khung Card thừa.
 class CanDangNhap extends StatelessWidget {
   const CanDangNhap({super.key, required this.icon, required this.thongDiep});
 
@@ -32,14 +31,23 @@ class CanDangNhap extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 56, color: Theme.of(context).colorScheme.outline),
-            const SizedBox(height: 12),
-            Text(thongDiep, textAlign: TextAlign.center),
-            const SizedBox(height: 12),
+            Container(
+              width: 68,
+              height: 68,
+              decoration: const BoxDecoration(color: OcopMau.nenThe, shape: BoxShape.circle),
+              child: Icon(icon, size: 30, color: OcopMau.chuPhu),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              thongDiep,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: OcopMau.chuPhu, height: 1.45),
+            ),
+            const SizedBox(height: 20),
             FilledButton(
               onPressed: () => Navigator.push<NguoiDung>(
                 context,

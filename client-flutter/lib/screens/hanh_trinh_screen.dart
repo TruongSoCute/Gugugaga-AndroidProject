@@ -7,16 +7,15 @@ import '../models/hanh_trinh_lo.dart';
 import '../models/vung.dart';
 import '../utils/dinh_dang.dart';
 import '../widgets/anh_mang.dart';
+import '../widgets/chuyen_dong.dart';
+import '../widgets/giao_dien.dart';
 import '../widgets/hop_thoai.dart';
 import '../widgets/trang_thai_loi.dart';
 import 'ban_do_vung_screen.dart';
 import 'phan_anh_screen.dart';
 import 'yeu_cau_dang_nhap.dart';
 
-/// Hành trình của ĐÚNG lô có mã này (điểm nhấn kỹ thuật của đề 5): thông tin lô, sản phẩm,
-/// nhà cung cấp + chứng nhận, và các bước truy xuất theo thứ tự (ListView.builder).
-/// Xem không cần đăng nhập; nút "Phản ánh" (báo hàng giả/sai mô tả, gắn đúng mã lô) thì cần
-/// tài khoản khách — chưa đăng nhập sẽ mở màn hình đăng nhập rồi quay lại.
+/// Hành trình của ĐÚNG lô có mã này (điểm nhấn kỹ thuật của đề 5).
 class HanhTrinhScreen extends StatefulWidget {
   const HanhTrinhScreen({super.key, required this.maTruyXuat, this.repository});
 
@@ -86,7 +85,7 @@ class _HanhTrinhScreenState extends State<HanhTrinhScreen> {
             TextButton.icon(
               key: const Key('nutPhanAnhLo'),
               onPressed: _phanAnh,
-              icon: const Icon(Icons.flag_outlined),
+              icon: const Icon(Icons.flag_outlined, size: 18),
               label: const Text('Phản ánh'),
             ),
         ],
@@ -96,39 +95,53 @@ class _HanhTrinhScreenState extends State<HanhTrinhScreen> {
   }
 
   Widget _noiDung() {
-    if (_dangTai) return const Center(child: CircularProgressIndicator());
+    if (_dangTai) {
+      return const ChuyenTrangThaiMuot(khoa: 'tai', child: Center(child: CircularProgressIndicator()));
+    }
     final loi = _loi;
     if (loi != null) {
       if (loi.maHttp == 404) {
-        // Mã không tồn tại hoặc lô chưa/không còn được công bố: cảnh báo người mua.
-        return const Center(
-          child: Padding(
-            padding: EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.gpp_maybe_outlined, size: 56, color: Colors.orange),
-                SizedBox(height: 12),
-                Text(
-                  'Không xác minh được nguồn gốc của mã này.\n'
-                  'Hãy kiểm tra lại mã trên bao bì; nếu mã vẫn không đúng, sản phẩm có thể không chính hãng.',
-                  textAlign: TextAlign.center,
+        return ChuyenTrangThaiMuot(
+          khoa: '404',
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(28),
+              child: HienLenMuot(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: const BoxDecoration(color: OcopMau.vangNhat, shape: BoxShape.circle),
+                      child: const Icon(Icons.gpp_maybe_rounded, size: 32, color: OcopMau.vangOcop),
+                    ),
+                    const SizedBox(height: 14),
+                    const Text(
+                      'Không xác minh được nguồn gốc của mã này.\n'
+                      'Hãy kiểm tra lại mã trên bao bì; nếu mã vẫn không đúng, sản phẩm có thể không chính hãng.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: OcopMau.chuPhu, height: 1.45),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         );
       }
-      return TrangThaiLoi(thongDiep: loi.thongDiep, onThuLai: _tai);
+      return ChuyenTrangThaiMuot(khoa: 'loi', child: TrangThaiLoi(thongDiep: loi.thongDiep, onThuLai: _tai));
     }
     final lo = _lo!;
-    // Phần đầu (thông tin lô) + từng bước: dùng ListView.builder với phần tử 0 là phần đầu.
-    return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 24),
-      itemCount: lo.cacBuoc.length + 1,
-      itemBuilder: (context, i) => i == 0
-          ? _ThongTinLo(lo: lo)
-          : _DongBuoc(buoc: lo.cacBuoc[i - 1], cuoi: i == lo.cacBuoc.length),
+    return ChuyenTrangThaiMuot(
+      khoa: 'lo-${lo.maTruyXuat}',
+      child: ListView.builder(
+        padding: const EdgeInsets.only(bottom: 28),
+        itemCount: lo.cacBuoc.length + 1,
+        itemBuilder: (context, i) => i == 0
+            ? HienLenMuot(thuTu: 0, child: _ThongTinLo(lo: lo))
+            : HienLenMuot(thuTu: i, child: _DongBuoc(buoc: lo.cacBuoc[i - 1], cuoi: i == lo.cacBuoc.length)),
+      ),
     );
   }
 }
@@ -144,91 +157,142 @@ class _ThongTinLo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AnhMang(url: lo.anhHienTruongUrl ?? lo.anhSanPhamUrl, height: 180, width: double.infinity),
         Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(lo.tenSanPham, style: theme.textTheme.titleLarge),
-              if (lo.hangSao != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text('${'★' * lo.hangSao!} OCOP ${lo.hangSao} sao',
-                      style: theme.textTheme.bodyMedium?.copyWith(color: Colors.amber.shade800)),
-                ),
-              const SizedBox(height: 12),
-              _Dong(nhan: 'Mã lô', giaTri: lo.maTruyXuat),
-              _Dong(nhan: 'Ngày sản xuất', giaTri: DinhDang.ngay(lo.ngaySanXuat)),
-              _Dong(nhan: 'Hạn sử dụng', giaTri: DinhDang.ngay(lo.hanSuDung)),
-              _Dong(nhan: 'Vùng nguyên liệu', giaTri: lo.vungNguyenLieu),
-              if (lo.vungViDo != null && lo.vungKinhDo != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 4, bottom: 4),
-                  child: OutlinedButton.icon(
-                    key: const Key('nutXemBanDoVung'),
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => BanDoVungScreen(
-                          dsVung: [
-                            Vung(
-                              id: lo.vungId ?? 0,
-                              ten: lo.vungNguyenLieu,
-                              moTa: lo.vungMoTa,
-                              viDo: lo.vungViDo,
-                              kinhDo: lo.vungKinhDo,
-                            ),
-                          ],
-                          vungIdChonSan: lo.vungId ?? 0,
-                        ),
-                      ),
-                    ),
-                    icon: const Icon(Icons.map_outlined, size: 18),
-                    label: const Text('Xem vùng nguyên liệu trên bản đồ'),
-                  ),
-                ),
-              _Dong(nhan: 'Người sản xuất', giaTri: lo.nguoiSanXuat),
-              _Dong(nhan: 'Nhà cung cấp', giaTri: lo.tenNhaCungCap),
-              _Dong(nhan: 'Địa chỉ', giaTri: lo.diaChiNhaCungCap),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: [
-                  for (final cn in lo.chungNhan)
-                    Chip(
-                      avatar: Icon(cn.conHieuLuc ? Icons.verified : Icons.error_outline,
-                          size: 18, color: cn.conHieuLuc ? Colors.green : Colors.red),
-                      label: Text('${cn.loai} ${cn.soHieu}${cn.conHieuLuc ? '' : ' (hết hạn)'}'),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text('Hành trình (${lo.cacBuoc.length} bước)', style: theme.textTheme.titleMedium),
-            ],
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: AnhMang(url: lo.anhHienTruongUrl ?? lo.anhSanPhamUrl, height: 200, width: double.infinity),
           ),
         ),
+        Card(
+          margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(color: OcopMau.xanhNhat, borderRadius: BorderRadius.circular(999)),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.verified_rounded, size: 14, color: OcopMau.xanhOcop),
+                      SizedBox(width: 5),
+                      Text(
+                        'Đã xác thực OCOP',
+                        style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: OcopMau.xanhOcop),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(lo.tenSanPham, style: theme.textTheme.titleLarge),
+                if (lo.hangSao != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      '${'★' * lo.hangSao!} OCOP ${lo.hangSao} sao',
+                      style: theme.textTheme.bodySmall?.copyWith(color: OcopMau.vangChu, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                const SizedBox(height: 14),
+                _Dong(nhan: 'Mã lô', giaTri: lo.maTruyXuat, mono: true),
+                _Dong(nhan: 'Ngày sản xuất', giaTri: DinhDang.ngay(lo.ngaySanXuat)),
+                _Dong(nhan: 'Hạn sử dụng', giaTri: DinhDang.ngay(lo.hanSuDung)),
+                _Dong(nhan: 'Vùng nguyên liệu', giaTri: lo.vungNguyenLieu),
+                if (lo.vungViDo != null && lo.vungKinhDo != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8, bottom: 8),
+                    child: OutlinedButton.icon(
+                      key: const Key('nutXemBanDoVung'),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BanDoVungScreen(
+                            dsVung: [
+                              Vung(
+                                id: lo.vungId ?? 0,
+                                ten: lo.vungNguyenLieu,
+                                moTa: lo.vungMoTa,
+                                viDo: lo.vungViDo,
+                                kinhDo: lo.vungKinhDo,
+                              ),
+                            ],
+                            vungIdChonSan: lo.vungId ?? 0,
+                          ),
+                        ),
+                      ),
+                      icon: const Icon(Icons.map_outlined, size: 18),
+                      label: const Text('Xem vùng nguyên liệu trên bản đồ'),
+                    ),
+                  ),
+                _Dong(nhan: 'Người sản xuất', giaTri: lo.nguoiSanXuat),
+                _Dong(nhan: 'Nhà cung cấp', giaTri: lo.tenNhaCungCap),
+                _Dong(nhan: 'Địa chỉ', giaTri: lo.diaChiNhaCungCap),
+                if (lo.chungNhan.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      for (final cn in lo.chungNhan)
+                        Chip(
+                          backgroundColor: cn.conHieuLuc ? OcopMau.xanhNhat : OcopMau.nenDoLoi,
+                          avatar: Icon(
+                            cn.conHieuLuc ? Icons.verified_rounded : Icons.error_outline_rounded,
+                            size: 15,
+                            color: cn.conHieuLuc ? OcopMau.xanhOcop : OcopMau.doLoi,
+                          ),
+                          label: Text(
+                            '${cn.loai} ${cn.soHieu}${cn.conHieuLuc ? '' : ' (hết hạn)'}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: cn.conHieuLuc ? OcopMau.xanhOcop : OcopMau.doLoi,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+        TieuDeMucOcop('Hành trình (${lo.cacBuoc.length} bước)'),
       ],
     );
   }
 }
 
 class _Dong extends StatelessWidget {
-  const _Dong({required this.nhan, required this.giaTri});
+  const _Dong({required this.nhan, required this.giaTri, this.mono = false});
 
   final String nhan;
   final String giaTri;
+  final bool mono;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 130, child: Text(nhan, style: Theme.of(context).textTheme.bodySmall)),
-          Expanded(child: Text(giaTri)),
+          SizedBox(
+            width: 120,
+            child: Text(nhan, style: Theme.of(context).textTheme.bodySmall),
+          ),
+          Expanded(
+            child: Text(
+              giaTri,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontFamily: mono ? 'monospace' : null,
+                  ),
+            ),
+          ),
         ],
       ),
     );
@@ -244,41 +308,69 @@ class _DongBuoc extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            width: 56,
-            child: Column(
-              children: [
-                CircleAvatar(radius: 14, child: Text('${buoc.thuTu}')),
-                if (!cuoi) Expanded(child: VerticalDivider(color: theme.colorScheme.outline, thickness: 2)),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16, bottom: 16),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              width: 32,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(buoc.tenBuoc, style: theme.textTheme.titleSmall),
-                  Text(DinhDang.thoiDiem(buoc.thoiDiem), style: theme.textTheme.bodySmall),
-                  if (buoc.moTa != null) Padding(padding: const EdgeInsets.only(top: 4), child: Text(buoc.moTa!)),
-                  if (buoc.anhUrl != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: AnhMang(url: buoc.anhUrl, height: 140, width: double.infinity),
+                  Container(
+                    width: 26,
+                    height: 26,
+                    decoration: const BoxDecoration(color: OcopMau.chuChinh, shape: BoxShape.circle),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '${buoc.thuTu}',
+                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  if (!cuoi)
+                    Expanded(
+                      child: Container(
+                        width: 2,
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        color: const Color(0xFFE2E5EA),
                       ),
                     ),
                 ],
               ),
             ),
-          ),
-        ],
+            const SizedBox(width: 10),
+            Expanded(
+              child: Card(
+                margin: const EdgeInsets.only(bottom: 10),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(buoc.tenBuoc, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 2),
+                      Text(DinhDang.thoiDiem(buoc.thoiDiem), style: theme.textTheme.bodySmall),
+                      if (buoc.moTa != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(buoc.moTa!, style: theme.textTheme.bodyMedium?.copyWith(height: 1.45)),
+                        ),
+                      if (buoc.anhUrl != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: AnhMang(url: buoc.anhUrl, height: 148, width: double.infinity),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
