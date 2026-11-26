@@ -95,24 +95,29 @@ class _TheoDoiScreenState extends State<TheoDoiScreen> {
     return RefreshIndicator(
       onRefresh: _tai,
       child: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
         itemCount: _ds.length,
         itemBuilder: (context, i) {
           final ncc = _ds[i];
-          return ListTile(
-            leading: ClipRRect(
-                borderRadius: BorderRadius.circular(8), child: AnhMang(url: ncc.anhCoSoUrl, width: 56, height: 56)),
-            title: Text(ncc.ten),
-            subtitle: Text('${ncc.tenVung} · ${ncc.soSanPham} sản phẩm'),
-            trailing: TextButton(
-              key: Key('boTheoDoi${ncc.id}'),
-              onPressed: () => _bo(i),
-              child: const Text('Bỏ theo dõi'),
+          return Card(
+            margin: const EdgeInsets.only(bottom: 10),
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(10), child: AnhMang(url: ncc.anhCoSoUrl, width: 56, height: 56)),
+              title: Text(ncc.ten, style: const TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: Text('${ncc.tenVung} · ${ncc.soSanPham} sản phẩm'),
+              trailing: TextButton(
+                key: Key('boTheoDoi${ncc.id}'),
+                onPressed: () => _bo(i),
+                child: const Text('Bỏ theo dõi'),
+              ),
+              onTap: () async {
+                await Navigator.push(
+                    context, MaterialPageRoute<void>(builder: (_) => NhaCungCapScreen(nhaCungCapId: ncc.id)));
+                if (mounted) await _tai();
+              },
             ),
-            onTap: () async {
-              await Navigator.push(
-                  context, MaterialPageRoute<void>(builder: (_) => NhaCungCapScreen(nhaCungCapId: ncc.id)));
-              if (mounted) await _tai();
-            },
           );
         },
       ),

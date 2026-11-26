@@ -10,7 +10,11 @@ class HanhTrinhLo {
   final String hanSuDung;
   final String nguoiSanXuat;
   final String? anhHienTruongUrl;
+  final int? vungId;
   final String vungNguyenLieu;
+  final String? vungMoTa;
+  final double? vungViDo;
+  final double? vungKinhDo;
   final int sanPhamId;
   final String tenSanPham;
   final int? hangSao;
@@ -25,7 +29,11 @@ class HanhTrinhLo {
     required this.ngaySanXuat,
     required this.hanSuDung,
     required this.nguoiSanXuat,
+    this.vungId,
     required this.vungNguyenLieu,
+    this.vungMoTa,
+    this.vungViDo,
+    this.vungKinhDo,
     required this.sanPhamId,
     required this.tenSanPham,
     required this.tenNhaCungCap,
@@ -39,6 +47,7 @@ class HanhTrinhLo {
 
   factory HanhTrinhLo.fromJson(Map<String, dynamic> json) {
     final lo = json['lo'] as Map<String, dynamic>;
+    final vung = lo['vungNguyenLieu'] as Map<String, dynamic>;
     final sp = json['sanPham'] as Map<String, dynamic>;
     final ncc = json['nhaCungCap'] as Map<String, dynamic>;
     return HanhTrinhLo(
@@ -47,7 +56,11 @@ class HanhTrinhLo {
       hanSuDung: lo['hanSuDung'] as String,
       nguoiSanXuat: lo['nguoiSanXuat'] as String,
       anhHienTruongUrl: lo['anhHienTruongUrl'] as String?,
-      vungNguyenLieu: (lo['vungNguyenLieu'] as Map<String, dynamic>)['ten'] as String,
+      vungId: (vung['id'] as num?)?.toInt(),
+      vungNguyenLieu: vung['ten'] as String,
+      vungMoTa: vung['moTa'] as String?,
+      vungViDo: _toDouble(vung['viDo']),
+      vungKinhDo: _toDouble(vung['kinhDo']),
       sanPhamId: (sp['id'] as num?)?.toInt() ?? 0,
       tenSanPham: sp['ten'] as String,
       hangSao: sp['hangSao'] as int?,
@@ -59,6 +72,12 @@ class HanhTrinhLo {
           .map((e) => BuocTruyXuat.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
+  }
+
+  static double? _toDouble(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v.toDouble();
+    return double.tryParse(v.toString());
   }
 }
 

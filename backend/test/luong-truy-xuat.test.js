@@ -279,3 +279,21 @@ test('Khi nhà cung cấp bị thu hồi duyệt, lô của họ không còn đ�
   // Nhân sự vẫn xem được lô trong app Admin.
   assert.equal((await t.api('GET', `/lo-san-xuat/${s.loA.id}`, { token: nhanVien })).status, 200);
 });
+
+test('GET /truy-xuat/:ma trả HTML khi trình duyệt gửi Accept: text/html', async () => {
+  const { rows } = await t.pool.query('SELECT ma_truy_xuat FROM lo_san_xuat ORDER BY id LIMIT 1');
+  const res = await fetch(`${t.baseUrl}/truy-xuat/${rows[0].ma_truy_xuat}`, {
+    headers: { Accept: 'text/html,application/xhtml+xml,*/*;q=0.8' },
+  });
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get('content-type') || '', /text\/html/);
+  const html = await res.text();
+  assert.match(html, /Đã xác minh nguồn gốc OCOP/);
+
+  const res404 = await fetch(`${t.baseUrl}/truy-xuat/0123456789ABCDEF0123`, {
+    headers: { Accept: 'text/html' },
+  });
+  assert.equal(res404.status, 404);
+  assert.match(res404.headers.get('content-type') || '', /text\/html/);
+  assert.match(await res404.text(), /Không xác minh được nguồn gốc/);
+});

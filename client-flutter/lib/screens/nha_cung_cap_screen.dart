@@ -7,13 +7,13 @@ import '../data/tuong_tac_repository.dart';
 import '../models/nha_cung_cap.dart';
 import '../utils/dinh_dang.dart';
 import '../widgets/anh_mang.dart';
+import '../widgets/giao_dien.dart';
 import '../widgets/hop_thoai.dart';
 import '../widgets/trang_thai_loi.dart';
 import 'chi_tiet_san_pham_screen.dart';
 import 'yeu_cau_dang_nhap.dart';
 
-/// Trang nhà cung cấp (GET /nha-cung-cap/:id): ảnh cơ sở, chứng nhận, sản phẩm đã duyệt
-/// và nút Theo dõi (PUT/DELETE /theo-doi/:id, cần đăng nhập khách).
+/// Trang nhà cung cấp (GET /nha-cung-cap/:id): ảnh cơ sở, chứng nhận, sản phẩm đã duyệt và nút Theo dõi.
 class NhaCungCapScreen extends StatefulWidget {
   const NhaCungCapScreen({super.key, required this.nhaCungCapId, this.sanPhamRepository, this.tuongTacRepository});
 
@@ -70,7 +70,7 @@ class _NhaCungCapScreenState extends State<NhaCungCapScreen> {
       if (!mounted) return;
       setState(() => _theoDoi = ds.any((n) => n.id == widget.nhaCungCapId));
     } on ApiException {
-      // bỏ qua: nút giữ trạng thái chưa theo dõi
+      // bỏ qua
     }
   }
 
@@ -85,7 +85,7 @@ class _NhaCungCapScreenState extends State<NhaCungCapScreen> {
       } else {
         await _ttRepo.boTheoDoi(widget.nhaCungCapId);
       }
-      final ncc = await _spRepo.nhaCungCap(widget.nhaCungCapId); // cập nhật số người theo dõi
+      final ncc = await _spRepo.nhaCungCap(widget.nhaCungCapId);
       if (!mounted) return;
       setState(() {
         _theoDoi = moi;
@@ -124,15 +124,21 @@ class _NhaCungCapScreenState extends State<NhaCungCapScreen> {
       itemBuilder: (context, i) {
         if (i == 0) return _dauTrang(ncc);
         final sp = ncc.sanPham[i - 1];
-        return ListTile(
-          leading: ClipRRect(
-              borderRadius: BorderRadius.circular(8), child: AnhMang(url: sp.anhUrl, width: 56, height: 56)),
-          title: Text(sp.ten),
-          subtitle: Text('${DinhDang.tien(sp.gia)} / ${sp.donViTinh}'
-              '${sp.hangSao == null ? '' : ' · ${sp.hangSao} sao OCOP'}'),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => Navigator.push(
-              context, MaterialPageRoute<void>(builder: (_) => ChiTietSanPhamScreen(sanPhamId: sp.id))),
+        return Card(
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            leading: ClipRRect(
+                borderRadius: BorderRadius.circular(10), child: AnhMang(url: sp.anhUrl, width: 58, height: 58)),
+            title: Text(sp.ten, style: const TextStyle(fontWeight: FontWeight.w600)),
+            subtitle: Text(
+              '${DinhDang.tien(sp.gia)} / ${sp.donViTinh}${sp.hangSao == null ? '' : ' · ${sp.hangSao} sao OCOP'}',
+              style: const TextStyle(color: OcopMau.xanhOcop, fontWeight: FontWeight.w600),
+            ),
+            trailing: const Icon(Icons.chevron_right_rounded, color: OcopMau.chuPhu),
+            onTap: () => Navigator.push(
+                context, MaterialPageRoute<void>(builder: (_) => ChiTietSanPhamScreen(sanPhamId: sp.id))),
+          ),
         );
       },
     );
@@ -143,44 +149,62 @@ class _NhaCungCapScreenState extends State<NhaCungCapScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AnhMang(url: ncc.anhCoSoUrl, height: 180, width: double.infinity),
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(ncc.ten, style: theme.textTheme.titleLarge),
-              const SizedBox(height: 4),
-              Text('${ncc.tenVung} · ${ncc.diaChi}'),
-              if (ncc.nguoiDaiDien != null) Text('Đại diện: ${ncc.nguoiDaiDien}'),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Text('${ncc.soNguoiTheoDoi} người theo dõi', style: theme.textTheme.bodySmall),
-                  const Spacer(),
-                  if (!PhienDangNhap.laNhaCungCap)
-                    _theoDoi
-                        ? OutlinedButton.icon(
-                            key: const Key('nutTheoDoi'),
-                            onPressed: _dangDoi ? null : _doiTheoDoi,
-                            icon: const Icon(Icons.check),
-                            label: const Text('Đang theo dõi'),
-                          )
-                        : FilledButton.icon(
-                            key: const Key('nutTheoDoi'),
-                            onPressed: _dangDoi ? null : _doiTheoDoi,
-                            icon: const Icon(Icons.add),
-                            label: const Text('Theo dõi'),
-                          ),
+        AnhMang(url: ncc.anhCoSoUrl, height: 196, width: double.infinity),
+        Card(
+          margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(ncc.ten, style: theme.textTheme.titleLarge),
+                const SizedBox(height: 6),
+                Text('${ncc.tenVung} · ${ncc.diaChi}', style: theme.textTheme.bodyMedium),
+                if (ncc.nguoiDaiDien != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text('Đại diện: ${ncc.nguoiDaiDien}', style: theme.textTheme.bodySmall),
+                  ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: OcopMau.nenNhap,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        '${ncc.soNguoiTheoDoi} người theo dõi',
+                        style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    const Spacer(),
+                    if (!PhienDangNhap.laNhaCungCap)
+                      _theoDoi
+                          ? OutlinedButton.icon(
+                              key: const Key('nutTheoDoi'),
+                              onPressed: _dangDoi ? null : _doiTheoDoi,
+                              icon: const Icon(Icons.check_rounded, size: 18),
+                              label: const Text('Đang theo dõi'),
+                            )
+                          : FilledButton.icon(
+                              key: const Key('nutTheoDoi'),
+                              onPressed: _dangDoi ? null : _doiTheoDoi,
+                              icon: const Icon(Icons.add_rounded, size: 18),
+                              label: const Text('Theo dõi'),
+                            ),
+                  ],
+                ),
+                if (ncc.chungNhan.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  DsChungNhan(chungNhan: ncc.chungNhan),
                 ],
-              ),
-              const SizedBox(height: 8),
-              DsChungNhan(chungNhan: ncc.chungNhan),
-              const SizedBox(height: 16),
-              Text('Sản phẩm (${ncc.sanPham.length})', style: theme.textTheme.titleMedium),
-            ],
+              ],
+            ),
           ),
         ),
+        TieuDeMucOcop('Sản phẩm (${ncc.sanPham.length})'),
       ],
     );
   }

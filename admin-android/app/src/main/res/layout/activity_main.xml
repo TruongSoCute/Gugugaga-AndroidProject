@@ -4,13 +4,16 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/nen_man_hinh"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:title="@string/app_name" />
+        android:background="@color/nen_man_hinh"
+        app:title="@string/app_name"
+        app:titleTextColor="@color/chu_chinh" />
 
     <!-- Khung chứa Fragment: dùng FragmentContainerView, không dùng FrameLayout (Lab A8). -->
     <androidx.fragment.app.FragmentContainerView
@@ -19,9 +22,25 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNav"
+    <!-- Thanh điều hướng nổi dạng viên thuốc (Floating Capsule Dock) bọc BottomNavigationView chuẩn Lab A8 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardBottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:menu="@menu/bottom_nav" />
+        android:layout_marginStart="@dimen/khoang_dock_ngang"
+        android:layout_marginTop="@dimen/khoang_xs"
+        android:layout_marginEnd="@dimen/khoang_dock_ngang"
+        android:layout_marginBottom="@dimen/khoang_dock_duoi"
+        app:cardBackgroundColor="@color/nen_dock"
+        app:cardCornerRadius="@dimen/bo_goc_dock"
+        app:cardElevation="@dimen/cao_bong_dock"
+        app:strokeWidth="0dp">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNav"
+            style="@style/ThanhDieuHuongDuoiOcop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:menu="@menu/bottom_nav" />
+    </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

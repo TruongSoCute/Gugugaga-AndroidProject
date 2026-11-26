@@ -4,11 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ProgressBar;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
@@ -27,22 +23,25 @@ import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.data.TokenStore;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.SanPham;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.MainActivity;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.BoLoc;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ChanTaiThem;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ChuyenDong;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.KhungTrangThai;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.TrangThai;
 
 /**
- * Màn hình 2: danh sách sản phẩm cho quản trị, lọc theo trạng thái duyệt.
+ * Màn hình 2: danh sách sản phẩm cho quản trị, lọc theo trạng thái duyệt bằng ChipGroup M3.
  * QUAN_TRI duyệt (chọn hạng sao) hoặc từ chối (ghi lý do); NHAN_VIEN chỉ xem (C.1 #2).
  * Hiển thị đủ 3 trạng thái gọi API: đang tải / có dữ liệu (hoặc trống) / lỗi + Thử lại (C.1 #8).
  */
 public class SanPhamFragment extends Fragment implements SanPhamAdapter.HanhDong {
+    public static final String KET_QUA_CAP_NHAT = "cap_nhat_san_pham";
+    public static final String KEY_THONG_BAO = "thong_bao";
+
     private SanPhamViewModel viewModel;
     private SanPhamAdapter adapter;
     private RecyclerView rv;
-    private ProgressBar progress;
-    private TextView tvTrong;
-    private View khungLoi;
-    private TextView tvLoi;
+    private KhungTrangThai khung;
 
     @Nullable
     @Override
@@ -54,12 +53,11 @@ public class SanPhamFragment extends Fragment implements SanPhamAdapter.HanhDong
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         ((MainActivity) requireActivity()).datTieuDe(R.string.tieu_de_san_pham);
+        ExtendedFloatingActionButton fab = view.findViewById(R.id.fabThem);
+        fab.setOnClickListener(v -> ((MainActivity) requireActivity()).moManHinh(new TaoSanPhamFragment()));
+        ChuyenDong.ganNhanNhe(fab);
         rv = view.findViewById(R.id.rvSanPham);
-        progress = view.findViewById(R.id.progress);
-        tvTrong = view.findViewById(R.id.tvTrong);
-        khungLoi = view.findViewById(R.id.khungLoi);
-        tvLoi = view.findViewById(R.id.tvLoi);
-        view.findViewById(R.id.btnThuLai).setOnClickListener(v -> viewModel.taiLai());
+        ChuyenDong.ganThuGonFab(rv, fab);
 
         boolean quanTri = AppConfig.VAI_TRO_QUAN_TRI.equals(TokenStore.layVaiTro(requireContext()));
         adapter = new SanPhamAdapter(quanTri, this);
@@ -67,8 +65,11 @@ public class SanPhamFragment extends Fragment implements SanPhamAdapter.HanhDong
         rv.setAdapter(adapter);
 
         viewModel = new ViewModelProvider(this).get(SanPhamViewModel.class);
+        khung = new KhungTrangThai(view, viewModel::taiLai);
+        khung.datChuTrong(R.string.danh_sach_trong);
         ChanTaiThem.gan(this, view, rv, viewModel); // cuộn gần cuối thì tải trang sau
-        caiDatSpinner(view.findViewById(R.id.spLoc));
+        BoLoc.caiDatChip(view.findViewById(R.id.cgLoc), R.array.trang_thai_nhan,
+                R.array.trang_thai_gia_tri, viewModel::chonLoc);
 
         viewModel.getDanhSach().observe(getViewLifecycleOwner(), this::hienThi);
         viewModel.getThongBao().observe(getViewLifecycleOwner(), sk -> {
@@ -87,37 +88,16 @@ public class SanPhamFragment extends Fragment implements SanPhamAdapter.HanhDong
         fm.setFragmentResultListener(TuChoiSanPhamDialog.REQUEST_KEY, getViewLifecycleOwner(), (k, b) ->
                 viewModel.tuChoi(b.getInt(TuChoiSanPhamDialog.KEY_ID), b.getString(TuChoiSanPhamDialog.KEY_TEN),
                         b.getString(TuChoiSanPhamDialog.KEY_LY_DO)));
-    }
-
-    /** Spinner + ArrayAdapter đổ dữ liệu từ arrays.xml (Lab A6). */
-    private void caiDatSpinner(Spinner sp) {
-        ArrayAdapter<CharSequence> a = ArrayAdapter.createFromResource(requireContext(),
-                R.array.trang_thai_nhan, android.R.layout.simple_spinner_item);
-        a.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        sp.setAdapter(a);
-        String[] giaTri = getResources().getStringArray(R.array.trang_thai_gia_tri);
-        // OnItemSelectedListener có 2 phương thức nên không viết bằng lambda được (Lab A6).
-        sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String loc = giaTri[position];
-                viewModel.chonLoc(loc.isEmpty() ? null : loc);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
+        getParentFragmentManager().setFragmentResultListener(KET_QUA_CAP_NHAT, getViewLifecycleOwner(), (k, b) -> {
+            String tb = b.getString(KEY_THONG_BAO);
+            if (tb != null) Snackbar.make(view, tb, Snackbar.LENGTH_LONG).show();
+            viewModel.taiLai();
         });
     }
 
     private void hienThi(TrangThai<List<SanPham>> tt) {
-        progress.setVisibility(tt.loai == TrangThai.Loai.DANG_TAI ? View.VISIBLE : View.GONE);
-        khungLoi.setVisibility(tt.loai == TrangThai.Loai.LOI ? View.VISIBLE : View.GONE);
-        boolean coDuLieu = tt.loai == TrangThai.Loai.THANH_CONG;
-        if (coDuLieu) adapter.capNhat(tt.duLieu);
-        boolean rong = coDuLieu && (tt.duLieu == null || tt.duLieu.isEmpty());
-        rv.setVisibility(coDuLieu && !rong ? View.VISIBLE : View.GONE);
-        tvTrong.setVisibility(rong ? View.VISIBLE : View.GONE);
-        if (tt.loai == TrangThai.Loai.LOI) tvLoi.setText(tt.thongDiep);
+        if (tt.loai == TrangThai.Loai.THANH_CONG) adapter.capNhat(tt.duLieu);
+        khung.hien(tt, rv, tt.duLieu == null || tt.duLieu.isEmpty());
     }
 
     @Override

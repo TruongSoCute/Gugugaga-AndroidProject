@@ -26,13 +26,10 @@ import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.KhungTrangThai;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ManHinh;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.TrangThai;
 
-/**
- * Danh sách hồ sơ nhà cung cấp.
- */
 public class NhaCungCapFragment extends Fragment {
 
-    public static final String KET_QUA_CAP_NHAT =
-            "cap_nhat_nha_cung_cap";
+    public static final String KET_QUA_CAP_NHAT = "cap_nhat_nha_cung_cap";
+    public static final String KEY_THONG_BAO = "thong_bao";
 
     private NhaCungCapViewModel viewModel;
     private NhaCungCapAdapter adapter;
@@ -47,11 +44,7 @@ public class NhaCungCapFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState
     ) {
-        return inflater.inflate(
-                R.layout.fragment_danh_sach,
-                container,
-                false
-        );
+        return inflater.inflate(R.layout.fragment_danh_sach, container, false);
     }
 
     @Override
@@ -62,15 +55,12 @@ public class NhaCungCapFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         MainActivity activity = (MainActivity) requireActivity();
-
         activity.datTieuDe(R.string.tieu_de_nha_cung_cap);
 
         viewModel = new ViewModelProvider(this)
                 .get(NhaCungCapViewModel.class);
 
-        // RecyclerView
         rv = view.findViewById(R.id.rvDanhSach);
-
         khung = new KhungTrangThai(view, viewModel::taiLai);
         khung.datChuTrong(R.string.trong_nha_cung_cap);
 
@@ -80,14 +70,11 @@ public class NhaCungCapFragment extends Fragment {
                 )
         );
 
-        rv.setLayoutManager(
-                new LinearLayoutManager(requireContext())
-        );
-
+        rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         rv.setAdapter(adapter);
-        ChanTaiThem.gan(this, view, rv, viewModel); // cuộn gần cuối thì tải trang sau
 
-        // Bộ lọc trạng thái
+        ChanTaiThem.gan(this, view, rv, viewModel);
+
         BoLoc.caiDat(
                 view.findViewById(R.id.spLoc),
                 R.array.trang_thai_nhan,
@@ -95,21 +82,13 @@ public class NhaCungCapFragment extends Fragment {
                 viewModel::chonLoc
         );
 
-        // Nút thêm nhà cung cấp
         fabThem = view.findViewById(R.id.fabThem);
+        fabThem.setVisibility(View.VISIBLE);
+        fabThem.setText(R.string.nut_them_nha_cung_cap);
+        fabThem.setOnClickListener(v ->
+                activity.moManHinh(new TaoNhaCungCapFragment())
+        );
 
-        if (fabThem != null) {
-            fabThem.setVisibility(View.VISIBLE);
-            fabThem.setText("Thêm nhà cung cấp");
-
-            fabThem.setOnClickListener(v ->
-                    activity.moManHinh(
-                            new TaoNhaCungCapFragment()
-                    )
-            );
-        }
-
-        // Theo dõi danh sách
         viewModel.getDanhSach().observe(
                 getViewLifecycleOwner(),
                 this::hienThi
@@ -117,16 +96,20 @@ public class NhaCungCapFragment extends Fragment {
 
         ManHinh.quanSatChung(this, viewModel);
 
-        // Tải lại danh sách sau khi cập nhật
         getParentFragmentManager().setFragmentResultListener(
                 KET_QUA_CAP_NHAT,
                 getViewLifecycleOwner(),
-                (k, b) -> viewModel.taiLai()
+                (k, b) -> {
+                    String tb = b.getString(KEY_THONG_BAO);
+                    if (tb != null) {
+                        ManHinh.baoSnackbar(this, tb);
+                    }
+                    viewModel.taiLai();
+                }
         );
     }
 
     private void hienThi(TrangThai<List<NhaCungCap>> tt) {
-
         if (tt.loai == TrangThai.Loai.THANH_CONG) {
             adapter.capNhat(tt.duLieu);
         }

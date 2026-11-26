@@ -7,4 +7,6 @@ public class NguoiDung {
     public String hoTen;
     public String soDienThoai;
     public String vaiTro;
+    public boolean dangHoatDong = true;
+    public String taoLuc;
 }

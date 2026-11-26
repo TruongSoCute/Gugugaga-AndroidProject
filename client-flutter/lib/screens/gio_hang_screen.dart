@@ -6,6 +6,8 @@ import '../models/don_hang.dart';
 import '../models/gio_hang.dart';
 import '../utils/dinh_dang.dart';
 import '../widgets/anh_mang.dart';
+import '../widgets/chuyen_dong.dart';
+import '../widgets/giao_dien.dart';
 import '../widgets/hop_thoai.dart';
 import '../widgets/trang_thai_loi.dart';
 import '../widgets/trang_trong.dart';
@@ -14,7 +16,6 @@ import 'dat_hang_screen.dart';
 
 /// Giỏ hàng của khách (GET /gio-hang). Sửa số lượng bằng PUT, xóa dòng có hộp thoại xác nhận
 /// và SnackBar "Hoàn tác" (Hoàn tác = PUT lại số lượng cũ) — yêu cầu C.2 #6.
-/// Đặt hàng mở DatHangScreen và CHỜ KẾT QUẢ là đơn vừa tạo (Navigator trả kết quả).
 class GioHangScreen extends StatefulWidget {
   const GioHangScreen({super.key, this.repository});
 
@@ -100,7 +101,6 @@ class _GioHangScreenState extends State<GioHangScreen> {
     }
   }
 
-  /// Hoàn tác xóa: đặt lại đúng số lượng cũ.
   Future<void> _hoanTac(DongGio d) async {
     try {
       final gio = await _repo.datSoLuong(d.sanPhamId, d.soLuong);
@@ -120,9 +120,8 @@ class _GioHangScreenState extends State<GioHangScreen> {
     );
     if (!mounted || don == null) return;
     thongBao(context, 'Đặt hàng thành công: đơn #${don.id}, tổng ${DinhDang.tien(don.tongTien)}.');
-    await _tai(); // backend đã xóa giỏ sau khi đặt
+    await _tai();
     if (!mounted) return;
-    // Chuyển sang xem đơn vừa đặt.
     await Navigator.push(
       context,
       MaterialPageRoute<void>(builder: (_) => ChiTietDonScreen(donHangId: don.id, repository: widget.repository)),
@@ -137,33 +136,45 @@ class _GioHangScreenState extends State<GioHangScreen> {
       appBar: AppBar(
         title: const Text('Giỏ hàng'),
         bottom: _dangCapNhat
-            ? const PreferredSize(preferredSize: Size.fromHeight(4), child: LinearProgressIndicator())
+            ? const PreferredSize(preferredSize: Size.fromHeight(3), child: LinearProgressIndicator())
             : null,
       ),
       body: _noiDung(),
       bottomNavigationBar: coTheDat
-          ? SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Tạm tính'),
-                          Text(DinhDang.tien(gio.tamTinh), style: Theme.of(context).textTheme.titleLarge),
-                        ],
+          ? Container(
+              color: OcopMau.nenThe,
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Tạm tính', style: Theme.of(context).textTheme.bodySmall),
+                            SoChayMuot(
+                              giaTri: gio.tamTinh,
+                              text: DinhDang.tien(gio.tamTinh),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(color: OcopMau.chuChinh, fontWeight: FontWeight.w800),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    FilledButton.icon(
-                      key: const Key('nutDatHang'),
-                      onPressed: _dangCapNhat ? null : _datHang,
-                      icon: const Icon(Icons.payment),
-                      label: const Text('Đặt hàng'),
-                    ),
-                  ],
+                      NhanNhe(
+                        rungNhe: true,
+                        child: FilledButton(
+                          key: const Key('nutDatHang'),
+                          onPressed: _dangCapNhat ? null : _datHang,
+                          child: const Text('Đặt hàng'),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             )
@@ -179,7 +190,7 @@ class _GioHangScreenState extends State<GioHangScreen> {
       return RefreshIndicator(
         onRefresh: _tai,
         child: ListView(children: const [
-          SizedBox(height: 120),
+          SizedBox(height: 100),
           TrangTrong(icon: Icons.shopping_cart_outlined, thongDiep: 'Giỏ hàng trống. Hãy chọn vài đặc sản OCOP!'),
         ]),
       );
@@ -187,6 +198,7 @@ class _GioHangScreenState extends State<GioHangScreen> {
     return RefreshIndicator(
       onRefresh: _tai,
       child: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
         itemCount: ds.length,
         itemBuilder: (context, i) => _DongGioHang(
           dong: ds[i],
@@ -214,52 +226,88 @@ class _DongGioHang extends StatelessWidget {
         ? 'Sản phẩm đã ngừng bán'
         : (dong.conHang < dong.soLuong ? 'Chỉ còn ${dong.conHang} ${dong.donViTinh}' : null);
     return Card(
-      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      clipBehavior: Clip.antiAlias,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AnhMang(url: dong.anhUrl, width: 88, height: 104),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: AnhMang(url: dong.anhUrl, width: 88, height: 96),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(dong.ten, style: theme.textTheme.titleSmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(dong.ten, style: theme.textTheme.titleSmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+                      ),
+                      IconButton(
+                        key: Key('xoa${dong.sanPhamId}'),
+                        tooltip: 'Xóa khỏi giỏ',
+                        visualDensity: VisualDensity.compact,
+                        onPressed: batTat ? onXoa : null,
+                        icon: const Icon(Icons.delete_outline_rounded, size: 20, color: OcopMau.chuPhu),
+                      ),
+                    ],
+                  ),
                   Text('${DinhDang.tien(dong.gia)} / ${dong.donViTinh}', style: theme.textTheme.bodySmall),
                   if (canhBao != null)
-                    Text(canhBao, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.error)),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(canhBao, style: theme.textTheme.bodySmall?.copyWith(color: OcopMau.doLoi)),
+                    ),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
-                      IconButton(
-                        tooltip: 'Giảm',
-                        visualDensity: VisualDensity.compact,
-                        onPressed: batTat && dong.soLuong > 1 ? () => onDoiSoLuong(dong.soLuong - 1) : null,
-                        icon: const Icon(Icons.remove_circle_outline),
-                      ),
-                      Text('${dong.soLuong}'),
-                      IconButton(
-                        tooltip: 'Tăng',
-                        visualDensity: VisualDensity.compact,
-                        onPressed: batTat && dong.soLuong < 999 ? () => onDoiSoLuong(dong.soLuong + 1) : null,
-                        icon: const Icon(Icons.add_circle_outline),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: OcopMau.nenNhap,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              tooltip: 'Giảm',
+                              visualDensity: VisualDensity.compact,
+                              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                              padding: EdgeInsets.zero,
+                              onPressed: batTat && dong.soLuong > 1 ? () => onDoiSoLuong(dong.soLuong - 1) : null,
+                              icon: const Icon(Icons.remove_rounded, size: 16),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 6),
+                              child: Text('${dong.soLuong}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                            ),
+                            IconButton(
+                              tooltip: 'Tăng',
+                              visualDensity: VisualDensity.compact,
+                              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                              padding: EdgeInsets.zero,
+                              onPressed: batTat && dong.soLuong < 999 ? () => onDoiSoLuong(dong.soLuong + 1) : null,
+                              icon: const Icon(Icons.add_rounded, size: 16),
+                            ),
+                          ],
+                        ),
                       ),
                       const Spacer(),
-                      Text(DinhDang.tien(dong.thanhTien), style: theme.textTheme.titleSmall),
+                      Text(
+                        DinhDang.tien(dong.thanhTien),
+                        style: theme.textTheme.titleSmall?.copyWith(color: OcopMau.xanhOcop, fontWeight: FontWeight.w800),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
-          ),
-          IconButton(
-            key: Key('xoa${dong.sanPhamId}'),
-            tooltip: 'Xóa khỏi giỏ',
-            onPressed: batTat ? onXoa : null,
-            icon: const Icon(Icons.delete_outline),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

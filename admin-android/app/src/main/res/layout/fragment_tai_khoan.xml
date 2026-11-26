@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/nen_man_hinh"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -9,62 +12,245 @@
         android:orientation="vertical"
         android:padding="@dimen/khoang_md">
 
-        <TextView
-            android:id="@+id/tvHoTen"
+        <!-- Thẻ hồ sơ tối giản không viền, không gradient nặng -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/TheChiTiet"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceTitleLarge" />
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/tvEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/khoang_xs" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="@dimen/khoang_md">
 
-        <TextView
-            android:id="@+id/tvVaiTro"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/khoang_sm"
-            android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tvAvatar"
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:background="@drawable/nen_avatar_tron"
+                    android:gravity="center"
+                    android:textColor="@color/xanh_ocop"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/khoang_sm_md"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvHoTen"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textColor="@color/chu_chinh"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textColor="@color/chu_phu"
+                        android:textSize="@dimen/chu_phu" />
+
+                    <TextView
+                        android:id="@+id/tvVaiTro"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:background="@drawable/nen_nhan_trang_thai"
+                        android:backgroundTint="@color/xanh_ocop_nhat"
+                        android:paddingStart="10dp"
+                        android:paddingTop="3dp"
+                        android:paddingEnd="10dp"
+                        android:paddingBottom="3dp"
+                        android:textColor="@color/xanh_ocop"
+                        android:textSize="@dimen/chu_nho"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:id="@+id/tvGhiChuNhanVien"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/khoang_sm"
-            android:text="@string/nhan_vien_chi_xem" />
+            android:layout_marginTop="@dimen/khoang_sm_md"
+            android:background="@drawable/nen_ma_lo"
+            android:padding="@dimen/khoang_sm_md"
+            android:text="@string/nhan_vien_chi_xem"
+            android:textColor="@color/chu_phu"
+            android:textSize="@dimen/chu_nho" />
+
+        <!-- Danh sách chức năng gọn gàng, đơn sắc, bỏ chữ mô tả dài thừa -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/TheChiTiet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_md">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/btnNhaCungCap"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="58dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/khoang_md"
+                    android:paddingEnd="@dimen/khoang_md">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_nha_cung_cap"
+                        app:tint="@color/chu_chinh" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/khoang_md"
+                        android:layout_weight="1"
+                        android:text="@string/nut_mo_nha_cung_cap"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="@color/chu_chinh"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_mui_ten_phai" />
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/vachBaoCao"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="54dp"
+                    android:background="@color/nen_man_hinh"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/btnBaoCao"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="58dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/khoang_md"
+                    android:paddingEnd="@dimen/khoang_md"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_bao_cao"
+                        app:tint="@color/chu_chinh" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/khoang_md"
+                        android:layout_weight="1"
+                        android:text="@string/nut_mo_bao_cao"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="@color/chu_chinh"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_mui_ten_phai" />
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/vachTaiKhoan"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="54dp"
+                    android:background="@color/nen_man_hinh"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/btnQuanLyTaiKhoan"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="58dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/khoang_md"
+                    android:paddingEnd="@dimen/khoang_md"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_nhan_su"
+                        app:tint="@color/chu_chinh" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/khoang_md"
+                        android:layout_weight="1"
+                        android:text="@string/nut_mo_quan_ly_tai_khoan"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="@color/chu_chinh"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_mui_ten_phai" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Nút đăng xuất nền trắng không viền, sắc đỏ rõ ràng -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDangXuat"
+            style="@style/NutVienOcop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_md"
+            android:text="@string/nut_dang_xuat"
+            android:textColor="@color/do_tu_choi"
+            app:backgroundTint="@color/nen_the"
+            app:icon="@drawable/ic_dang_xuat"
+            app:iconGravity="textStart"
+            app:iconTint="@color/do_tu_choi" />
 
         <TextView
             android:id="@+id/tvMayChu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/khoang_md"
-            android:textSize="@dimen/chu_nho" />
-
-        <Button
-            android:id="@+id/btnNhaCungCap"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/khoang_lg"
-            android:text="@string/nut_mo_nha_cung_cap" />
-
-        <Button
-            android:id="@+id/btnBaoCao"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/khoang_sm"
-            android:text="@string/nut_mo_bao_cao"
-            android:visibility="gone" />
-
-        <Button
-            android:id="@+id/btnDangXuat"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/khoang_lg"
-            android:text="@string/nut_dang_xuat" />
+            android:gravity="center"
+            android:textColor="@color/chu_phu"
+            android:textSize="11sp" />
     </LinearLayout>
 </ScrollView>

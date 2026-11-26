@@ -1,1033 +1,414 @@
-
 package vn.edu.vhu.ltdd.gugugaga.admin.ui.nhacungcap;
 
 import android.app.DatePickerDialog;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Map;
 
 import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.data.AnhRepository;
 import vn.edu.vhu.ltdd.gugugaga.admin.data.KetQuaApi;
-import vn.edu.vhu.ltdd.gugugaga.admin.data.NhaCungCapRepository;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.KetQuaTaiAnh;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.NhaCungCap;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.VungNguyenLieu;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauTaoNhaCungCap;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.MainActivity;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.KhungTrangThai;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ManHinh;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.TrangThai;
+import vn.edu.vhu.ltdd.gugugaga.admin.util.KiemTraForm;
 
+/**
+ * Form tạo hồ sơ nhà cung cấp kèm chứng nhận (Issue #13).
+ * Giữ dữ liệu khi xoay màn hình bằng EditText ID + onSaveInstanceState (Lab A2).
+ */
 public class TaoNhaCungCapFragment extends Fragment {
+    private static final String KEY_VUNG_ID = "vung_id";
+    private static final String KEY_NGAY_CAP = "ngay_cap";
+    private static final String KEY_NGAY_HET_HAN = "ngay_het_han";
 
-    private EditText edtTenNhaCungCap;
-    private EditText edtNguoiDaiDien;
-    private EditText edtSoDienThoai;
-    private EditText edtDiaChi;
+    private TaoNhaCungCapViewModel viewModel;
+    private AnhRepository anhRepo;
+    private KhungTrangThai khung;
+    private View noiDung;
+    private Spinner spVung;
+    private TextView tvLoiVung;
+    private TextInputLayout tilTen, tilNguoiDaiDien, tilSoDienThoai, tilDiaChi, tilAnhCoSo;
+    private TextInputLayout tilLoaiCn, tilSoHieuCn, tilNgayCap, tilNgayHetHan, tilAnhCn;
+    private TextInputEditText edtTen, edtNguoiDaiDien, edtSoDienThoai, edtDiaChi, edtAnhCoSo;
+    private TextInputEditText edtLoaiCn, edtSoHieuCn, edtNgayCap, edtNgayHetHan, edtAnhCn;
+    private Button btnChonAnhCoSo, btnChonAnhCn, btnLuu;
+    private ProgressBar progressAnhCoSo, progressAnhCn, progressLuu;
+    private ImageView ivAnhCoSo, ivAnhCn;
 
-    private Spinner spVungNguyenLieu;
-    private TextView tvTrangThaiTaiVung;
+    private final List<Integer> idVung = new ArrayList<>();
+    private int vungIdDaChon = -1;
+    private String ngayCap;
+    private String ngayHetHan;
+    private boolean dangLuu;
 
-    private ImageView imgAnhCoSo;
-    private Button btnChonAnhCoSo;
-    private Button btnThemChungNhan;
-    private Button btnLuuNhaCungCap;
-
-    private LinearLayout layoutDanhSachChungNhan;
-    private TextView tvChuaCoChungNhan;
-
-    private AnhRepository anhRepository;
-    private NhaCungCapRepository nhaCungCapRepository;
-
-    private String anhCoSoUrl;
-
-    private final List<VungNguyenLieu> danhSachVung =
-            new ArrayList<>();
-
-    private final List<YeuCauTaoNhaCungCap.ChungNhan> danhSachChungNhan =
-            new ArrayList<>();
-
-    private final ExecutorService executor =
-            Executors.newSingleThreadExecutor();
-
-    private ActivityResultLauncher<String> chonAnhLauncher;
-    private ActivityResultLauncher<String> chonAnhChungNhanLauncher;
-
-    // Chứng nhận đang được chọn ảnh
-    private YeuCauTaoNhaCungCap.ChungNhan chungNhanDangChonAnh;
-
-    // Số ảnh chứng nhận đang upload
-    private int soAnhChungNhanDangTai = 0;
-
-    private boolean dangTaiVung = false;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // Chọn ảnh cơ sở
-        chonAnhLauncher = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                uri -> {
-                    if (uri != null) {
-                        xuLyAnh(uri);
-                    }
-                }
-        );
-
-        // Chọn ảnh cho từng chứng nhận
-        chonAnhChungNhanLauncher = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                uri -> {
-                    YeuCauTaoNhaCungCap.ChungNhan chungNhan =
-                            chungNhanDangChonAnh;
-
-                    chungNhanDangChonAnh = null;
-
-                    if (uri != null && chungNhan != null) {
-                        xuLyAnhChungNhan(uri, chungNhan);
-                    }
-                }
-        );
-
-        if (savedInstanceState != null) {
-            anhCoSoUrl = savedInstanceState.getString("anhCoSoUrl");
-        }
-    }
+    private final ActivityResultLauncher<PickVisualMediaRequest> chonAnhCoSoLauncher =
+            registerForActivityResult(new PickVisualMedia(), uri -> taiAnh(uri, true));
+    private final ActivityResultLauncher<PickVisualMediaRequest> chonAnhCnLauncher =
+            registerForActivityResult(new PickVisualMedia(), uri -> taiAnh(uri, false));
 
     @Nullable
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState
-    ) {
-        return inflater.inflate(
-                R.layout.fragment_tao_nha_cung_cap,
-                container,
-                false
-        );
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_tao_nha_cung_cap, container, false);
     }
 
     @Override
-    public void onViewCreated(
-            @NonNull View view,
-            @Nullable Bundle savedInstanceState
-    ) {
-        super.onViewCreated(view, savedInstanceState);
-
-        ((MainActivity) requireActivity()).datTieuDe(
-                R.string.tieu_de_nha_cung_cap
-        );
-
-        anhRepository = new AnhRepository(requireContext());
-
-        nhaCungCapRepository =
-                new NhaCungCapRepository(requireContext());
-
-        edtTenNhaCungCap =
-                view.findViewById(R.id.edtTenNhaCungCap);
-
-        edtNguoiDaiDien =
-                view.findViewById(R.id.edtNguoiDaiDien);
-
-        edtSoDienThoai =
-                view.findViewById(R.id.edtSoDienThoai);
-
-        edtDiaChi =
-                view.findViewById(R.id.edtDiaChi);
-
-        spVungNguyenLieu =
-                view.findViewById(R.id.spVungNguyenLieu);
-
-        tvTrangThaiTaiVung =
-                view.findViewById(R.id.tvTrangThaiTaiVung);
-
-        imgAnhCoSo =
-                view.findViewById(R.id.imgAnhCoSo);
-
-        btnChonAnhCoSo =
-                view.findViewById(R.id.btnChonAnhCoSo);
-
-        btnThemChungNhan =
-                view.findViewById(R.id.btnThemChungNhan);
-
-        btnLuuNhaCungCap =
-                view.findViewById(R.id.btnLuuNhaCungCap);
-
-        layoutDanhSachChungNhan =
-                view.findViewById(R.id.layoutDanhSachChungNhan);
-
-        tvChuaCoChungNhan =
-                view.findViewById(R.id.tvChuaCoChungNhan);
-
-        btnChonAnhCoSo.setOnClickListener(v ->
-                chonAnhLauncher.launch("image/*")
-        );
-
-        btnThemChungNhan.setOnClickListener(v ->
-                hienDialogThemChungNhan()
-        );
-
-        btnLuuNhaCungCap.setOnClickListener(v ->
-                luuHoSo()
-        );
-
-        hienDanhSachChungNhan();
-        taiDanhSachVung();
-    }
-
-    // =====================================
-    // TẢI DANH SÁCH VÙNG NGUYÊN LIỆU
-    // =====================================
-
-    private void taiDanhSachVung() {
-
-        dangTaiVung = true;
-
-        tvTrangThaiTaiVung.setText(
-                "Đang tải danh sách vùng nguyên liệu..."
-        );
-
-        spVungNguyenLieu.setEnabled(false);
-
-        nhaCungCapRepository.dsVungNguyenLieu(
-                new KetQuaApi<List<VungNguyenLieu>>() {
-
-                    @Override
-                    public void thanhCong(
-                            List<VungNguyenLieu> ketQua
-                    ) {
-                        if (!isAdded()) return;
-
-                        dangTaiVung = false;
-                        danhSachVung.clear();
-
-                        if (ketQua == null || ketQua.isEmpty()) {
-                            tvTrangThaiTaiVung.setText(
-                                    "Chưa có vùng nguyên liệu."
-                            );
-
-                            spVungNguyenLieu.setEnabled(false);
-                            return;
-                        }
-
-                        for (VungNguyenLieu vung : ketQua) {
-                            if (vung != null
-                                    && vung.id > 0
-                                    && vung.ten != null
-                                    && !vung.ten.trim().isEmpty()) {
-
-                                danhSachVung.add(vung);
-                            }
-                        }
-
-                        if (danhSachVung.isEmpty()) {
-                            tvTrangThaiTaiVung.setText(
-                                    "Dữ liệu vùng nguyên liệu không hợp lệ."
-                            );
-
-                            spVungNguyenLieu.setEnabled(false);
-                            return;
-                        }
-
-                        ArrayAdapter<VungNguyenLieu> adapter =
-                                new ArrayAdapter<>(
-                                        requireContext(),
-                                        android.R.layout.simple_spinner_item,
-                                        danhSachVung
-                                );
-
-                        adapter.setDropDownViewResource(
-                                android.R.layout.simple_spinner_dropdown_item
-                        );
-
-                        spVungNguyenLieu.setAdapter(adapter);
-                        spVungNguyenLieu.setEnabled(true);
-
-                        tvTrangThaiTaiVung.setText(
-                                "Đã tải " + danhSachVung.size()
-                                        + " vùng nguyên liệu."
-                        );
-                    }
-
-                    @Override
-                    public void loi(String thongDiep) {
-                        if (!isAdded()) return;
-
-                        dangTaiVung = false;
-                        spVungNguyenLieu.setEnabled(false);
-
-                        tvTrangThaiTaiVung.setText(
-                                "Không tải được danh sách vùng."
-                        );
-
-                        Toast.makeText(
-                                requireContext(),
-                                thongDiep,
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
-
-                    @Override
-                    public void hetPhien() {
-                        if (!isAdded()) return;
-
-                        dangTaiVung = false;
-                        spVungNguyenLieu.setEnabled(false);
-
-                        tvTrangThaiTaiVung.setText(
-                                "Không thể tải danh sách vùng."
-                        );
-
-                        Toast.makeText(
-                                requireContext(),
-                                "Không thể tải danh sách vùng nguyên liệu.",
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
-                }
-        );
-    }
-
-    // =====================================
-    // CHỌN VÀ UPLOAD ẢNH CƠ SỞ
-    // =====================================
-
-    private void xuLyAnh(Uri uri) {
-        try {
-            imgAnhCoSo.setImageURI(uri);
-            imgAnhCoSo.setVisibility(View.VISIBLE);
-
-            String mimeType = requireContext()
-                    .getContentResolver()
-                    .getType(uri);
-
-            if (!laAnhHopLe(mimeType)) {
-                Toast.makeText(
-                        requireContext(),
-                        "Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP.",
-                        Toast.LENGTH_SHORT
-                ).show();
-
-                return;
-            }
-
-            btnChonAnhCoSo.setEnabled(false);
-            btnChonAnhCoSo.setText("Đang tải ảnh lên...");
-
-            executor.execute(() -> {
-                try (
-                        InputStream input = requireContext()
-                                .getContentResolver()
-                                .openInputStream(uri);
-
-                        ByteArrayOutputStream output =
-                                new ByteArrayOutputStream()
-                ) {
-                    if (input == null) {
-                        throw new IOException("Không đọc được ảnh.");
-                    }
-
-                    byte[] buffer = new byte[8192];
-                    int length;
-
-                    while ((length = input.read(buffer)) != -1) {
-                        output.write(buffer, 0, length);
-
-                        if (output.size() > 5 * 1024 * 1024) {
-                            throw new IOException(
-                                    "Ảnh không được vượt quá 5 MB."
-                            );
-                        }
-                    }
-
-                    byte[] data = output.toByteArray();
-
-                    if (!isAdded()) return;
-
-                    requireActivity().runOnUiThread(() ->
-                            anhRepository.taiLen(
-                                    data,
-                                    mimeType,
-                                    "nha-cung-cap",
-                                    new KetQuaApi<KetQuaTaiAnh>() {
-
-                                        @Override
-                                        public void thanhCong(
-                                                KetQuaTaiAnh ketQua
-                                        ) {
-                                            if (!isAdded()) return;
-
-                                            if (ketQua == null
-                                                    || ketQua.url == null
-                                                    || ketQua.url.trim().isEmpty()) {
-
-                                                ketThucUploadAnhCoSo();
-
-                                                Toast.makeText(
-                                                        requireContext(),
-                                                        "Máy chủ không trả về URL ảnh.",
-                                                        Toast.LENGTH_LONG
-                                                ).show();
-
-                                                return;
-                                            }
-
-                                            anhCoSoUrl = ketQua.url;
-
-                                            ketThucUploadAnhCoSo();
-
-                                            Toast.makeText(
-                                                    requireContext(),
-                                                    "Upload ảnh thành công!",
-                                                    Toast.LENGTH_SHORT
-                                            ).show();
-                                        }
-
-                                        @Override
-                                        public void loi(String thongDiep) {
-                                            if (!isAdded()) return;
-
-                                            ketThucUploadAnhCoSo();
-
-                                            Toast.makeText(
-                                                    requireContext(),
-                                                    thongDiep,
-                                                    Toast.LENGTH_LONG
-                                            ).show();
-                                        }
-
-                                        @Override
-                                        public void hetPhien() {
-                                            if (!isAdded()) return;
-
-                                            ketThucUploadAnhCoSo();
-
-                                            Toast.makeText(
-                                                    requireContext(),
-                                                    "Phiên đăng nhập hết hạn.",
-                                                    Toast.LENGTH_LONG
-                                            ).show();
-                                        }
-                                    }
-                            )
-                    );
-
-                } catch (Exception e) {
-                    if (!isAdded()) return;
-
-                    requireActivity().runOnUiThread(() -> {
-                        if (!isAdded()) return;
-
-                        ketThucUploadAnhCoSo();
-
-                        Toast.makeText(
-                                requireContext(),
-                                e.getMessage() == null
-                                        ? "Không thể upload ảnh."
-                                        : e.getMessage(),
-                                Toast.LENGTH_LONG
-                        ).show();
-                    });
-                }
-            });
-
-        } catch (Exception e) {
-            Toast.makeText(
-                    requireContext(),
-                    "Không thể đọc ảnh đã chọn.",
-                    Toast.LENGTH_SHORT
-            ).show();
-        }
-    }
-
-    private boolean laAnhHopLe(String mimeType) {
-        return mimeType != null
-                && (mimeType.equals("image/jpeg")
-                || mimeType.equals("image/png")
-                || mimeType.equals("image/webp"));
-    }
-
-    private void ketThucUploadAnhCoSo() {
-        btnChonAnhCoSo.setEnabled(true);
-        btnChonAnhCoSo.setText("Chọn ảnh cơ sở");
-    }
-
-    // =====================================
-    // CHỌN VÀ UPLOAD ẢNH CHỨNG NHẬN
-    // =====================================
-
-    private void xuLyAnhChungNhan(
-            Uri uri,
-            YeuCauTaoNhaCungCap.ChungNhan chungNhan
-    ) {
-        if (!danhSachChungNhan.contains(chungNhan)) {
-            return;
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        ((MainActivity) requireActivity()).datTieuDe(R.string.tieu_de_tao_nha_cung_cap);
+        if (savedInstanceState != null) {
+            vungIdDaChon = savedInstanceState.getInt(KEY_VUNG_ID, -1);
+            ngayCap = savedInstanceState.getString(KEY_NGAY_CAP);
+            ngayHetHan = savedInstanceState.getString(KEY_NGAY_HET_HAN);
         }
 
-        String mimeType = requireContext()
-                .getContentResolver()
-                .getType(uri);
+        anhXa(view);
+        anhRepo = new AnhRepository(requireContext());
+        viewModel = new ViewModelProvider(this).get(TaoNhaCungCapViewModel.class);
+        khung = new KhungTrangThai(view, viewModel::taiVung);
 
-        if (!laAnhHopLe(mimeType)) {
-            Toast.makeText(
-                    requireContext(),
-                    "Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP.",
-                    Toast.LENGTH_SHORT
-            ).show();
+        if (ngayCap != null) edtNgayCap.setText(ngayCap);
+        if (ngayHetHan != null) edtNgayHetHan.setText(ngayHetHan);
 
-            return;
-        }
+        edtNgayCap.setOnClickListener(v -> chonNgay(true));
+        edtNgayHetHan.setOnClickListener(v -> chonNgay(false));
+        btnChonAnhCoSo.setOnClickListener(v -> chonAnhCoSoLauncher.launch(
+                new PickVisualMediaRequest.Builder().setMediaType(PickVisualMedia.ImageOnly.INSTANCE).build()));
+        btnChonAnhCn.setOnClickListener(v -> chonAnhCnLauncher.launch(
+                new PickVisualMediaRequest.Builder().setMediaType(PickVisualMedia.ImageOnly.INSTANCE).build()));
+        btnLuu.setOnClickListener(v -> gui());
 
-        soAnhChungNhanDangTai++;
-
-        Toast.makeText(
-                requireContext(),
-                "Đang tải ảnh chứng nhận lên...",
-                Toast.LENGTH_SHORT
-        ).show();
-
-        executor.execute(() -> {
-            try (
-                    InputStream input = requireContext()
-                            .getContentResolver()
-                            .openInputStream(uri);
-
-                    ByteArrayOutputStream output =
-                            new ByteArrayOutputStream()
-            ) {
-                if (input == null) {
-                    throw new IOException("Không đọc được ảnh.");
-                }
-
-                byte[] buffer = new byte[8192];
-                int length;
-
-                while ((length = input.read(buffer)) != -1) {
-                    output.write(buffer, 0, length);
-
-                    if (output.size() > 5 * 1024 * 1024) {
-                        throw new IOException(
-                                "Ảnh không được vượt quá 5 MB."
-                        );
-                    }
-                }
-
-                byte[] data = output.toByteArray();
-
-                if (!isAdded()) return;
-
-                requireActivity().runOnUiThread(() ->
-                        anhRepository.taiLen(
-                                data,
-                                mimeType,
-                                "nha-cung-cap",
-                                new KetQuaApi<KetQuaTaiAnh>() {
-
-                                    @Override
-                                    public void thanhCong(
-                                            KetQuaTaiAnh ketQua
-                                    ) {
-                                        if (!isAdded()) return;
-
-                                        ketThucUploadAnhChungNhan();
-
-                                        if (ketQua == null
-                                                || ketQua.url == null
-                                                || ketQua.url.trim().isEmpty()) {
-
-                                            Toast.makeText(
-                                                    requireContext(),
-                                                    "Máy chủ không trả về URL ảnh.",
-                                                    Toast.LENGTH_LONG
-                                            ).show();
-
-                                            return;
-                                        }
-
-                                        if (danhSachChungNhan.contains(chungNhan)) {
-                                            chungNhan.anhUrl = ketQua.url;
-                                            hienDanhSachChungNhan();
-                                        }
-
-                                        Toast.makeText(
-                                                requireContext(),
-                                                "Upload ảnh chứng nhận thành công!",
-                                                Toast.LENGTH_SHORT
-                                        ).show();
-                                    }
-
-                                    @Override
-                                    public void loi(String thongDiep) {
-                                        if (!isAdded()) return;
-
-                                        ketThucUploadAnhChungNhan();
-
-                                        Toast.makeText(
-                                                requireContext(),
-                                                thongDiep,
-                                                Toast.LENGTH_LONG
-                                        ).show();
-                                    }
-
-                                    @Override
-                                    public void hetPhien() {
-                                        if (!isAdded()) return;
-
-                                        ketThucUploadAnhChungNhan();
-
-                                        Toast.makeText(
-                                                requireContext(),
-                                                "Phiên đăng nhập hết hạn.",
-                                                Toast.LENGTH_LONG
-                                        ).show();
-                                    }
-                                }
-                        )
-                );
-
-            } catch (Exception e) {
-                if (!isAdded()) return;
-
-                requireActivity().runOnUiThread(() -> {
-                    if (!isAdded()) return;
-
-                    ketThucUploadAnhChungNhan();
-
-                    Toast.makeText(
-                            requireContext(),
-                            e.getMessage() == null
-                                    ? "Không thể upload ảnh chứng nhận."
-                                    : e.getMessage(),
-                            Toast.LENGTH_LONG
-                    ).show();
-                });
-            }
+        viewModel.getDsVung().observe(getViewLifecycleOwner(), this::hienThiVung);
+        viewModel.getDaTao().observe(getViewLifecycleOwner(), sk -> {
+            if (sk == null) return;
+            var ncc = sk.layNeuChuaXuLy();
+            if (ncc == null) return;
+            Bundle b = new Bundle();
+            b.putString(NhaCungCapFragment.KEY_THONG_BAO, getString(R.string.da_tao_ncc, ncc.ten));
+            getParentFragmentManager().setFragmentResult(NhaCungCapFragment.KET_QUA_CAP_NHAT, b);
+            getParentFragmentManager().popBackStack();
         });
-    }
-
-    private void ketThucUploadAnhChungNhan() {
-        if (soAnhChungNhanDangTai > 0) {
-            soAnhChungNhanDangTai--;
-        }
-    }
-
-    // =====================================
-    // THÊM CHỨNG NHẬN
-    // =====================================
-
-    private void hienDialogThemChungNhan() {
-
-        LinearLayout form = new LinearLayout(requireContext());
-        form.setOrientation(LinearLayout.VERTICAL);
-        form.setPadding(40, 16, 40, 8);
-
-        EditText edtLoai = new EditText(requireContext());
-        edtLoai.setHint("Loại chứng nhận");
-        edtLoai.setSingleLine(true);
-
-        EditText edtSoHieu = new EditText(requireContext());
-        edtSoHieu.setHint("Số hiệu chứng nhận");
-        edtSoHieu.setSingleLine(true);
-
-        Button btnNgayCap = new Button(requireContext());
-        btnNgayCap.setText("Chọn ngày cấp");
-
-        Button btnNgayHetHan = new Button(requireContext());
-        btnNgayHetHan.setText(
-                "Chọn ngày hết hạn (không bắt buộc)"
-        );
-
-        final String[] ngayCap = {null};
-        final String[] ngayHetHan = {null};
-
-        form.addView(edtLoai);
-        form.addView(edtSoHieu);
-        form.addView(btnNgayCap);
-        form.addView(btnNgayHetHan);
-
-        btnNgayCap.setOnClickListener(v ->
-                chonNgay(ngay -> {
-                    ngayCap[0] = ngay;
-                    btnNgayCap.setText("Ngày cấp: " + ngay);
-                })
-        );
-
-        btnNgayHetHan.setOnClickListener(v ->
-                chonNgay(ngay -> {
-                    ngayHetHan[0] = ngay;
-                    btnNgayHetHan.setText("Ngày hết hạn: " + ngay);
-                })
-        );
-
-        AlertDialog dialog = new AlertDialog.Builder(requireContext())
-                .setTitle("Thêm chứng nhận")
-                .setView(form)
-                .setNegativeButton("Hủy", null)
-                .setPositiveButton("Thêm", null)
-                .create();
-
-        dialog.setOnShowListener(d -> {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                    .setOnClickListener(v -> {
-
-                        String loai = edtLoai.getText()
-                                .toString().trim();
-
-                        String soHieu = edtSoHieu.getText()
-                                .toString().trim();
-
-                        if (loai.isEmpty()) {
-                            edtLoai.setError(
-                                    "Vui lòng nhập loại chứng nhận"
-                            );
-                            return;
-                        }
-
-                        if (soHieu.isEmpty()) {
-                            edtSoHieu.setError(
-                                    "Vui lòng nhập số hiệu"
-                            );
-                            return;
-                        }
-
-                        if (ngayCap[0] == null) {
-                            Toast.makeText(
-                                    requireContext(),
-                                    "Vui lòng chọn ngày cấp.",
-                                    Toast.LENGTH_SHORT
-                            ).show();
-                            return;
-                        }
-
-                        if (ngayHetHan[0] != null
-                                && ngayHetHan[0].compareTo(ngayCap[0]) <= 0) {
-
-                            Toast.makeText(
-                                    requireContext(),
-                                    "Ngày hết hạn phải sau ngày cấp.",
-                                    Toast.LENGTH_SHORT
-                            ).show();
-                            return;
-                        }
-
-                        YeuCauTaoNhaCungCap.ChungNhan chungNhan =
-                                new YeuCauTaoNhaCungCap.ChungNhan();
-
-                        chungNhan.loai = loai;
-                        chungNhan.soHieu = soHieu;
-                        chungNhan.ngayCap = ngayCap[0];
-                        chungNhan.ngayHetHan = ngayHetHan[0];
-                        chungNhan.anhUrl = null;
-
-                        danhSachChungNhan.add(chungNhan);
-
-                        hienDanhSachChungNhan();
-                        dialog.dismiss();
-                    });
+        viewModel.getLoiGui().observe(getViewLifecycleOwner(), sk -> {
+            if (sk == null) return;
+            TaoNhaCungCapViewModel.LoiGui loi = sk.layNeuChuaXuLy();
+            if (loi == null) return;
+            datDangLuu(false);
+            hienLoiBackend(loi);
         });
-
-        dialog.show();
-    }
-
-    private interface NgayDaChon {
-        void nhan(String ngay);
-    }
-
-    private void chonNgay(NgayDaChon callback) {
-
-        Calendar calendar = Calendar.getInstance();
-
-        DatePickerDialog picker = new DatePickerDialog(
-                requireContext(),
-                (datePicker, year, month, day) -> {
-                    String ngay = String.format(
-                            Locale.US,
-                            "%04d-%02d-%02d",
-                            year,
-                            month + 1,
-                            day
-                    );
-
-                    callback.nhan(ngay);
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-        );
-
-        picker.show();
-    }
-
-    // =====================================
-    // HIỂN THỊ DANH SÁCH CHỨNG NHẬN
-    // =====================================
-
-    private void hienDanhSachChungNhan() {
-
-        layoutDanhSachChungNhan.removeAllViews();
-
-        boolean rong = danhSachChungNhan.isEmpty();
-
-        tvChuaCoChungNhan.setVisibility(
-                rong ? View.VISIBLE : View.GONE
-        );
-
-        for (int i = 0; i < danhSachChungNhan.size(); i++) {
-
-            YeuCauTaoNhaCungCap.ChungNhan cn =
-                    danhSachChungNhan.get(i);
-
-            LinearLayout item = new LinearLayout(requireContext());
-            item.setOrientation(LinearLayout.VERTICAL);
-            item.setPadding(20, 16, 20, 16);
-
-            TextView tv = new TextView(requireContext());
-
-            String noiDung =
-                    "Chứng nhận " + (i + 1)
-                            + "\nLoại: " + cn.loai
-                            + "\nSố hiệu: " + cn.soHieu
-                            + "\nNgày cấp: " + cn.ngayCap
-                            + "\nNgày hết hạn: "
-                            + (cn.ngayHetHan == null
-                            ? "Không có"
-                            : cn.ngayHetHan)
-                            + "\nẢnh: "
-                            + (cn.anhUrl == null
-                            ? "Chưa có"
-                            : "Đã tải lên");
-
-            tv.setText(noiDung);
-            tv.setTextSize(15);
-
-            // Nút chọn hoặc đổi ảnh chứng nhận
-            Button btnChonAnh = new Button(requireContext());
-
-            btnChonAnh.setText(
-                    cn.anhUrl == null
-                            ? "Chọn ảnh chứng nhận"
-                            : "Đổi ảnh chứng nhận"
-            );
-
-            btnChonAnh.setOnClickListener(v -> {
-                chungNhanDangChonAnh = cn;
-                chonAnhChungNhanLauncher.launch("image/*");
-            });
-
-            // Nút xóa chứng nhận
-            Button btnXoa = new Button(requireContext());
-            btnXoa.setText("Xóa chứng nhận");
-
-            final int viTri = i;
-
-            btnXoa.setOnClickListener(v -> {
-                danhSachChungNhan.remove(viTri);
-                hienDanhSachChungNhan();
-            });
-
-            item.addView(tv);
-            item.addView(btnChonAnh);
-            item.addView(btnXoa);
-
-            layoutDanhSachChungNhan.addView(item);
-        }
-    }
-
-    // =====================================
-    // LƯU HỒ SƠ NHÀ CUNG CẤP
-    // =====================================
-
-    private void luuHoSo() {
-
-        String ten = edtTenNhaCungCap.getText()
-                .toString().trim();
-
-        String nguoiDaiDien = edtNguoiDaiDien.getText()
-                .toString().trim();
-
-        String soDienThoai = edtSoDienThoai.getText()
-                .toString().trim();
-
-        String diaChi = edtDiaChi.getText()
-                .toString().trim();
-
-        if (ten.isEmpty()) {
-            edtTenNhaCungCap.setError(
-                    "Vui lòng nhập tên nhà cung cấp"
-            );
-            edtTenNhaCungCap.requestFocus();
-            return;
-        }
-
-        if (nguoiDaiDien.isEmpty()) {
-            edtNguoiDaiDien.setError(
-                    "Vui lòng nhập người đại diện"
-            );
-            edtNguoiDaiDien.requestFocus();
-            return;
-        }
-
-        if (soDienThoai.isEmpty()) {
-            edtSoDienThoai.setError(
-                    "Vui lòng nhập số điện thoại"
-            );
-            edtSoDienThoai.requestFocus();
-            return;
-        }
-
-        if (diaChi.isEmpty()) {
-            edtDiaChi.setError(
-                    "Vui lòng nhập địa chỉ cơ sở"
-            );
-            edtDiaChi.requestFocus();
-            return;
-        }
-
-        if (dangTaiVung) {
-            Toast.makeText(
-                    requireContext(),
-                    "Đang tải danh sách vùng nguyên liệu, vui lòng chờ.",
-                    Toast.LENGTH_SHORT
-            ).show();
-            return;
-        }
-
-        if (soAnhChungNhanDangTai > 0) {
-            Toast.makeText(
-                    requireContext(),
-                    "Đang tải ảnh chứng nhận, vui lòng chờ.",
-                    Toast.LENGTH_SHORT
-            ).show();
-            return;
-        }
-
-        if (danhSachVung.isEmpty()
-                || spVungNguyenLieu.getSelectedItem() == null) {
-
-            Toast.makeText(
-                    requireContext(),
-                    "Vui lòng tải và chọn vùng nguyên liệu hợp lệ.",
-                    Toast.LENGTH_LONG
-            ).show();
-            return;
-        }
-
-        VungNguyenLieu vungDuocChon =
-                (VungNguyenLieu) spVungNguyenLieu.getSelectedItem();
-
-        if (vungDuocChon.id <= 0) {
-            Toast.makeText(
-                    requireContext(),
-                    "Vùng nguyên liệu được chọn không hợp lệ.",
-                    Toast.LENGTH_LONG
-            ).show();
-            return;
-        }
-
-        YeuCauTaoNhaCungCap yeuCau =
-                new YeuCauTaoNhaCungCap();
-
-        yeuCau.ten = ten;
-        yeuCau.nguoiDaiDien = nguoiDaiDien;
-        yeuCau.soDienThoai = soDienThoai;
-        yeuCau.vungId = vungDuocChon.id;
-        yeuCau.diaChi = diaChi;
-        yeuCau.anhCoSoUrl = anhCoSoUrl;
-        yeuCau.chungNhan =
-                new ArrayList<>(danhSachChungNhan);
-
-        btnLuuNhaCungCap.setEnabled(false);
-        btnLuuNhaCungCap.setText("Đang lưu hồ sơ...");
-
-        nhaCungCapRepository.taoHoSo(
-                yeuCau,
-                new KetQuaApi<NhaCungCap>() {
-
-                    @Override
-                    public void thanhCong(NhaCungCap ketQua) {
-                        if (!isAdded()) return;
-
-                        btnLuuNhaCungCap.setEnabled(true);
-                        btnLuuNhaCungCap.setText("Lưu hồ sơ");
-
-                        Toast.makeText(
-                                requireContext(),
-                                "Tạo hồ sơ nhà cung cấp thành công!",
-                                Toast.LENGTH_LONG
-                        ).show();
-
-                        requireActivity()
-                                .getOnBackPressedDispatcher()
-                                .onBackPressed();
-                    }
-
-                    @Override
-                    public void loi(String thongDiep) {
-                        if (!isAdded()) return;
-
-                        btnLuuNhaCungCap.setEnabled(true);
-                        btnLuuNhaCungCap.setText("Lưu hồ sơ");
-
-                        Toast.makeText(
-                                requireContext(),
-                                thongDiep,
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
-
-                    @Override
-                    public void hetPhien() {
-                        if (!isAdded()) return;
-
-                        btnLuuNhaCungCap.setEnabled(true);
-                        btnLuuNhaCungCap.setText("Lưu hồ sơ");
-
-                        Toast.makeText(
-                                requireContext(),
-                                "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.",
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
-                }
-        );
+        ManHinh.quanSatChung(this, viewModel);
+        viewModel.taiVungLanDau();
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("anhCoSoUrl", anhCoSoUrl);
+        outState.putInt(KEY_VUNG_ID, vungIdDaChon);
+        outState.putString(KEY_NGAY_CAP, ngayCap);
+        outState.putString(KEY_NGAY_HET_HAN, ngayHetHan);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        executor.shutdown();
+    private void anhXa(View v) {
+        noiDung = v.findViewById(R.id.noiDung);
+        spVung = v.findViewById(R.id.spVung);
+        tvLoiVung = v.findViewById(R.id.tvLoiVung);
+        tilTen = v.findViewById(R.id.tilTen);
+        tilNguoiDaiDien = v.findViewById(R.id.tilNguoiDaiDien);
+        tilSoDienThoai = v.findViewById(R.id.tilSoDienThoai);
+        tilDiaChi = v.findViewById(R.id.tilDiaChi);
+        tilAnhCoSo = v.findViewById(R.id.tilAnhCoSo);
+        tilLoaiCn = v.findViewById(R.id.tilLoaiCn);
+        tilSoHieuCn = v.findViewById(R.id.tilSoHieuCn);
+        tilNgayCap = v.findViewById(R.id.tilNgayCap);
+        tilNgayHetHan = v.findViewById(R.id.tilNgayHetHan);
+        tilAnhCn = v.findViewById(R.id.tilAnhCn);
+
+        edtTen = v.findViewById(R.id.edtTen);
+        edtNguoiDaiDien = v.findViewById(R.id.edtNguoiDaiDien);
+        edtSoDienThoai = v.findViewById(R.id.edtSoDienThoai);
+        edtDiaChi = v.findViewById(R.id.edtDiaChi);
+        edtAnhCoSo = v.findViewById(R.id.edtAnhCoSo);
+        edtLoaiCn = v.findViewById(R.id.edtLoaiCn);
+        edtSoHieuCn = v.findViewById(R.id.edtSoHieuCn);
+        edtNgayCap = v.findViewById(R.id.edtNgayCap);
+        edtNgayHetHan = v.findViewById(R.id.edtNgayHetHan);
+        edtAnhCn = v.findViewById(R.id.edtAnhCn);
+
+        btnChonAnhCoSo = v.findViewById(R.id.btnChonAnhCoSo);
+        btnChonAnhCn = v.findViewById(R.id.btnChonAnhCn);
+        btnLuu = v.findViewById(R.id.btnLuu);
+        progressAnhCoSo = v.findViewById(R.id.progressAnhCoSo);
+        progressAnhCn = v.findViewById(R.id.progressAnhCn);
+        progressLuu = v.findViewById(R.id.progressLuu);
+        ivAnhCoSo = v.findViewById(R.id.ivAnhCoSo);
+        ivAnhCn = v.findViewById(R.id.ivAnhCn);
+    }
+
+    private void hienThiVung(TrangThai<List<VungNguyenLieu>> tt) {
+        khung.hien(tt, noiDung, tt.duLieu != null && tt.duLieu.isEmpty());
+        if (tt.loai != TrangThai.Loai.THANH_CONG || tt.duLieu == null) return;
+
+        List<String> nhan = new ArrayList<>();
+        idVung.clear();
+        nhan.add(getString(R.string.chon_vung));
+        idVung.add(-1);
+        int chon = 0;
+        for (VungNguyenLieu v : tt.duLieu) {
+            nhan.add(v.ten);
+            idVung.add(v.id);
+            if (v.id == vungIdDaChon) chon = idVung.size() - 1;
+        }
+        ArrayAdapter<String> a = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, nhan);
+        a.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spVung.setAdapter(a);
+        spVung.setSelection(chon);
+        spVung.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                vungIdDaChon = idVung.get(pos);
+                tvLoiVung.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
+    }
+
+    private void chonNgay(boolean laNgayCap) {
+        Calendar c = Calendar.getInstance();
+        new DatePickerDialog(requireContext(), (dp, y, m, d) -> {
+            String ngay = String.format(Locale.US, "%04d-%02d-%02d", y, m + 1, d);
+            if (laNgayCap) {
+                ngayCap = ngay;
+                edtNgayCap.setText(ngay);
+                tilNgayCap.setError(null);
+            } else {
+                ngayHetHan = ngay;
+                edtNgayHetHan.setText(ngay);
+                tilNgayHetHan.setError(null);
+            }
+        }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
+    }
+
+    private void taiAnh(Uri uri, boolean laCoSo) {
+        if (uri == null) return;
+        ProgressBar p = laCoSo ? progressAnhCoSo : progressAnhCn;
+        Button b = laCoSo ? btnChonAnhCoSo : btnChonAnhCn;
+        TextInputEditText edt = laCoSo ? edtAnhCoSo : edtAnhCn;
+        ImageView iv = laCoSo ? ivAnhCoSo : ivAnhCn;
+
+        p.setVisibility(View.VISIBLE);
+        b.setEnabled(false);
+        anhRepo.taiLen(uri, "nha-cung-cap", new KetQuaApi<String>() {
+            @Override
+            public void thanhCong(String url) {
+                if (!isAdded()) return;
+                p.setVisibility(View.GONE);
+                b.setEnabled(true);
+                edt.setText(url);
+                xemTruocAnh(url, iv);
+            }
+
+            @Override
+            public void hetPhien() {
+                if (isAdded()) ((MainActivity) requireActivity()).dangXuat(true);
+            }
+
+            @Override
+            public void loi(String thongDiep) {
+                if (!isAdded()) return;
+                p.setVisibility(View.GONE);
+                b.setEnabled(true);
+                ManHinh.baoSnackbar(TaoNhaCungCapFragment.this, thongDiep);
+            }
+        });
+    }
+
+    private void xemTruocAnh(String url, ImageView iv) {
+        if (!KiemTraForm.laUrlWeb(url)) {
+            iv.setVisibility(View.GONE);
+            return;
+        }
+        anhRepo.tai(url, new KetQuaApi<Bitmap>() {
+            @Override
+            public void thanhCong(Bitmap bmp) {
+                if (!isAdded()) return;
+                iv.setImageBitmap(bmp);
+                iv.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void loi(String thongDiep) { }
+
+            @Override
+            public void hetPhien() { }
+        });
+    }
+
+    private void gui() {
+        if (dangLuu) return;
+        xoaLoi();
+
+        String ten = chuoi(edtTen);
+        String daiDien = chuoi(edtNguoiDaiDien);
+        String sdt = chuoi(edtSoDienThoai);
+        String diaChi = chuoi(edtDiaChi);
+        String anhCoSo = chuoi(edtAnhCoSo);
+
+        if (ten.isEmpty()) {
+            tilTen.setError(getString(R.string.loi_ten_ncc_trong));
+            edtTen.requestFocus();
+            return;
+        }
+        if (daiDien.isEmpty()) {
+            tilNguoiDaiDien.setError(getString(R.string.loi_nguoi_dai_dien_trong));
+            edtNguoiDaiDien.requestFocus();
+            return;
+        }
+        if (!sdt.matches("^[0-9]{9,15}$")) {
+            tilSoDienThoai.setError(getString(R.string.loi_sdt_sai));
+            edtSoDienThoai.requestFocus();
+            return;
+        }
+        if (diaChi.isEmpty()) {
+            tilDiaChi.setError(getString(R.string.loi_dia_chi_trong));
+            edtDiaChi.requestFocus();
+            return;
+        }
+        if (vungIdDaChon <= 0) {
+            tvLoiVung.setText(R.string.loi_chua_chon_vung);
+            tvLoiVung.setVisibility(View.VISIBLE);
+            spVung.requestFocus();
+            return;
+        }
+        if (!anhCoSo.isEmpty() && !KiemTraForm.laUrlWeb(anhCoSo)) {
+            tilAnhCoSo.setError(getString(R.string.loi_anh_url_sai));
+            edtAnhCoSo.requestFocus();
+            return;
+        }
+
+        String loaiCn = chuoi(edtLoaiCn);
+        String soHieu = chuoi(edtSoHieuCn);
+        String cap = chuoi(edtNgayCap);
+        String hetHan = chuoi(edtNgayHetHan);
+        String anhCn = chuoi(edtAnhCn);
+        boolean coNhapCn = !soHieu.isEmpty() || !cap.isEmpty() || !hetHan.isEmpty() || !anhCn.isEmpty();
+
+        List<YeuCauTaoNhaCungCap.ChungNhan> dsCn = Collections.emptyList();
+        if (coNhapCn) {
+            if (loaiCn.isEmpty()) {
+                tilLoaiCn.setError(getString(R.string.loi_loai_cn_trong));
+                edtLoaiCn.requestFocus();
+                return;
+            }
+            if (soHieu.isEmpty()) {
+                tilSoHieuCn.setError(getString(R.string.loi_so_hieu_cn_trong));
+                edtSoHieuCn.requestFocus();
+                return;
+            }
+            if (cap.isEmpty()) {
+                tilNgayCap.setError(getString(R.string.loi_ngay_cap_trong));
+                edtNgayCap.requestFocus();
+                return;
+            }
+            if (!hetHan.isEmpty() && !KiemTraForm.sauNgay(hetHan, cap)) {
+                tilNgayHetHan.setError(getString(R.string.loi_het_han_truoc_ngay_cap));
+                edtNgayHetHan.requestFocus();
+                return;
+            }
+            if (!anhCn.isEmpty() && !KiemTraForm.laUrlWeb(anhCn)) {
+                tilAnhCn.setError(getString(R.string.loi_anh_url_sai));
+                edtAnhCn.requestFocus();
+                return;
+            }
+            dsCn = Collections.singletonList(new YeuCauTaoNhaCungCap.ChungNhan(
+                    loaiCn,
+                    soHieu,
+                    cap,
+                    hetHan.isEmpty() ? null : hetHan,
+                    anhCn.isEmpty() ? null : anhCn));
+        }
+
+        datDangLuu(true);
+        viewModel.tao(new YeuCauTaoNhaCungCap(
+                ten, daiDien, sdt, diaChi, vungIdDaChon,
+                anhCoSo.isEmpty() ? null : anhCoSo,
+                dsCn));
+    }
+
+    private void hienLoiBackend(TaoNhaCungCapViewModel.LoiGui loi) {
+        Map<String, String> m = loi.loiTheoTruong;
+        if (m.containsKey("ten")) tilTen.setError(m.get("ten"));
+        if (m.containsKey("nguoiDaiDien")) tilNguoiDaiDien.setError(m.get("nguoiDaiDien"));
+        if (m.containsKey("soDienThoai")) tilSoDienThoai.setError(m.get("soDienThoai"));
+        if (m.containsKey("diaChi")) tilDiaChi.setError(m.get("diaChi"));
+        if (m.containsKey("vungId")) {
+            tvLoiVung.setText(m.get("vungId"));
+            tvLoiVung.setVisibility(View.VISIBLE);
+        }
+        if (m.containsKey("anhCoSoUrl")) tilAnhCoSo.setError(m.get("anhCoSoUrl"));
+        if (m.containsKey("chungNhan[0].loai")) tilLoaiCn.setError(m.get("chungNhan[0].loai"));
+        if (m.containsKey("chungNhan[0].soHieu")) tilSoHieuCn.setError(m.get("chungNhan[0].soHieu"));
+        if (m.containsKey("chungNhan[0].ngayCap")) tilNgayCap.setError(m.get("chungNhan[0].ngayCap"));
+        if (m.containsKey("chungNhan[0].ngayHetHan")) tilNgayHetHan.setError(m.get("chungNhan[0].ngayHetHan"));
+        if (m.containsKey("chungNhan[0].anhUrl")) tilAnhCn.setError(m.get("chungNhan[0].anhUrl"));
+        if (m.isEmpty() && loi.thongDiep != null) {
+            ManHinh.baoSnackbar(this, loi.thongDiep);
+        }
+    }
+
+    private void xoaLoi() {
+        tilTen.setError(null);
+        tilNguoiDaiDien.setError(null);
+        tilSoDienThoai.setError(null);
+        tilDiaChi.setError(null);
+        tvLoiVung.setVisibility(View.GONE);
+        tilAnhCoSo.setError(null);
+        tilLoaiCn.setError(null);
+        tilSoHieuCn.setError(null);
+        tilNgayCap.setError(null);
+        tilNgayHetHan.setError(null);
+        tilAnhCn.setError(null);
+    }
+
+    private void datDangLuu(boolean b) {
+        dangLuu = b;
+        btnLuu.setEnabled(!b);
+        progressLuu.setVisibility(b ? View.VISIBLE : View.GONE);
+    }
+
+    private String chuoi(TextInputEditText edt) {
+        return edt.getText() == null ? "" : edt.getText().toString().trim();
     }
 }

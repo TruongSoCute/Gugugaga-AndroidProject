@@ -14,11 +14,12 @@ import java.util.List;
 
 import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.DonHang;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ChuyenDong;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.CuonTaiThem;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.NhanTrangThai;
 import vn.edu.vhu.ltdd.gugugaga.admin.util.DinhDang;
 
-/** Adapter + ViewHolder cho danh sách đơn hàng (C.1 #3, Lab A9/A10). */
+/** Adapter + ViewHolder cho danh sách đơn hàng tinh gọn (C.1 #3, Lab A9/A10). */
 public class DonHangAdapter extends RecyclerView.Adapter<DonHangAdapter.ViewHolder> {
 
     public interface KhiChon {
@@ -48,14 +49,30 @@ public class DonHangAdapter extends RecyclerView.Adapter<DonHangAdapter.ViewHold
     public void onBindViewHolder(@NonNull ViewHolder h, int position) {
         DonHang d = danhSach.get(position);
         Context ctx = h.itemView.getContext();
-        h.tvMaDon.setText(ctx.getString(R.string.ma_don, d.id));
-        NhanTrangThai.gan(h.tvTrangThai, d.trangThai);
-        h.tvNguoiNhan.setText(ctx.getString(R.string.nguoi_nhan_khach, d.tenNguoiNhan, d.tenKhach));
-        h.tvSanPham.setText(d.soSanPham > 1
-                ? ctx.getString(R.string.san_pham_va_khac, d.tenSanPhamDau, d.soSanPham - 1)
-                : d.tenSanPhamDau);
-        h.tvTongTien.setText(DinhDang.tien(d.tongTien));
+        h.tvMaDon.setText(ctx.getString(R.string.ma_don_ngan, d.id));
         h.tvTaoLuc.setText(DinhDang.thoiDiem(d.taoLuc));
+        NhanTrangThai.gan(h.tvTrangThai, d.trangThai);
+
+        h.tvSanPham.setText(d.tenSanPhamDau != null ? d.tenSanPhamDau : "");
+        if (d.soSanPham > 1) {
+            h.tvThemSanPham.setVisibility(View.VISIBLE);
+            h.tvThemSanPham.setText(ctx.getString(R.string.them_san_pham_ngan, d.soSanPham - 1));
+        } else {
+            h.tvThemSanPham.setVisibility(View.GONE);
+        }
+
+        // Gộp gọn tên khách & người nhận khi trùng nhau, tránh lặp chữ dư thừa.
+        String nhan = d.tenNguoiNhan == null ? "" : d.tenNguoiNhan.trim();
+        String khach = d.tenKhach == null ? "" : d.tenKhach.trim();
+        if (nhan.isEmpty()) {
+            h.tvNguoiNhan.setText(khach);
+        } else if (khach.isEmpty() || nhan.equalsIgnoreCase(khach)) {
+            h.tvNguoiNhan.setText(nhan);
+        } else {
+            h.tvNguoiNhan.setText(ctx.getString(R.string.ncc_vung, nhan, khach));
+        }
+
+        h.tvTongTien.setText(DinhDang.tien(d.tongTien));
         h.itemView.setOnClickListener(v -> khiChon.chon(d));
     }
 
@@ -65,14 +82,16 @@ public class DonHangAdapter extends RecyclerView.Adapter<DonHangAdapter.ViewHold
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        final TextView tvMaDon, tvTrangThai, tvNguoiNhan, tvSanPham, tvTongTien, tvTaoLuc;
+        final TextView tvMaDon, tvTrangThai, tvNguoiNhan, tvSanPham, tvThemSanPham, tvTongTien, tvTaoLuc;
 
         ViewHolder(@NonNull View v) {
             super(v);
+            ChuyenDong.ganNhanNhe(v);
             tvMaDon = v.findViewById(R.id.tvMaDon);
             tvTrangThai = v.findViewById(R.id.tvTrangThai);
             tvNguoiNhan = v.findViewById(R.id.tvNguoiNhan);
             tvSanPham = v.findViewById(R.id.tvSanPham);
+            tvThemSanPham = v.findViewById(R.id.tvThemSanPham);
             tvTongTien = v.findViewById(R.id.tvTongTien);
             tvTaoLuc = v.findViewById(R.id.tvTaoLuc);
         }

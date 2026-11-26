@@ -7,6 +7,7 @@ import java.util.List;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.DanhSach;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.SanPham;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauDuyet;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauTaoSanPham;
 
 /** Truy cập API sản phẩm cho màn hình quản trị. Màn hình không gọi Retrofit trực tiếp. */
 public class SanPhamRepository {
@@ -36,6 +37,10 @@ public class SanPhamRepository {
 
     public void duyet(int id, int hangSao, KetQuaApi<SanPham> kq) {
         GoiApi.goi(app, ApiClient.get(app).duyetSanPham(id, YeuCauDuyet.duyet(hangSao)), true, kq);
+    }
+
+    public void tao(YeuCauTaoSanPham body, KetQuaApi<SanPham> kq) {
+        GoiApi.goi(app, ApiClient.get(app).taoSanPham(body), true, kq);
     }
 
     public void tuChoi(int id, String lyDo, KetQuaApi<SanPham> kq) {

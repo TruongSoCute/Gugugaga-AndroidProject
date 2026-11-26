@@ -11,11 +11,12 @@
         android:id="@+id/tvThongDiep"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/khoang_sm" />
+        android:layout_marginBottom="@dimen/khoang_sm_md"
+        android:textColor="@color/chu_chinh" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilNoiDung"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/ONhapOcop"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

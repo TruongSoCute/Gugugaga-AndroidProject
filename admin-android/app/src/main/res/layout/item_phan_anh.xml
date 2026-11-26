@@ -14,7 +14,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
+            android:gravity="top"
             android:orientation="horizontal">
 
             <TextView
@@ -24,7 +24,9 @@
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:textAppearance="?attr/textAppearanceTitleMedium" />
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="@color/chu_chinh"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvTrangThai"
@@ -38,15 +40,18 @@
             android:id="@+id/tvNoiDung"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/khoang_xs"
+            android:layout_marginTop="@dimen/khoang_sm"
             android:ellipsize="end"
-            android:maxLines="2" />
+            android:maxLines="2"
+            android:textColor="@color/chu_chinh"
+            android:textSize="@dimen/chu_phu" />
 
         <TextView
             android:id="@+id/tvNguoiBao"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/khoang_xs"
+            android:layout_marginTop="@dimen/khoang_sm"
+            android:textColor="@color/chu_phu"
             android:textSize="@dimen/chu_nho" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

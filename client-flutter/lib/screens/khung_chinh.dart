@@ -6,6 +6,7 @@ import '../data/api_client.dart';
 import '../data/phien_dang_nhap.dart';
 import '../data/tai_khoan_repository.dart';
 import '../models/nguoi_dung.dart';
+import '../widgets/thanh_dieu_huong_noi.dart';
 import 'dang_nhap_screen.dart';
 import 'don_hang_screen.dart';
 import 'gio_hang_screen.dart';
@@ -98,16 +99,26 @@ class _KhungChinhState extends State<KhungChinh> {
       body: KeyedSubtree(
         // Đổi tài khoản thì dựng lại toàn bộ tab (giỏ/đơn của người trước không còn).
         key: ValueKey('${_nguoiDung?.id}-${_nguoiDung?.vaiTro}'),
-        child: IndexedStack(index: tab, children: [for (final t in tabs) t.manHinh]),
+        child: TweenAnimationBuilder<double>(
+          key: ValueKey('tab-$tab'),
+          tween: Tween<double>(begin: 0, end: 1),
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+          builder: (context, t, con) => Opacity(
+            opacity: 0.85 + 0.15 * t,
+            child: Transform.translate(offset: Offset(0, (1 - t) * 6), child: con),
+          ),
+          child: IndexedStack(index: tab, children: [for (final t in tabs) t.manHinh]),
+        ),
       ),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: ThanhDieuHuongNoi(
         selectedIndex: tab,
-        onDestinationSelected: (i) => setState(() {
+        onSelected: (i) => setState(() {
           _tab = i;
           if (tabs[i].ma == 'gio') _lanMoGio++;
           if (tabs[i].ma == 'don') _lanMoDon++;
         }),
-        destinations: [for (final t in tabs) t.dich],
+        items: [for (final t in tabs) t.muc],
       ),
     );
   }
@@ -115,46 +126,66 @@ class _KhungChinhState extends State<KhungChinh> {
   List<_Tab> _tabKhach() {
     final daDangNhap = _nguoiDung != null;
     return [
-      const _Tab('sp', SanPhamScreen(),
-          NavigationDestination(icon: Icon(Icons.storefront_outlined), selectedIcon: Icon(Icons.storefront), label: 'Sản phẩm')),
-      const _Tab('tc', TraCuuScreen(), NavigationDestination(icon: Icon(Icons.qr_code_scanner), label: 'Truy xuất')),
+      const _Tab(
+        'sp',
+        SanPhamScreen(),
+        MucDieuHuongNoi(icon: Icons.storefront_outlined, selectedIcon: Icons.storefront_rounded, label: 'Sản phẩm'),
+      ),
+      const _Tab(
+        'tc',
+        TraCuuScreen(),
+        MucDieuHuongNoi(icon: Icons.qr_code_scanner_rounded, selectedIcon: Icons.qr_code_scanner_rounded, label: 'Truy xuất'),
+      ),
       _Tab(
         'gio',
         daDangNhap
             ? GioHangScreen(key: ValueKey('gio$_lanMoGio'))
             : const CanDangNhap(icon: Icons.shopping_cart_outlined, thongDiep: 'Đăng nhập để xem giỏ hàng.'),
-        const NavigationDestination(
-            icon: Icon(Icons.shopping_cart_outlined), selectedIcon: Icon(Icons.shopping_cart), label: 'Giỏ hàng'),
+        const MucDieuHuongNoi(icon: Icons.shopping_cart_outlined, selectedIcon: Icons.shopping_cart_rounded, label: 'Giỏ hàng'),
       ),
       _Tab(
         'don',
         daDangNhap
             ? DonHangScreen(key: ValueKey('don$_lanMoDon'))
             : const CanDangNhap(icon: Icons.receipt_long_outlined, thongDiep: 'Đăng nhập để theo dõi đơn hàng.'),
-        const NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined), selectedIcon: Icon(Icons.receipt_long), label: 'Đơn hàng'),
+        const MucDieuHuongNoi(icon: Icons.receipt_long_outlined, selectedIcon: Icons.receipt_long_rounded, label: 'Đơn hàng'),
       ),
-      const _Tab('tk', TaiKhoanScreen(),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Tài khoản')),
+      const _Tab(
+        'tk',
+        TaiKhoanScreen(),
+        MucDieuHuongNoi(icon: Icons.person_outline_rounded, selectedIcon: Icons.person_rounded, label: 'Tài khoản'),
+      ),
     ];
   }
 
   List<_Tab> _tabNhaCungCap() => const [
-        _Tab('hs', HoSoNccScreen(),
-            NavigationDestination(icon: Icon(Icons.store_outlined), selectedIcon: Icon(Icons.store), label: 'Hồ sơ')),
-        _Tab('spct', SanPhamCuaToiScreen(),
-            NavigationDestination(
-                icon: Icon(Icons.inventory_2_outlined), selectedIcon: Icon(Icons.inventory_2), label: 'Sản phẩm')),
-        _Tab('tc', TraCuuScreen(), NavigationDestination(icon: Icon(Icons.qr_code_scanner), label: 'Truy xuất')),
-        _Tab('tk', TaiKhoanScreen(),
-            NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Tài khoản')),
+        _Tab(
+          'hs',
+          HoSoNccScreen(),
+          MucDieuHuongNoi(icon: Icons.store_outlined, selectedIcon: Icons.store_rounded, label: 'Hồ sơ'),
+        ),
+        _Tab(
+          'spct',
+          SanPhamCuaToiScreen(),
+          MucDieuHuongNoi(icon: Icons.inventory_2_outlined, selectedIcon: Icons.inventory_2_rounded, label: 'Sản phẩm'),
+        ),
+        _Tab(
+          'tc',
+          TraCuuScreen(),
+          MucDieuHuongNoi(icon: Icons.qr_code_scanner_rounded, selectedIcon: Icons.qr_code_scanner_rounded, label: 'Truy xuất'),
+        ),
+        _Tab(
+          'tk',
+          TaiKhoanScreen(),
+          MucDieuHuongNoi(icon: Icons.person_outline_rounded, selectedIcon: Icons.person_rounded, label: 'Tài khoản'),
+        ),
       ];
 }
 
 class _Tab {
-  const _Tab(this.ma, this.manHinh, this.dich);
+  const _Tab(this.ma, this.manHinh, this.muc);
 
   final String ma;
   final Widget manHinh;
-  final NavigationDestination dich;
+  final MucDieuHuongNoi muc;
 }

@@ -14,6 +14,7 @@ import java.util.List;
 
 import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.NhaCungCap;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ChuyenDong;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.CuonTaiThem;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.NhanTrangThai;
 
@@ -67,6 +68,7 @@ public class NhaCungCapAdapter extends RecyclerView.Adapter<NhaCungCapAdapter.Vi
 
         ViewHolder(@NonNull View v) {
             super(v);
+            ChuyenDong.ganNhanNhe(v);
             tvTen = v.findViewById(R.id.tvTen);
             tvTrangThai = v.findViewById(R.id.tvTrangThai);
             tvVung = v.findViewById(R.id.tvVung);

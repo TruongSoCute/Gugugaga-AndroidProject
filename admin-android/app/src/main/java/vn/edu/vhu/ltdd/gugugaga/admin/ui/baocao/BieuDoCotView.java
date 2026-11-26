@@ -1,13 +1,17 @@
 package vn.edu.vhu.ltdd.gugugaga.admin.ui.baocao;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.Shader;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,8 +27,7 @@ import vn.edu.vhu.ltdd.gugugaga.admin.util.BieuDo;
 
 /**
  * Biểu đồ cột ngang TỰ VẼ bằng Canvas (C.1 #7 cho phép "MPAndroidChart hoặc tự vẽ").
- * Mỗi dòng: nhãn bên trái, cột dài theo tỉ lệ với giá trị lớn nhất, số tiền rút gọn ở cuối cột.
- * Cột ngang dễ đọc hơn cột đứng khi tên vùng dài và màn hình điện thoại hẹp.
+ * Cột dạng viên thuốc bo tròn hoàn toàn kèm gradient mượt, dễ đọc trên màn hình hẹp.
  * Phép tính tỉ lệ nằm ở util/BieuDo (Java thuần) để kiểm thử không cần máy ảo.
  */
 public class BieuDoCotView extends View {
@@ -39,6 +42,11 @@ public class BieuDoCotView extends View {
     private final float khoang;
     private final float boGoc;
 
+    private int mauBatDau;
+    private int mauKetThuc;
+    private float tiLeVe = 1f;
+    @Nullable
+    private ValueAnimator animCot;
     private List<String> nhan = new ArrayList<>();
     private long[] giaTri = new long[0];
 
@@ -55,26 +63,63 @@ public class BieuDoCotView extends View {
         // Kích thước lấy từ dimens.xml (dp/sp), không viết cứng px (Lab A3).
         caoDong = getResources().getDimension(R.dimen.bieu_do_cao_dong);
         caoCot = getResources().getDimension(R.dimen.bieu_do_cao_cot);
-        khoang = getResources().getDimension(R.dimen.khoang_sm);
-        boGoc = getResources().getDimension(R.dimen.khoang_xs);
+        khoang = getResources().getDimension(R.dimen.khoang_sm_md);
+        boGoc = caoCot / 2f;
         float coChu = getResources().getDimension(R.dimen.chu_bieu_do);
 
         int mauChu = MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface);
         butNhan.setTextSize(coChu);
         butNhan.setColor(mauChu);
         butGiaTri.setTextSize(coChu);
-        butGiaTri.setColor(mauChu);
+        butGiaTri.setColor(ContextCompat.getColor(context, R.color.xanh_ocop));
         butGiaTri.setFakeBoldText(true);
-        butCot.setColor(ContextCompat.getColor(context, R.color.xanh_ocop));
-        butNenCot.setColor(ContextCompat.getColor(context, R.color.xam_nen));
+
+        mauBatDau = ContextCompat.getColor(context, R.color.xanh_ocop_sang);
+        mauKetThuc = ContextCompat.getColor(context, R.color.xanh_ocop);
+        butNenCot.setColor(ContextCompat.getColor(context, R.color.nen_nhap_dam));
     }
 
-    /** Đổi dữ liệu thì đo lại chiều cao (số dòng có thể khác) và vẽ lại. */
+    /** Đổi tông màu vàng hổ phách (hợp với biểu đồ doanh số theo hạng sao OCOP). */
+    public void datTongVang(boolean vang) {
+        Context ctx = getContext();
+        if (vang) {
+            mauBatDau = ContextCompat.getColor(ctx, R.color.vang_ocop);
+            mauKetThuc = ContextCompat.getColor(ctx, R.color.vang_cho_duyet);
+            butGiaTri.setColor(ContextCompat.getColor(ctx, R.color.vang_cho_duyet));
+        } else {
+            mauBatDau = ContextCompat.getColor(ctx, R.color.xanh_ocop_sang);
+            mauKetThuc = ContextCompat.getColor(ctx, R.color.xanh_ocop);
+            butGiaTri.setColor(ContextCompat.getColor(ctx, R.color.xanh_ocop));
+        }
+        invalidate();
+    }
+
+    /** Đổi dữ liệu thì đo lại chiều cao và chạy hiệu ứng cột dài mượt từ trái sang phải. */
     public void datDuLieu(List<String> nhanMoi, long[] giaTriMoi) {
         nhan = nhanMoi == null ? new ArrayList<>() : new ArrayList<>(nhanMoi);
         giaTri = giaTriMoi == null ? new long[0] : giaTriMoi.clone();
         requestLayout();
-        invalidate();
+        if (animCot != null) animCot.cancel();
+        if (soDong() == 0) {
+            tiLeVe = 1f;
+            invalidate();
+            return;
+        }
+        tiLeVe = 0f;
+        animCot = ValueAnimator.ofFloat(0f, 1f);
+        animCot.setDuration(520);
+        animCot.setInterpolator(new DecelerateInterpolator(1.8f));
+        animCot.addUpdateListener(a -> {
+            tiLeVe = (float) a.getAnimatedValue();
+            invalidate();
+        });
+        animCot.start();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        if (animCot != null) animCot.cancel();
+        super.onDetachedFromWindow();
     }
 
     @Override
@@ -96,7 +141,7 @@ public class BieuDoCotView extends View {
 
         float trai = getPaddingStart();
         float phai = getWidth() - getPaddingEnd();
-        float rongNhan = (phai - trai) * 0.32f;
+        float rongNhan = (phai - trai) * 0.30f;
 
         // Chừa chỗ cho số tiền dài nhất ở cuối cột.
         float rongGiaTri = 0;
@@ -108,21 +153,27 @@ public class BieuDoCotView extends View {
         long lonNhat = BieuDo.lonNhat(giaTri);
 
         Paint.FontMetrics fm = butNhan.getFontMetrics();
-        float lechChu = -(fm.ascent + fm.descent) / 2; // căn chữ giữa dòng theo chiều dọc
+        float lechChu = -(fm.ascent + fm.descent) / 2;
+
+        if (rongCotToiDa > 0) {
+            butCot.setShader(new LinearGradient(
+                    batDauCot, 0, batDauCot + rongCotToiDa, 0,
+                    mauBatDau, mauKetThuc, Shader.TileMode.CLAMP));
+        }
 
         for (int i = 0; i < n; i++) {
             float giua = getPaddingTop() + i * caoDong + caoDong / 2;
 
-            // Nhãn: tên dài thì cắt và thêm "…" (giống ellipsize="end").
             CharSequence ten = TextUtils.ellipsize(nhan.get(i), butNhan, rongNhan, TextUtils.TruncateAt.END);
             canvas.drawText(ten, 0, ten.length(), trai, giua + lechChu, butNhan);
 
-            // Nền mờ cả chiều dài để thấy rõ tỉ lệ, rồi cột màu theo tỉ lệ giá trị/giá trị lớn nhất.
+            // Đường nền viên thuốc mờ, rồi cột màu gradient theo tỉ lệ giá trị / giá trị lớn nhất.
             hcn.set(batDauCot, giua - caoCot / 2, batDauCot + rongCotToiDa, giua + caoCot / 2);
             canvas.drawRoundRect(hcn, boGoc, boGoc, butNenCot);
-            float dai = rongCotToiDa * BieuDo.tiLe(giaTri[i], lonNhat);
+            float dai = rongCotToiDa * BieuDo.tiLe(giaTri[i], lonNhat) * tiLeVe;
             if (dai > 0) {
-                hcn.set(batDauCot, giua - caoCot / 2, batDauCot + dai, giua + caoCot / 2);
+                float daiVe = Math.max(dai, caoCot * 0.5f * tiLeVe);
+                hcn.set(batDauCot, giua - caoCot / 2, batDauCot + Math.min(daiVe, rongCotToiDa), giua + caoCot / 2);
                 canvas.drawRoundRect(hcn, boGoc, boGoc, butCot);
             }
 

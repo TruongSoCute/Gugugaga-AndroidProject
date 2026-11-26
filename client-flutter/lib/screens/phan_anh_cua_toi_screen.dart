@@ -6,6 +6,7 @@ import '../models/phan_anh.dart';
 import '../utils/dinh_dang.dart';
 import '../widgets/anh_mang.dart';
 import '../widgets/chip_trang_thai.dart';
+import '../widgets/giao_dien.dart';
 import '../widgets/trang_thai_loi.dart';
 import '../widgets/trang_trong.dart';
 
@@ -70,24 +71,25 @@ class _PhanAnhCuaToiScreenState extends State<PhanAnhCuaToiScreen> {
     return RefreshIndicator(
       onRefresh: _tai,
       child: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
         itemCount: _ds.length,
         itemBuilder: (context, i) {
           final p = _ds[i];
           final theme = Theme.of(context);
           return Card(
-            margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            margin: const EdgeInsets.only(bottom: 12),
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: AnhMang(url: p.anhUrl ?? p.anhSanPham, width: 48, height: 48),
+                        borderRadius: BorderRadius.circular(10),
+                        child: AnhMang(url: p.anhUrl ?? p.anhSanPham, width: 50, height: 50),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,12 +103,25 @@ class _PhanAnhCuaToiScreenState extends State<PhanAnhCuaToiScreen> {
                       ChipTrangThai(nhan: TrangThaiPhanAnh.ten(p.trangThai), mau: ChipTrangThai.mauCua(p.trangThai)),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Text(p.noiDung),
-                  if (p.maTruyXuat != null) Text('Lô: ${p.maTruyXuat}', style: theme.textTheme.bodySmall),
+                  if (p.maTruyXuat != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: OcopMau.xanhNhat,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text('Lô: ${p.maTruyXuat}',
+                            style: const TextStyle(fontSize: 12, color: OcopMau.xanhOcop, fontWeight: FontWeight.w600)),
+                      ),
+                    ),
                   if (p.ketQuaXuLy != null) ...[
-                    const Divider(),
-                    Text('Kết quả xử lý', style: theme.textTheme.labelLarge),
+                    const Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Divider()),
+                    Text('Kết quả xử lý', style: theme.textTheme.labelLarge?.copyWith(color: OcopMau.xanhOcop)),
+                    const SizedBox(height: 2),
                     Text(p.ketQuaXuLy!),
                   ],
                 ],
