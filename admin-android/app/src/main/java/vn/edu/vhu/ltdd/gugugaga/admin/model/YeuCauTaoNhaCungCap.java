@@ -1,3 +1,4 @@
+
 package vn.edu.vhu.ltdd.gugugaga.admin.model;
 
 import java.util.List;
@@ -12,8 +13,9 @@ public class YeuCauTaoNhaCungCap {
     public final String anhCoSoUrl;
     public final List<ChungNhan> chungNhan;
 
-    public YeuCauTaoNhaCungCap(String ten, String nguoiDaiDien, String soDienThoai,
-                               String diaChi, int vungId, String anhCoSoUrl,
+    public YeuCauTaoNhaCungCap(String ten, String nguoiDaiDien,
+                               String soDienThoai, String diaChi,
+                               int vungId, String anhCoSoUrl,
                                List<ChungNhan> chungNhan) {
         this.ten = ten;
         this.nguoiDaiDien = nguoiDaiDien;
@@ -31,7 +33,8 @@ public class YeuCauTaoNhaCungCap {
         public final String ngayHetHan;
         public final String anhUrl;
 
-        public ChungNhan(String loai, String soHieu, String ngayCap, String ngayHetHan, String anhUrl) {
+        public ChungNhan(String loai, String soHieu, String ngayCap,
+                         String ngayHetHan, String anhUrl) {
             this.loai = loai;
             this.soHieu = soHieu;
             this.ngayCap = ngayCap;

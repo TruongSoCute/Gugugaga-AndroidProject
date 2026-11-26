@@ -1,3 +1,4 @@
+
 package vn.edu.vhu.ltdd.gugugaga.admin.model;
 
 /** Body gửi POST /san-pham để nhân sự nhập sản phẩm mới cho một nhà cung cấp. */
