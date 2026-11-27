@@ -2,6 +2,7 @@ package vn.edu.vhu.ltdd.gugugaga.admin.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.HapticFeedbackConstants;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.StringRes;
@@ -54,37 +55,44 @@ public class MainActivity extends AppCompatActivity {
         capNhatNutQuayLai();
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        // R.id.main đã xử lý padding thanh hệ thống; tắt inset lặp để icon nằm chính giữa viên nổi.
+        ViewCompat.setOnApplyWindowInsetsListener(bottomNav, (v, insets) -> insets);
         bottomNav.setOnItemSelectedListener(item -> {
+            bottomNav.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
             int id = item.getItemId();
             // if-else thay cho switch: từ AGP 8, R.id không còn là hằng số (Lab A4, A8).
-            if (id == R.id.tab_san_pham) doiTab(new SanPhamFragment());
-            else if (id == R.id.tab_lo) doiTab(new LoFragment());
-            else if (id == R.id.tab_don_hang) doiTab(new DonHangFragment());
-            else if (id == R.id.tab_phan_anh) doiTab(new PhanAnhFragment());
-            else if (id == R.id.tab_tai_khoan) doiTab(new TaiKhoanFragment());
+            if (id == R.id.tab_san_pham) doiTab(new SanPhamFragment(), true);
+            else if (id == R.id.tab_lo) doiTab(new LoFragment(), true);
+            else if (id == R.id.tab_don_hang) doiTab(new DonHangFragment(), true);
+            else if (id == R.id.tab_phan_anh) doiTab(new PhanAnhFragment(), true);
+            else if (id == R.id.tab_tai_khoan) doiTab(new TaiKhoanFragment(), true);
             return true; // true = tô sáng tab vừa chọn
         });
 
         // Chỉ nạp Fragment mặc định lần đầu; khi xoay, FragmentManager tự khôi phục (Lab A8).
         if (savedInstanceState == null) {
-            doiTab(new SanPhamFragment());
+            doiTab(new SanPhamFragment(), false);
         }
     }
 
-    private void doiTab(Fragment f) {
+    private void doiTab(Fragment f, boolean coHieuUng) {
         FragmentManager fm = getSupportFragmentManager();
         // Đang ở màn hình chi tiết mà bấm tab khác: bỏ các màn hình chi tiết trước.
         fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        fm.beginTransaction()
-                .replace(R.id.fragmentContainer, f)
+        androidx.fragment.app.FragmentTransaction tx = fm.beginTransaction();
+        if (coHieuUng) {
+            tx.setCustomAnimations(R.anim.tab_vao, R.anim.tab_ra);
+        }
+        tx.replace(R.id.fragmentContainer, f)
                 .setReorderingAllowed(true)
                 .commit();
     }
 
-    /** Mở màn hình chi tiết/form: replace + addToBackStack (Lab A8). */
+    /** Mở màn hình chi tiết/form: replace + addToBackStack kèm hiệu ứng trượt mượt (Lab A8). */
     public void moManHinh(Fragment f) {
         getSupportFragmentManager()
                 .beginTransaction()
+                .setCustomAnimations(R.anim.man_vao, R.anim.man_ra, R.anim.man_quay_vao, R.anim.man_quay_ra)
                 .replace(R.id.fragmentContainer, f)
                 .setReorderingAllowed(true)
                 .addToBackStack(null)

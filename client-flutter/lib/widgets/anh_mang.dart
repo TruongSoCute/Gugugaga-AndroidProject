@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'giao_dien.dart';
+
 /// Ảnh tải từ URL, có loadingBuilder và errorBuilder (yêu cầu C.2 #8).
 class AnhMang extends StatelessWidget {
   const AnhMang({super.key, required this.url, this.width, this.height});
@@ -10,13 +12,12 @@ class AnhMang extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mau = Theme.of(context).colorScheme.surfaceContainerHighest;
     final khungTrong = Container(
       width: width,
       height: height,
-      color: mau,
+      color: OcopMau.nenNhap,
       alignment: Alignment.center,
-      child: const Icon(Icons.image_not_supported_outlined),
+      child: Icon(Icons.eco_outlined, color: OcopMau.chuPhu.withValues(alpha: 0.35), size: 28),
     );
     if (url == null || url!.isEmpty) return khungTrong;
     return Image.network(
@@ -24,12 +25,21 @@ class AnhMang extends StatelessWidget {
       width: width,
       height: height,
       fit: BoxFit.cover,
+      frameBuilder: (context, child, frame, daTaiSan) {
+        if (daTaiSan) return child;
+        return AnimatedOpacity(
+          opacity: frame == null ? 0 : 1,
+          duration: const Duration(milliseconds: 240),
+          curve: Curves.easeOutCubic,
+          child: child,
+        );
+      },
       loadingBuilder: (context, child, tienDo) {
         if (tienDo == null) return child;
         return Container(
           width: width,
           height: height,
-          color: mau,
+          color: OcopMau.nenNhap,
           alignment: Alignment.center,
           child: const SizedBox(
             width: 20,

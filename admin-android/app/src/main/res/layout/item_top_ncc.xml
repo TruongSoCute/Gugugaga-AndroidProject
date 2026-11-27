@@ -3,10 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
-    android:minHeight="48dp"
+    android:minHeight="56dp"
     android:orientation="horizontal"
-    android:paddingTop="@dimen/khoang_xs"
-    android:paddingBottom="@dimen/khoang_xs">
+    android:paddingTop="@dimen/khoang_sm"
+    android:paddingBottom="@dimen/khoang_sm">
 
     <TextView
         android:id="@+id/tvHang"
@@ -15,12 +15,13 @@
         android:background="@drawable/nen_thu_tu"
         android:gravity="center"
         android:textColor="@color/nen_icon"
+        android:textSize="@dimen/chu_nho"
         android:textStyle="bold" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/khoang_md"
+        android:layout_marginStart="@dimen/khoang_sm_md"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -30,12 +31,15 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
+            android:textColor="@color/chu_chinh"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvVungNcc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/chu_phu"
             android:textSize="@dimen/chu_nho" />
     </LinearLayout>
 
@@ -44,5 +48,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/khoang_sm"
+        android:textColor="@color/xanh_ocop"
         android:textStyle="bold" />
 </LinearLayout>

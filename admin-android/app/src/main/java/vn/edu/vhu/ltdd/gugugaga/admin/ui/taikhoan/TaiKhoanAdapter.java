@@ -8,7 +8,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import vn.edu.vhu.ltdd.gugugaga.admin.AppConfig;
 import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.NguoiDung;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.CuonTaiThem;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.NhanTrangThai;
 
 /** Adapter danh sách tài khoản cho quản trị (Issue #12). */
 public class TaiKhoanAdapter extends RecyclerView.Adapter<TaiKhoanAdapter.ViewHolder> {
@@ -59,11 +59,11 @@ public class TaiKhoanAdapter extends RecyclerView.Adapter<TaiKhoanAdapter.ViewHo
                 : vaiTroText;
         h.tvVaiTroSdt.setText(moTa);
 
-        h.tvTrangThai.setText(u.dangHoatDong ? R.string.trang_thai_hoat_dong : R.string.trang_thai_da_khoa);
-        h.tvTrangThai.setTextColor(ContextCompat.getColor(ctx,
-                u.dangHoatDong ? R.color.xanh_da_duyet : R.color.do_tu_choi));
-        h.tvTrangThai.setBackgroundColor(ContextCompat.getColor(ctx,
-                u.dangHoatDong ? R.color.nen_da_duyet : R.color.nen_tu_choi));
+        NhanTrangThai.ganMau(
+                h.tvTrangThai,
+                u.dangHoatDong ? R.string.trang_thai_hoat_dong : R.string.trang_thai_da_khoa,
+                u.dangHoatDong ? R.color.xanh_da_duyet : R.color.do_tu_choi,
+                u.dangHoatDong ? R.color.nen_da_duyet : R.color.nen_tu_choi);
 
         boolean laChinhMinh = emailHienTai.equalsIgnoreCase(u.email);
         h.btnKhoaMo.setVisibility(laChinhMinh ? View.GONE : View.VISIBLE);

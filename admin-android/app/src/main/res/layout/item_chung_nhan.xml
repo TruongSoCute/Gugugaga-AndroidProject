@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Một chứng nhận của nhà cung cấp: ảnh nhỏ + loại, số hiệu, hạn, còn hiệu lực. -->
+<!-- Một chứng nhận của nhà cung cấp: ảnh bo góc + loại, số hiệu, hạn, còn hiệu lực. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
-    android:minHeight="48dp"
+    android:minHeight="64dp"
     android:orientation="horizontal"
     android:paddingTop="@dimen/khoang_sm"
     android:paddingBottom="@dimen/khoang_sm">
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/ivAnhChungNhan"
         android:layout_width="@dimen/anh_nho"
         android:layout_height="@dimen/anh_nho"
-        android:layout_marginEnd="@dimen/khoang_md"
-        android:background="@color/xam_nen"
+        android:layout_marginEnd="@dimen/khoang_sm_md"
+        android:background="@color/nen_nhap"
         android:contentDescription="@string/mo_ta_anh_chung_nhan"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/HinhAnhBoGocNho" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -28,18 +30,22 @@
             android:id="@+id/tvLoaiChungNhan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/chu_chinh"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvHanChungNhan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/chu_phu"
             android:textSize="@dimen/chu_nho" />
 
         <TextView
             android:id="@+id/tvHieuLuc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
             android:textSize="@dimen/chu_nho"
             android:textStyle="bold" />
     </LinearLayout>

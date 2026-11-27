@@ -4,7 +4,9 @@
 
     <!-- Đăng nhập -->
     <string name="dang_nhap_tieu_de">Quản trị sàn OCOP</string>
-    <string name="dang_nhap_phu_de">Đăng nhập bằng tài khoản quản trị hoặc nhân viên</string>
+    <string name="nhan_the_admin_pass">OCOP ADMIN</string>
+    <string name="vai_tro_noi_bo">Nội bộ</string>
+    <string name="mo_ta_the_admin_pass">Điều phối sản phẩm, lô QR &amp; đơn hàng</string>
     <string name="hint_email">Email</string>
     <string name="hint_mat_khau">Mật khẩu</string>
     <string name="nut_dang_nhap">Đăng nhập</string>
@@ -32,8 +34,8 @@
     <string name="nut_tu_choi">Từ chối</string>
     <string name="nut_huy">Hủy</string>
     <string name="ncc_vung">%1$s · %2$s</string>
-    <string name="hang_sao">%1$d sao OCOP</string>
-    <string name="chua_xep_hang">Chưa xếp hạng</string>
+    <string name="hang_sao">★ %1$d</string>
+    <string name="mo_ta_anh_sp">Ảnh sản phẩm</string>
     <string name="ly_do_tu_choi">Lý do từ chối: %1$s</string>
     <string name="trang_thai_cho_duyet">Chờ duyệt</string>
     <string name="trang_thai_da_duyet">Đã duyệt</string>
@@ -56,11 +58,10 @@
     <!-- Tài khoản -->
     <string name="vai_tro_quan_tri">Quản trị</string>
     <string name="vai_tro_nhan_vien">Nhân viên</string>
-    <string name="tai_khoan_vai_tro">Vai trò: %1$s</string>
-    <string name="tai_khoan_may_chu">Máy chủ: %1$s</string>
     <string name="nhan_vien_chi_xem">Nhân viên quản lý lô, đơn hàng và phản ánh; chỉ Quản trị được duyệt sản phẩm, hồ sơ nhà cung cấp và xem báo cáo doanh số.</string>
     <string name="nut_dang_xuat">Đăng xuất</string>
     <string name="xac_nhan_dang_xuat">Bạn có chắc muốn đăng xuất?</string>
+    <string name="muc_thong_tin_chung">Thông tin chung</string>
     <!-- Chung -->
     <string name="quay_lai">Quay lại</string>
     <string name="danh_sach_trong_chung">Không có dữ liệu.</string>
@@ -120,8 +121,8 @@
     <!-- Đơn hàng -->
     <string name="trong_don_hang">Không có đơn hàng nào ở trạng thái này.</string>
     <string name="ma_don">Đơn #%1$d</string>
-    <string name="nguoi_nhan_khach">Nhận: %1$s · Khách: %2$s</string>
-    <string name="san_pham_va_khac">%1$s và %2$d sản phẩm khác</string>
+    <string name="ma_don_ngan">#%1$d</string>
+    <string name="them_san_pham_ngan">+%1$d</string>
     <string name="dat_luc">Đặt lúc %1$s</string>
     <string name="hinh_thuc_va_phi">%1$s · phí giao %2$s</string>
     <string name="tien_hang">Tiền hàng: %1$s</string>
@@ -153,7 +154,7 @@
     <!-- Nhà cung cấp -->
     <string name="trong_nha_cung_cap">Không có hồ sơ nào ở trạng thái này.</string>
     <string name="dai_dien_vung">%1$s · %2$s</string>
-    <string name="ncc_tu_gui">Nhà cung cấp tự gửi hồ sơ từ app Client</string>
+    <string name="ncc_tu_gui">App Client</string>
     <string name="nguoi_dai_dien">Người đại diện: %1$s</string>
     <string name="vung_nguyen_lieu">Vùng nguyên liệu: %1$s</string>
     <string name="gui_luc">Gửi lúc %1$s</string>
@@ -176,7 +177,9 @@
     <string name="trong_lo">Chưa có lô sản xuất nào.</string>
     <string name="nut_tao_lo">Tạo lô</string>
     <string name="nsx_hsd">NSX %1$s · HSD %2$s</string>
-    <string name="ton_vung_buoc">Còn %1$d/%2$d · %3$s · %4$d bước</string>
+    <string name="ton_ngan">%1$d/%2$d</string>
+    <string name="so_buoc_ngan">%1$d bước</string>
+    <string name="ngay_vung_lo">%1$s – %2$s · %3$s</string>
     <string name="so_luong_con">Số lượng còn: %1$d / %2$d</string>
     <string name="nguoi_san_xuat">Người sản xuất: %1$s</string>
     <string name="ghi_chu_lo">Ghi chú: %1$s</string>
@@ -253,7 +256,8 @@
     <string name="nut_xoa_loc">Xóa lọc</string>
     <string name="loi_tu_sau_den">\"Từ ngày\" phải trước hoặc bằng \"Đến ngày\". Hãy chọn lại.</string>
     <string name="tong_doanh_so">Tổng doanh số</string>
-    <string name="tong_don_so_luong">%1$d đơn · %2$d sản phẩm đã bán</string>
+    <string name="so_don_ngan">%1$d đơn</string>
+    <string name="so_sp_da_ban_ngan">%1$d đã bán</string>
     <string name="muc_theo_vung">Doanh số theo vùng</string>
     <string name="muc_theo_hang_sao">Doanh số theo hạng sao OCOP</string>
     <string name="muc_ncc_ban_chay">Nhà cung cấp bán chạy</string>

@@ -24,7 +24,9 @@
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="?attr/textAppearanceTitleMedium" />
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="@color/chu_chinh"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvTrangThai"
@@ -40,12 +42,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/khoang_xs"
             android:ellipsize="end"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:textColor="@color/chu_phu"
+            android:textSize="@dimen/chu_phu" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/khoang_xs"
+            android:layout_marginTop="@dimen/khoang_sm"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -54,11 +58,12 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textColor="@color/chu_phu"
                 android:textSize="@dimen/chu_nho" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnKhoaMo"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/NutVienOcop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minHeight="40dp" />

@@ -7,14 +7,13 @@ import '../models/san_pham.dart';
 import '../utils/dinh_dang.dart';
 import '../widgets/anh_mang.dart';
 import '../widgets/chip_trang_thai.dart';
+import '../widgets/giao_dien.dart';
 import '../widgets/hop_thoai.dart';
 import '../widgets/trang_thai_loi.dart';
 import '../widgets/trang_trong.dart';
 import 'ho_so_ncc_form_screen.dart';
 
-/// Hồ sơ của nhà cung cấp đang đăng nhập (GET /cua-toi/nha-cung-cap): trạng thái duyệt, lý do
-/// từ chối, chứng nhận. Chưa có hồ sơ (404 CHUA_CO_HO_SO) thì mời tạo. Hồ sơ đã duyệt thì khóa sửa
-/// (backend cũng trả 409 HO_SO_DA_DUYET). Form tạo/sửa trả hồ sơ mới qua Navigator.pop.
+/// Hồ sơ của nhà cung cấp đang đăng nhập (GET /cua-toi/nha-cung-cap).
 class HoSoNccScreen extends StatefulWidget {
   const HoSoNccScreen({super.key, this.repository});
 
@@ -78,7 +77,7 @@ class _HoSoNccScreenState extends State<HoSoNccScreen> {
           ? FloatingActionButton.extended(
               key: const Key('nutSuaHoSo'),
               onPressed: _moForm,
-              icon: Icon(hs == null ? Icons.add : Icons.edit),
+              icon: Icon(hs == null ? Icons.add_rounded : Icons.edit_outlined),
               label: Text(hs == null ? 'Tạo hồ sơ' : 'Sửa và gửi lại'),
             )
           : null,
@@ -103,50 +102,95 @@ class _HoSoNccScreenState extends State<HoSoNccScreen> {
       child: ListView(
         padding: const EdgeInsets.only(bottom: 96),
         children: [
-          AnhMang(url: hs.anhCoSoUrl, height: 180, width: double.infinity),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(child: Text(hs.ten, style: theme.textTheme.titleLarge)),
-                    ChipTrangThai(
-                        nhan: TrangThaiDuyet.ten(hs.trangThaiDuyet), mau: ChipTrangThai.mauCua(hs.trangThaiDuyet)),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                if (hs.trangThaiDuyet == TrangThaiDuyet.tuChoi && hs.lyDoTuChoi != null)
-                  Card(
-                    color: theme.colorScheme.errorContainer,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Text('Lý do từ chối: ${hs.lyDoTuChoi}\nSửa hồ sơ rồi gửi lại để được duyệt.'),
-                    ),
+          AnhMang(url: hs.anhCoSoUrl, height: 196, width: double.infinity),
+          Card(
+            margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: Text(hs.ten, style: theme.textTheme.titleLarge)),
+                      const SizedBox(width: 8),
+                      ChipTrangThai(
+                          nhan: TrangThaiDuyet.ten(hs.trangThaiDuyet), mau: ChipTrangThai.mauCua(hs.trangThaiDuyet)),
+                    ],
                   ),
-                if (hs.trangThaiDuyet == TrangThaiDuyet.choDuyet)
-                  const Text('Hồ sơ đang chờ quản trị viên duyệt.'),
-                if (hs.trangThaiDuyet == TrangThaiDuyet.daDuyet)
-                  Text('Đã duyệt${hs.duyetLuc == null ? '' : ' lúc ${DinhDang.thoiDiem(hs.duyetLuc!)}'}. '
-                      'Hồ sơ đã duyệt không sửa được trên app; liên hệ quản trị nếu cần thay đổi.'),
-                const SizedBox(height: 12),
-                Text('Người đại diện: ${hs.nguoiDaiDien}'),
-                Text('Điện thoại: ${hs.soDienThoai}'),
-                Text('Địa chỉ: ${hs.diaChi}'),
-                Text('Vùng nguyên liệu: ${hs.tenVung}'),
-                const SizedBox(height: 16),
-                Text('Giấy chứng nhận (${hs.chungNhan.length})', style: theme.textTheme.titleMedium),
-              ],
+                  const SizedBox(height: 10),
+                  if (hs.trangThaiDuyet == TrangThaiDuyet.tuChoi && hs.lyDoTuChoi != null)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: OcopMau.nenDoLoi,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        'Lý do từ chối: ${hs.lyDoTuChoi}\nSửa hồ sơ rồi gửi lại để được duyệt.',
+                        style: const TextStyle(color: OcopMau.doLoi),
+                      ),
+                    ),
+                  if (hs.trangThaiDuyet == TrangThaiDuyet.choDuyet)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: OcopMau.vangNhat,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text('Hồ sơ đang chờ quản trị viên duyệt.', style: TextStyle(color: OcopMau.vangChu)),
+                    ),
+                  if (hs.trangThaiDuyet == TrangThaiDuyet.daDuyet)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: OcopMau.xanhNhat,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        'Đã duyệt${hs.duyetLuc == null ? '' : ' lúc ${DinhDang.thoiDiem(hs.duyetLuc!)}'}. '
+                        'Hồ sơ đã duyệt không sửa được trên app; liên hệ quản trị nếu cần thay đổi.',
+                        style: const TextStyle(color: OcopMau.xanhOcop),
+                      ),
+                    ),
+                  const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider()),
+                  Text('Người đại diện: ${hs.nguoiDaiDien}'),
+                  const SizedBox(height: 4),
+                  Text('Điện thoại: ${hs.soDienThoai}'),
+                  const SizedBox(height: 4),
+                  Text('Địa chỉ: ${hs.diaChi}'),
+                  const SizedBox(height: 4),
+                  Text('Vùng nguyên liệu: ${hs.tenVung}',
+                      style: const TextStyle(color: OcopMau.xanhOcop, fontWeight: FontWeight.w600)),
+                ],
+              ),
             ),
           ),
+          TieuDeMucOcop('Giấy chứng nhận (${hs.chungNhan.length})'),
           for (final cn in hs.chungNhan)
-            ListTile(
-              leading: Icon(cn.conHieuLuc ? Icons.verified : Icons.error_outline,
-                  color: cn.conHieuLuc ? Colors.green : Colors.red),
-              title: Text('${cn.loai} · ${cn.soHieu}'),
-              subtitle: Text('Cấp ${cn.ngayCap == null ? '?' : DinhDang.ngay(cn.ngayCap!)}'
-                  '${cn.ngayHetHan == null ? '' : ' · hết hạn ${DinhDang.ngay(cn.ngayHetHan!)}'}'),
+            Card(
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+              child: ListTile(
+                leading: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: cn.conHieuLuc ? OcopMau.xanhNhat : OcopMau.nenDoLoi,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    cn.conHieuLuc ? Icons.verified_rounded : Icons.error_outline_rounded,
+                    color: cn.conHieuLuc ? OcopMau.xanhOcop : OcopMau.doLoi,
+                  ),
+                ),
+                title: Text('${cn.loai} · ${cn.soHieu}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text('Cấp ${cn.ngayCap == null ? '?' : DinhDang.ngay(cn.ngayCap!)}'
+                    '${cn.ngayHetHan == null ? '' : ' · hết hạn ${DinhDang.ngay(cn.ngayHetHan!)}'}'),
+              ),
             ),
         ],
       ),

@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../data/api_client.dart';
 import '../data/tai_khoan_repository.dart';
 import '../models/nguoi_dung.dart';
 import '../utils/kiem_tra.dart';
+import '../widgets/chuyen_dong.dart';
+import '../widgets/giao_dien.dart';
 import '../widgets/hop_thoai.dart';
+import '../widgets/khung_xac_thuc.dart';
+import 'dang_nhap_screen.dart';
 
-/// Đăng ký tài khoản KHÁCH hoặc NHÀ CUNG CẤP (gửi hồ sơ, sản phẩm chờ quản trị duyệt).
-/// Thành công thì pop trả về NguoiDung (đã đăng nhập luôn).
+/// Màn hình đăng ký "OCOP Botanical Pass":
+/// - 2 thẻ chọn vai trò trực quan (Khách mua ↔ Nhà cung cấp) đổi màu thẻ thông hành tức thì.
+/// - Thẻ thông hành in sẵn họ tên người dùng theo thời gian thực.
+/// - Thanh đo độ mạnh mật khẩu 3 nấc trực quan.
 class DangKyScreen extends StatefulWidget {
-  const DangKyScreen({super.key, this.repository});
+  const DangKyScreen({super.key, this.repository, this.tuDangNhap = false});
 
   final TaiKhoanRepository? repository;
+  final bool tuDangNhap;
 
   @override
   State<DangKyScreen> createState() => _DangKyScreenState();
@@ -26,7 +34,22 @@ class _DangKyScreenState extends State<DangKyScreen> {
   final _matKhau = TextEditingController();
   final _nhapLai = TextEditingController();
   String _loai = VaiTro.khach;
+  bool _anMatKhau = true;
   bool _dangGui = false;
+  String _tenXemTruoc = '';
+  String _mkHienTai = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _hoTen.addListener(() {
+      final t = _hoTen.text.trim();
+      if (t != _tenXemTruoc) setState(() => _tenXemTruoc = t);
+    });
+    _matKhau.addListener(() {
+      if (_matKhau.text != _mkHienTai) setState(() => _mkHienTai = _matKhau.text);
+    });
+  }
 
   @override
   void dispose() {
@@ -36,8 +59,29 @@ class _DangKyScreenState extends State<DangKyScreen> {
     super.dispose();
   }
 
+  void _chonVaiTro(String moi) {
+    if (_loai == moi) return;
+    HapticFeedback.selectionClick();
+    setState(() => _loai = moi);
+  }
+
+  void _veDangNhap() {
+    HapticFeedback.selectionClick();
+    if (widget.tuDangNhap) {
+      Navigator.pop(context);
+    } else {
+      Navigator.pushReplacement<NguoiDung, NguoiDung>(
+        context,
+        MaterialPageRoute(builder: (_) => DangNhapScreen(repository: widget.repository)),
+      );
+    }
+  }
+
   Future<void> _dangKy() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      HapticFeedback.lightImpact();
+      return;
+    }
     setState(() => _dangGui = true);
     try {
       final nd = await _repo.dangKy(
@@ -58,80 +102,194 @@ class _DangKyScreenState extends State<DangKyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Đăng ký')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+    final laNcc = _loai == VaiTro.nhaCungCap;
+    final tieuDePass = _tenXemTruoc.isEmpty
+        ? (laNcc ? 'Đối tác đặc sản' : 'Thành viên mới')
+        : _tenXemTruoc;
+
+    return KhungXacThucOcop(
+      mauNhan: laNcc ? OcopMau.vangOcop : OcopMau.xanhOcop,
+      theThongHanh: HienLenMuot(
+        thuTu: 0,
+        child: TheThongHanhOcop(
+          nhanVaiTro: laNcc ? 'ĐỐI TÁC OCOP' : 'THÀNH VIÊN',
+          tieuDeChinh: tieuDePass,
+          phuDe: laNcc ? 'Đăng bán & minh bạch nguồn gốc lô hàng' : 'Mua đặc sản chuẩn & quét mã truy xuất',
+          icon: laNcc ? Icons.storefront_rounded : Icons.shopping_bag_rounded,
+          cheDoDoiTac: laNcc,
+        ),
+      ),
+      noiDungForm: HienLenMuot(
+        thuTu: 1,
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Loại tài khoản', style: Theme.of(context).textTheme.titleSmall),
-              const SizedBox(height: 8),
-              SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment(value: VaiTro.khach, label: Text('Khách mua'), icon: Icon(Icons.shopping_bag_outlined)),
-                  ButtonSegment(value: VaiTro.nhaCungCap, label: Text('Nhà cung cấp'), icon: Icon(Icons.store_outlined)),
+              ThanhChuyenXacThuc(
+                dangDangKy: true,
+                khiChonDangNhap: _dangGui ? null : _veDangNhap,
+                khiChonDangKy: null,
+              ),
+              const SizedBox(height: 14),
+              // 2 thẻ vai trò trực quan đặt gọn trên 1 hàng
+              Row(
+                children: [
+                  Expanded(
+                    child: _TheVaiTro(
+                      icon: Icons.shopping_bag_outlined,
+                      tieuDe: 'Khách mua',
+                      chon: !laNcc,
+                      mauChon: OcopMau.xanhOcop,
+                      nenChon: OcopMau.xanhNhat,
+                      onTap: () => _chonVaiTro(VaiTro.khach),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _TheVaiTro(
+                      icon: Icons.storefront_outlined,
+                      tieuDe: 'Nhà cung cấp',
+                      chon: laNcc,
+                      mauChon: OcopMau.vangChu,
+                      nenChon: OcopMau.vangNhat,
+                      onTap: () => _chonVaiTro(VaiTro.nhaCungCap),
+                    ),
+                  ),
                 ],
-                selected: {_loai},
-                onSelectionChanged: (s) => setState(() => _loai = s.first),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  _loai == VaiTro.khach
-                      ? 'Mua hàng, theo dõi đơn, đánh giá và phản ánh sản phẩm.'
-                      : 'Gửi hồ sơ cơ sở và sản phẩm để quản trị viên duyệt trước khi bán.',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _hoTen,
+                textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
-                    labelText: _loai == VaiTro.khach ? 'Họ tên' : 'Họ tên người quản lý',
-                    border: const OutlineInputBorder()),
+                  labelText: laNcc ? 'Người quản lý' : 'Họ và tên',
+                  prefixIcon: const Icon(Icons.badge_outlined, size: 20),
+                ),
                 validator: (v) => KiemTra.batBuoc(v, 'họ tên') ?? KiemTra.doDaiToiDa(v, 120),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 11),
               TextFormField(
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
                 autocorrect: false,
-                decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.alternate_email_rounded, size: 20),
+                ),
                 validator: KiemTra.email,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 11),
               TextFormField(
                 controller: _sdt,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(labelText: 'Số điện thoại (không bắt buộc)', border: OutlineInputBorder()),
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'Số điện thoại (tùy chọn)',
+                  prefixIcon: Icon(Icons.phone_outlined, size: 20),
+                ),
                 validator: (v) => KiemTra.soDienThoai(v, batBuoc: false),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 11),
               TextFormField(
                 controller: _matKhau,
-                obscureText: true,
-                decoration: const InputDecoration(
-                    labelText: 'Mật khẩu', helperText: 'Ít nhất 8 ký tự', border: OutlineInputBorder()),
+                obscureText: _anMatKhau,
+                textInputAction: TextInputAction.next,
+                decoration: InputDecoration(
+                  labelText: 'Mật khẩu',
+                  prefixIcon: const Icon(Icons.key_rounded, size: 20),
+                  suffixIcon: IconButton(
+                    icon: Icon(_anMatKhau ? Icons.visibility_outlined : Icons.visibility_off_outlined, size: 20),
+                    onPressed: () => setState(() => _anMatKhau = !_anMatKhau),
+                  ),
+                ),
                 validator: KiemTra.matKhau,
               ),
-              const SizedBox(height: 12),
+              ThanhDoManhMatKhau(matKhau: _mkHienTai),
+              const SizedBox(height: 11),
               TextFormField(
                 controller: _nhapLai,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: 'Nhập lại mật khẩu', border: OutlineInputBorder()),
+                obscureText: _anMatKhau,
+                decoration: const InputDecoration(
+                  labelText: 'Nhập lại mật khẩu',
+                  prefixIcon: Icon(Icons.verified_user_outlined, size: 20),
+                ),
                 validator: (v) => v != _matKhau.text ? 'Mật khẩu nhập lại không khớp' : null,
+                onFieldSubmitted: (_) => _dangKy(),
               ),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: _dangGui ? null : _dangKy,
-                child: _dangGui
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Text('Tạo tài khoản'),
+              const SizedBox(height: 18),
+              NhanNhe(
+                rungNhe: true,
+                child: FilledButton(
+                  style: laNcc
+                      ? FilledButton.styleFrom(backgroundColor: OcopMau.chuChinh, foregroundColor: Colors.white)
+                      : null,
+                  onPressed: _dangGui ? null : _dangKy,
+                  child: _dangGui
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Text('Tạo tài khoản'),
+                ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TheVaiTro extends StatelessWidget {
+  const _TheVaiTro({
+    required this.icon,
+    required this.tieuDe,
+    required this.chon,
+    required this.mauChon,
+    required this.nenChon,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String tieuDe;
+  final bool chon;
+  final Color mauChon;
+  final Color nenChon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+        decoration: BoxDecoration(
+          color: chon ? nenChon : OcopMau.nenNhap,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 18, color: chon ? mauChon : OcopMau.chuPhu),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                tieuDe,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: chon ? FontWeight.w700 : FontWeight.w600,
+                  color: chon ? mauChon : OcopMau.chuPhu,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -1,39 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layout dùng chung cho các danh sách: Spinner lọc (ẩn nếu không cần) + RecyclerView + 3 trạng thái + dòng tải thêm. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/nen_man_hinh"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tvNhanLoc"
+    <HorizontalScrollView
+        android:id="@+id/khungLoc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/khoang_md"
-        android:layout_marginTop="@dimen/khoang_sm"
-        android:layout_marginEnd="@dimen/khoang_md"
-        android:text="@string/loc_trang_thai"
-        android:textSize="@dimen/chu_nho" />
+        android:clipToPadding="false"
+        android:paddingStart="@dimen/khoang_md"
+        android:paddingTop="@dimen/khoang_xs"
+        android:paddingEnd="@dimen/khoang_md"
+        android:paddingBottom="@dimen/khoang_sm"
+        android:scrollbars="none">
 
-    <Spinner
-        android:id="@+id/spLoc"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginStart="@dimen/khoang_sm"
-        android:layout_marginEnd="@dimen/khoang_sm" />
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/cgLoc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipSpacingHorizontal="@dimen/khoang_sm"
+            app:selectionRequired="true"
+            app:singleLine="true"
+            app:singleSelection="true" />
+    </HorizontalScrollView>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvDanhSach"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefresh"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingBottom="@dimen/dem_duoi_danh_sach" />
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvDanhSach"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:layoutAnimation="@anim/danh_sach_hien_len"
+                android:paddingTop="4dp"
+                android:paddingBottom="@dimen/dem_duoi_danh_sach" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <include layout="@layout/khung_trang_thai" />
 
@@ -43,10 +55,13 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/khoang_md"
+            android:textColor="@color/nen_icon"
             android:visibility="gone"
-            app:icon="@drawable/ic_them" />
+            app:backgroundTint="@color/xanh_ocop"
+            app:elevation="2dp"
+            app:icon="@drawable/ic_them"
+            app:iconTint="@color/nen_icon" />
     </FrameLayout>
 
-    <!-- Tải trang tiếp theo khi cuộn gần cuối (phân trang) -->
     <include layout="@layout/khung_tai_them" />
 </LinearLayout>

@@ -1,5 +1,6 @@
 package vn.edu.vhu.ltdd.gugugaga.admin.ui.baocao;
 
+import android.animation.ValueAnimator;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import java.util.List;
 import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.model.BaoCaoDoanhSo;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.MainActivity;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ChuyenDong;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.KhungTrangThai;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.ManHinh;
 import vn.edu.vhu.ltdd.gugugaga.admin.ui.chung.TrangThai;
@@ -40,9 +42,11 @@ public class BaoCaoFragment extends Fragment {
     private KhungTrangThai khung;
     private View noiDung;
     private Button btnTu, btnDen;
-    private TextView tvLoiLoc, tvTongDoanhSo, tvTongDon, tvTrongTop;
+    private TextView tvLoiLoc, tvTongDoanhSo, tvTongDon, tvTongSanPham, tvTrongTop;
     private BieuDoCotView bdVung, bdHangSao;
     private LinearLayout dsTop;
+    @Nullable
+    private ValueAnimator animDoanhSo;
     private String tu;
     private String den;
 
@@ -67,9 +71,11 @@ public class BaoCaoFragment extends Fragment {
         tvLoiLoc = view.findViewById(R.id.tvLoiLoc);
         tvTongDoanhSo = view.findViewById(R.id.tvTongDoanhSo);
         tvTongDon = view.findViewById(R.id.tvTongDon);
+        tvTongSanPham = view.findViewById(R.id.tvTongSanPham);
         tvTrongTop = view.findViewById(R.id.tvTrongTop);
         bdVung = view.findViewById(R.id.bdVung);
         bdHangSao = view.findViewById(R.id.bdHangSao);
+        bdHangSao.datTongVang(true);
         dsTop = view.findViewById(R.id.dsTop);
         khung = new KhungTrangThai(view, viewModel::taiLai);
 
@@ -84,6 +90,12 @@ public class BaoCaoFragment extends Fragment {
         viewModel.getBaoCao().observe(getViewLifecycleOwner(), this::hienThi);
         ManHinh.quanSatChung(this, viewModel);
         apDungLoc();
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (animDoanhSo != null) animDoanhSo.cancel();
+        super.onDestroyView();
     }
 
     @Override
@@ -123,8 +135,10 @@ public class BaoCaoFragment extends Fragment {
         if (tt.loai != TrangThai.Loai.THANH_CONG) return;
         BaoCaoDoanhSo bc = tt.duLieu;
 
-        tvTongDoanhSo.setText(DinhDang.tien(bc.tong.doanhSo));
-        tvTongDon.setText(getString(R.string.tong_don_so_luong, bc.tong.soDon, bc.tong.soLuong));
+        if (animDoanhSo != null) animDoanhSo.cancel();
+        animDoanhSo = ChuyenDong.chaySoTien(tvTongDoanhSo, bc.tong.doanhSo);
+        tvTongDon.setText(getString(R.string.so_don_ngan, bc.tong.soDon));
+        tvTongSanPham.setText(getString(R.string.so_sp_da_ban_ngan, bc.tong.soLuong));
 
         List<String> nhanVung = new ArrayList<>();
         long[] dsVung = new long[bc.theoVung.size()];
@@ -166,7 +180,14 @@ public class BaoCaoFragment extends Fragment {
         for (int i = 0; i < top.size(); i++) {
             BaoCaoDoanhSo.NhaCungCapBanChay n = top.get(i);
             View v = inf.inflate(R.layout.item_top_ncc, dsTop, false);
-            ((TextView) v.findViewById(R.id.tvHang)).setText(String.valueOf(i + 1));
+            TextView tvHang = v.findViewById(R.id.tvHang);
+            tvHang.setText(String.valueOf(i + 1));
+            int mauHang = i == 0 ? R.color.huy_chuong_vang
+                    : (i == 1 ? R.color.huy_chuong_bac
+                    : (i == 2 ? R.color.huy_chuong_dong : R.color.xanh_ocop));
+            androidx.core.view.ViewCompat.setBackgroundTintList(tvHang,
+                    android.content.res.ColorStateList.valueOf(
+                            androidx.core.content.ContextCompat.getColor(requireContext(), mauHang)));
             ((TextView) v.findViewById(R.id.tvTenNcc)).setText(n.ten);
             ((TextView) v.findViewById(R.id.tvVungNcc)).setText(getString(R.string.vung_don_so_luong,
                     n.tenVung, n.soDon, n.soLuong));

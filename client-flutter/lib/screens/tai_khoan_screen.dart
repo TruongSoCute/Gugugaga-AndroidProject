@@ -4,6 +4,7 @@ import '../data/api_client.dart';
 import '../data/phien_dang_nhap.dart';
 import '../data/tai_khoan_repository.dart';
 import '../models/nguoi_dung.dart';
+import '../widgets/giao_dien.dart';
 import '../widgets/hop_thoai.dart';
 import 'dang_ky_screen.dart';
 import 'dang_nhap_screen.dart';
@@ -11,8 +12,7 @@ import 'phan_anh_cua_toi_screen.dart';
 import 'theo_doi_screen.dart';
 import 'yeu_thich_screen.dart';
 
-/// Tài khoản: thông tin người dùng, lối vào Yêu thích / Đang theo dõi / Phản ánh (khách),
-/// đăng xuất có hộp thoại xác nhận. Chưa đăng nhập thì hiện nút đăng nhập/đăng ký.
+/// Tài khoản tối giản chuẩn Mobbin: không gradient nặng, icon đơn sắc, bỏ mô tả thừa.
 class TaiKhoanScreen extends StatelessWidget {
   const TaiKhoanScreen({super.key, this.repository});
 
@@ -39,28 +39,45 @@ class TaiKhoanScreen extends StatelessWidget {
   Widget _chuaDangNhap(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Icon(Icons.person_outline, size: 72, color: Theme.of(context).colorScheme.outline),
-            const SizedBox(height: 12),
-            const Text(
-              'Bạn đang xem với tư cách khách vãng lai. Xem sản phẩm và truy xuất nguồn gốc không cần đăng nhập.',
+            Center(
+              child: Container(
+                width: 68,
+                height: 68,
+                decoration: const BoxDecoration(color: OcopMau.nenThe, shape: BoxShape.circle),
+                child: const Icon(Icons.person_outline_rounded, size: 32, color: OcopMau.chuPhu),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              'Tài khoản OCOP',
               textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: () => Navigator.push<NguoiDung>(
-                  context, MaterialPageRoute(builder: (_) => const DangNhapScreen())),
-              child: const Text('Đăng nhập'),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton(
-              onPressed: () => Navigator.push<NguoiDung>(
-                  context, MaterialPageRoute(builder: (_) => const DangKyScreen())),
-              child: const Text('Đăng ký tài khoản'),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(backgroundColor: OcopMau.nenThe),
+                    onPressed: () => Navigator.push<NguoiDung>(
+                        context, MaterialPageRoute(builder: (_) => const DangKyScreen())),
+                    child: const Text('Đăng ký'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () => Navigator.push<NguoiDung>(
+                        context, MaterialPageRoute(builder: (_) => const DangNhapScreen())),
+                    child: const Text('Đăng nhập'),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -71,54 +88,94 @@ class TaiKhoanScreen extends StatelessWidget {
   Widget _daDangNhap(BuildContext context, NguoiDung nd) {
     final theme = Theme.of(context);
     void mo(Widget manHinh) => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => manHinh));
+    final chuDau = nd.hoTen.isEmpty ? '?' : nd.hoTen.characters.first.toUpperCase();
     return ListView(
+      padding: const EdgeInsets.all(16),
       children: [
-        ListTile(
-          leading: CircleAvatar(
-            radius: 24,
-            child: Text(nd.hoTen.isEmpty ? '?' : nd.hoTen.characters.first.toUpperCase()),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: const BoxDecoration(color: OcopMau.xanhNhat, shape: BoxShape.circle),
+                  alignment: Alignment.center,
+                  child: Text(
+                    chuDau,
+                    style: const TextStyle(color: OcopMau.xanhOcop, fontSize: 20, fontWeight: FontWeight.w700),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(nd.hoTen, style: theme.textTheme.titleMedium),
+                      const SizedBox(height: 2),
+                      Text(nd.email, style: theme.textTheme.bodySmall),
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                        decoration: BoxDecoration(color: OcopMau.xanhNhat, borderRadius: BorderRadius.circular(999)),
+                        child: Text(
+                          '${nd.tenVaiTro}${nd.soDienThoai == null ? '' : ' · ${nd.soDienThoai}'}',
+                          style: const TextStyle(color: OcopMau.xanhOcop, fontSize: 11.5, fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-          title: Text(nd.hoTen, style: theme.textTheme.titleMedium),
-          subtitle: Text('${nd.email}\n${nd.tenVaiTro}${nd.soDienThoai == null ? '' : ' · ${nd.soDienThoai}'}'),
-          isThreeLine: true,
         ),
-        const Divider(),
-        if (nd.laKhach) ...[
-          ListTile(
-            leading: const Icon(Icons.favorite_outline),
-            title: const Text('Sản phẩm yêu thích'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => mo(const YeuThichScreen()),
+        const SizedBox(height: 12),
+        if (nd.laKhach)
+          Card(
+            child: Column(
+              children: [
+                _dongMenu(Icons.favorite_outline_rounded, 'Sản phẩm yêu thích', () => mo(const YeuThichScreen())),
+                const Divider(indent: 54),
+                _dongMenu(Icons.storefront_outlined, 'Nhà cung cấp đang theo dõi', () => mo(const TheoDoiScreen())),
+                const Divider(indent: 54),
+                _dongMenu(Icons.flag_outlined, 'Phản ánh của tôi', () => mo(const PhanAnhCuaToiScreen())),
+              ],
+            ),
           ),
-          ListTile(
-            leading: const Icon(Icons.storefront_outlined),
-            title: const Text('Nhà cung cấp đang theo dõi'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => mo(const TheoDoiScreen()),
-          ),
-          ListTile(
-            leading: const Icon(Icons.report_outlined),
-            title: const Text('Phản ánh của tôi'),
-            subtitle: const Text('Hàng nghi giả, sai mô tả và kết quả xử lý'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => mo(const PhanAnhCuaToiScreen()),
-          ),
-          const Divider(),
-        ],
         if (nd.laNhaCungCap)
-          const ListTile(
-            leading: Icon(Icons.info_outline),
-            title: Text('Tài khoản nhà cung cấp'),
-            subtitle: Text('Gửi hồ sơ cơ sở và sản phẩm để quản trị viên duyệt. '
-                'Tạo lô và mã QR do quản trị viên thực hiện trên app Admin.'),
+          const Card(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'Gửi hồ sơ cơ sở và sản phẩm để quản trị viên duyệt. '
+                'Tạo lô và mã QR do quản trị viên thực hiện trên app Admin.',
+                style: TextStyle(color: OcopMau.chuPhu, height: 1.45),
+              ),
+            ),
           ),
-        ListTile(
-          key: const Key('nutDangXuat'),
-          leading: Icon(Icons.logout, color: theme.colorScheme.error),
-          title: Text('Đăng xuất', style: TextStyle(color: theme.colorScheme.error)),
-          onTap: () => _dangXuat(context),
+        const SizedBox(height: 12),
+        Card(
+          child: ListTile(
+            key: const Key('nutDangXuat'),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            leading: const Icon(Icons.logout_rounded, color: OcopMau.doLoi, size: 22),
+            title: const Text('Đăng xuất', style: TextStyle(color: OcopMau.doLoi, fontWeight: FontWeight.w700)),
+            onTap: () => _dangXuat(context),
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _dongMenu(IconData icon, String tieuDe, VoidCallback onTap) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      leading: Icon(icon, color: OcopMau.chuChinh, size: 22),
+      title: Text(tieuDe, style: const TextStyle(fontWeight: FontWeight.w600)),
+      trailing: const Icon(Icons.chevron_right_rounded, color: OcopMau.chuPhu, size: 20),
+      onTap: onTap,
     );
   }
 }
