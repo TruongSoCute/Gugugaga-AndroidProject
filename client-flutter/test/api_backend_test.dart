@@ -5,17 +5,17 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ocop_client/data/api_client.dart';
-import 'package:ocop_client/data/cua_toi_repository.dart';
-import 'package:ocop_client/data/don_hang_repository.dart';
-import 'package:ocop_client/data/phan_anh_repository.dart';
-import 'package:ocop_client/data/phien_dang_nhap.dart';
-import 'package:ocop_client/data/san_pham_repository.dart';
-import 'package:ocop_client/data/tai_anh_repository.dart';
-import 'package:ocop_client/data/tai_khoan_repository.dart';
+import 'package:ocop_client/data/my_supplier_repository.dart';
+import 'package:ocop_client/data/order_repository.dart';
+import 'package:ocop_client/data/issue_report_repository.dart';
+import 'package:ocop_client/data/auth_session.dart';
+import 'package:ocop_client/data/product_repository.dart';
+import 'package:ocop_client/data/image_upload_repository.dart';
+import 'package:ocop_client/data/account_repository.dart';
 import 'package:ocop_client/data/token_store.dart';
-import 'package:ocop_client/data/truy_xuat_repository.dart';
-import 'package:ocop_client/data/tuong_tac_repository.dart';
-import 'package:ocop_client/models/san_pham.dart';
+import 'package:ocop_client/data/traceability_repository.dart';
+import 'package:ocop_client/data/customer_interactions_repository.dart';
+import 'package:ocop_client/models/product.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -24,13 +24,13 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    PhienDangNhap.dat(null);
+    AuthSession.dat(null);
   });
 
   ApiClient api() => ApiClient(baseUrl: url!.replaceAll(RegExp(r'/+$'), ''));
 
   test('vùng và sản phẩm đã công bố, lọc vùng + hạng sao', () async {
-    final repo = SanPhamRepository(api());
+    final repo = ProductRepository(api());
     final vung = await repo.dsVung();
     expect(vung.length, greaterThanOrEqualTo(4));
     final tatCa = await repo.dsSanPham();
@@ -42,7 +42,7 @@ void main() {
 
   test('truy xuất mã lô thật trả đủ 4 bước; mã không tồn tại trả 404', () async {
     final ma = Platform.environment['OCOP_MA_LO_TEST'];
-    final repo = TruyXuatRepository(api());
+    final repo = TraceabilityRepository(api());
     if (ma != null) {
       final lo = await repo.layHanhTrinh(ma);
       expect(lo.maTruyXuat, ma);
@@ -59,7 +59,7 @@ void main() {
   const matKhauMau = 'Demo@12345';
 
   test('chi tiết sản phẩm, đánh giá, trang nhà cung cấp, hình thức giao (công khai)', () async {
-    final repo = SanPhamRepository(api());
+    final repo = ProductRepository(api());
     final ct = await repo.chiTiet(1);
     expect(ct.sanPham.nhaCungCapId, isNotNull);
     expect(ct.chungNhan, isNotEmpty);
@@ -67,17 +67,17 @@ void main() {
     expect(dg.soDanhGia, dg.duLieu.length);
     final ncc = await repo.nhaCungCap(ct.sanPham.nhaCungCapId!);
     expect(ncc.sanPham.any((sp) => sp.id == 1), isTrue);
-    final ht = await DonHangRepository(api()).dsHinhThucGiao();
+    final ht = await OrderRepository(api()).dsHinhThucGiao();
     expect(ht.map((h) => h.ma), containsAll(['TIEU_CHUAN', 'NHANH', 'NHAN_TAI_CHO']));
   }, skip: boQua);
 
   test('khach1: đăng nhập lưu token; đọc giỏ, đơn, chi tiết đơn, yêu thích, theo dõi, phản ánh', () async {
     final a = api();
-    final nd = await TaiKhoanRepository(a).dangNhap(email: 'khach1@ocop.example', matKhau: matKhauMau);
+    final nd = await AccountRepository(a).dangNhap(email: 'khach1@ocop.example', matKhau: matKhauMau);
     expect(nd.laKhach, isTrue);
     expect(await TokenStore.layToken(), isNotNull);
 
-    final donRepo = DonHangRepository(a);
+    final donRepo = OrderRepository(a);
     final gio = await donRepo.gioHang();
     expect(gio.tamTinh, greaterThanOrEqualTo(0));
     final dsDon = await donRepo.dsDonHang();
@@ -93,19 +93,19 @@ void main() {
 
     // Mã lô trong đơn mở được hành trình công khai đúng sản phẩm.
     final dong = ct.chiTiet.first;
-    final lo = await TruyXuatRepository(a).layHanhTrinh(dong.maTruyXuat!);
+    final lo = await TraceabilityRepository(a).layHanhTrinh(dong.maTruyXuat!);
     expect(lo.sanPhamId, dong.sanPhamId);
 
-    final tt = TuongTacRepository(a);
+    final tt = CustomerInteractionsRepository(a);
     await tt.dsYeuThich();
     await tt.dsTheoDoi();
-    await PhanAnhRepository(a).dsCuaToi();
+    await IssueReportRepository(a).dsCuaToi();
   }, skip: boQua);
 
   test('khach1 gọi API nhà cung cấp bị 403; tải ảnh trả URL hoặc 503 khi chưa cấu hình kho ảnh', () async {
     final a = api();
-    await TaiKhoanRepository(a).dangNhap(email: 'khach1@ocop.example', matKhau: matKhauMau);
-    await expectLater(CuaToiRepository(a).dsSanPham(),
+    await AccountRepository(a).dangNhap(email: 'khach1@ocop.example', matKhau: matKhauMau);
+    await expectLater(MySupplierRepository(a).dsSanPham(),
         throwsA(isA<ApiException>().having((e) => e.maHttp, 'maHttp', 403)));
     // PNG 1x1 hợp lệ.
     const png = [
@@ -116,20 +116,20 @@ void main() {
       0x42, 0x60, 0x82,
     ];
     try {
-      final url = await TaiAnhRepository(a).taiAnh(png, tenTep: 'thu.png', mucDich: 'danh-gia');
+      final url = await ImageUploadRepository(a).taiAnh(png, tenTep: 'thu.png', mucDich: 'danh-gia');
       expect(url, startsWith('http'));
     } on ApiException catch (e) {
-      expect(TaiAnhRepository.laChuaCauHinh(e), isTrue, reason: 'lỗi khác 503: ${e.thongDiepDayDu}');
+      expect(ImageUploadRepository.laChuaCauHinh(e), isTrue, reason: 'lỗi khác 503: ${e.thongDiepDayDu}');
     }
   }, skip: boQua);
 
   test('token sai: 401, ApiClient xóa token và báo hết phiên', () async {
     SharedPreferences.setMockInitialValues({'token': 'token-gia'});
     var hetPhien = false;
-    PhienDangNhap.dat(null);
-    await TaiKhoanRepository(api()).khoiPhucPhien();
-    final sub = PhienDangNhap.hetPhien.listen((_) => hetPhien = true);
-    await expectLater(DonHangRepository(api()).gioHang(),
+    AuthSession.dat(null);
+    await AccountRepository(api()).khoiPhucPhien();
+    final sub = AuthSession.hetPhien.listen((_) => hetPhien = true);
+    await expectLater(OrderRepository(api()).gioHang(),
         throwsA(isA<ApiException>().having((e) => e.maHttp, 'maHttp', 401)));
     expect(await TokenStore.layToken(), isNull);
     await sub.cancel();
@@ -138,29 +138,29 @@ void main() {
 
   test('ncc1 (đã duyệt): hồ sơ DA_DUYET không sửa được; sản phẩm của tôi có số lô/tồn kho', () async {
     final a = api();
-    final nd = await TaiKhoanRepository(a).dangNhap(email: 'ncc1@ocop.example', matKhau: matKhauMau);
+    final nd = await AccountRepository(a).dangNhap(email: 'ncc1@ocop.example', matKhau: matKhauMau);
     expect(nd.laNhaCungCap, isTrue);
-    final repo = CuaToiRepository(a);
+    final repo = MySupplierRepository(a);
     final hs = await repo.hoSo();
     expect(hs, isNotNull);
-    expect(hs!.trangThaiDuyet, TrangThaiDuyet.daDuyet);
+    expect(hs!.trangThaiDuyet, ApprovalStatus.daDuyet);
     expect(hs.duocSua, isFalse);
     expect(hs.chungNhan, isNotEmpty);
     final ds = await repo.dsSanPham();
     expect(ds.length, greaterThanOrEqualTo(5));
     expect(ds.any((sp) => sp.soLo > 0 && sp.tonKho > 0), isTrue);
     // Nhà cung cấp không dùng giỏ hàng của khách.
-    await expectLater(DonHangRepository(a).gioHang(),
+    await expectLater(OrderRepository(a).gioHang(),
         throwsA(isA<ApiException>().having((e) => e.maHttp, 'maHttp', 403)));
   }, skip: boQua);
 
   test('ncc11 (chờ duyệt): hồ sơ CHO_DUYET sửa được; sản phẩm chưa có hạng sao', () async {
     final a = api();
-    await TaiKhoanRepository(a).dangNhap(email: 'ncc11@ocop.example', matKhau: matKhauMau);
-    final hs = await CuaToiRepository(a).hoSo();
-    expect(hs!.trangThaiDuyet, TrangThaiDuyet.choDuyet);
+    await AccountRepository(a).dangNhap(email: 'ncc11@ocop.example', matKhau: matKhauMau);
+    final hs = await MySupplierRepository(a).hoSo();
+    expect(hs!.trangThaiDuyet, ApprovalStatus.choDuyet);
     expect(hs.duocSua, isTrue);
-    final ds = await CuaToiRepository(a).dsSanPham();
-    expect(ds.where((sp) => sp.trangThaiDuyet == TrangThaiDuyet.choDuyet).every((sp) => sp.hangSao == null), isTrue);
+    final ds = await MySupplierRepository(a).dsSanPham();
+    expect(ds.where((sp) => sp.trangThaiDuyet == ApprovalStatus.choDuyet).every((sp) => sp.hangSao == null), isTrue);
   }, skip: boQua);
 }

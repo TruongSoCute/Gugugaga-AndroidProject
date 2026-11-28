@@ -3,7 +3,7 @@ package vn.edu.vhu.ltdd.gugugaga.admin.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import vn.edu.vhu.ltdd.gugugaga.admin.model.KetQuaDangNhap;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.LoginResult;
 
 /**
  * Lưu phiên đăng nhập bằng SharedPreferences (Phụ lục 2: TokenStore).
@@ -22,7 +22,7 @@ public final class TokenStore {
         return ctx.getApplicationContext().getSharedPreferences(TEN_FILE, Context.MODE_PRIVATE);
     }
 
-    public static void luu(Context ctx, KetQuaDangNhap kq) {
+    public static void luu(Context ctx, LoginResult kq) {
         prefs(ctx).edit()
                 .putString(KEY_TOKEN, kq.token)
                 .putString(KEY_VAI_TRO, kq.nguoiDung.vaiTro)

@@ -2,28 +2,28 @@ package vn.edu.vhu.ltdd.gugugaga.admin.data;
 
 import java.util.List;
 
-import vn.edu.vhu.ltdd.gugugaga.admin.model.BaoCaoDoanhSo;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.BuocTruyXuat;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.DanhSach;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.DonHang;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.KetQuaDangNhap;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.KetQuaTaiAnh;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.LoSanXuat;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.NguoiDung;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.NhaCungCap;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.PhanAnh;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.SanPham;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauDangNhap;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauDoiTrangThai;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauDuyet;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauKhoaTaiKhoan;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauTaoLo;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauTaoNhaCungCap;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauTaoNhanVien;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauTaoSanPham;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauThemBuoc;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauXuLyPhanAnh;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.VungNguyenLieu;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.SalesReport;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.TraceabilityStep;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.DataList;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.Order;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.LoginResult;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.ImageUploadResult;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.ProductionBatch;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.User;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.Supplier;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.IssueReport;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.Product;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.LoginRequest;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.ChangeStatusRequest;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.ReviewRequest;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.LockAccountRequest;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.CreateBatchRequest;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.CreateSupplierRequest;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.CreateStaffRequest;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.CreateProductRequest;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.AddTraceabilityStepRequest;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.ResolveIssueReportRequest;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.SourcingRegion;
 
 import okhttp3.RequestBody;
 import retrofit2.Call;
@@ -42,92 +42,92 @@ public interface ApiService {
 
     // ---- Xác thực ----
     @POST("auth/dang-nhap")
-    Call<KetQuaDangNhap> dangNhap(@Body YeuCauDangNhap body);
+    Call<LoginResult> dangNhap(@Body LoginRequest body);
 
     // ---- Danh mục ----
     @GET("vung-nguyen-lieu")
-    Call<List<VungNguyenLieu>> dsVungNguyenLieu();
+    Call<List<SourcingRegion>> dsVungNguyenLieu();
 
     // ---- Sản phẩm ----
     @GET("quan-tri/san-pham")
-    Call<DanhSach<SanPham>> dsSanPhamQuanTri(@Query("trangThai") String trangThai,
+    Call<DataList<Product>> dsSanPhamQuanTri(@Query("trangThai") String trangThai,
                                              @Query("trang") int trang,
                                              @Query("kichThuoc") int kichThuoc);
 
     @POST("san-pham")
-    Call<SanPham> taoSanPham(@Body YeuCauTaoSanPham body);
+    Call<Product> taoSanPham(@Body CreateProductRequest body);
 
     @PATCH("san-pham/{id}/duyet")
-    Call<SanPham> duyetSanPham(@Path("id") int id, @Body YeuCauDuyet body);
+    Call<Product> duyetSanPham(@Path("id") int id, @Body ReviewRequest body);
 
     // ---- Nhà cung cấp ----
     @GET("quan-tri/nha-cung-cap")
-    Call<DanhSach<NhaCungCap>> dsNhaCungCapQuanTri(@Query("trangThai") String trangThai,
+    Call<DataList<Supplier>> dsNhaCungCapQuanTri(@Query("trangThai") String trangThai,
                                                    @Query("trang") int trang,
                                                    @Query("kichThuoc") int kichThuoc);
 
     @GET("quan-tri/nha-cung-cap/{id}")
-    Call<NhaCungCap> chiTietNhaCungCap(@Path("id") int id);
+    Call<Supplier> chiTietNhaCungCap(@Path("id") int id);
 
     @POST("nha-cung-cap")
-    Call<NhaCungCap> taoNhaCungCap(@Body YeuCauTaoNhaCungCap body);
+    Call<Supplier> taoNhaCungCap(@Body CreateSupplierRequest body);
 
     @PATCH("nha-cung-cap/{id}/duyet")
-    Call<NhaCungCap> duyetNhaCungCap(@Path("id") int id, @Body YeuCauDuyet body);
+    Call<Supplier> duyetNhaCungCap(@Path("id") int id, @Body ReviewRequest body);
 
     // ---- Lô sản xuất và truy xuất ----
     @GET("lo-san-xuat")
-    Call<DanhSach<LoSanXuat>> dsLo(@Query("trang") int trang, @Query("kichThuoc") int kichThuoc);
+    Call<DataList<ProductionBatch>> dsLo(@Query("trang") int trang, @Query("kichThuoc") int kichThuoc);
 
     @GET("lo-san-xuat/{id}")
-    Call<LoSanXuat> chiTietLo(@Path("id") int id);
+    Call<ProductionBatch> chiTietLo(@Path("id") int id);
 
     @POST("lo-san-xuat")
-    Call<LoSanXuat> taoLo(@Body YeuCauTaoLo body);
+    Call<ProductionBatch> taoLo(@Body CreateBatchRequest body);
 
     @POST("lo-san-xuat/{id}/buoc")
-    Call<BuocTruyXuat> themBuoc(@Path("id") int loId, @Body YeuCauThemBuoc body);
+    Call<TraceabilityStep> themBuoc(@Path("id") int loId, @Body AddTraceabilityStepRequest body);
 
     // ---- Tải ảnh ----
     @POST("tai-len/anh")
-    Call<KetQuaTaiAnh> taiLenAnh(@Query("mucDich") String mucDich, @Body RequestBody body);
+    Call<ImageUploadResult> taiLenAnh(@Query("mucDich") String mucDich, @Body RequestBody body);
 
     // ---- Đơn hàng ----
     @GET("quan-tri/don-hang")
-    Call<DanhSach<DonHang>> dsDonHangQuanTri(@Query("trangThai") String trangThai,
+    Call<DataList<Order>> dsDonHangQuanTri(@Query("trangThai") String trangThai,
                                              @Query("trang") int trang,
                                              @Query("kichThuoc") int kichThuoc);
 
     @GET("quan-tri/don-hang/{id}")
-    Call<DonHang> chiTietDonHang(@Path("id") int id);
+    Call<Order> chiTietDonHang(@Path("id") int id);
 
     @PATCH("don-hang/{id}/trang-thai")
-    Call<DonHang> doiTrangThaiDon(@Path("id") int id, @Body YeuCauDoiTrangThai body);
+    Call<Order> doiTrangThaiDon(@Path("id") int id, @Body ChangeStatusRequest body);
 
     // ---- Phản ánh ----
     @GET("quan-tri/bao-cao-vi-pham")
-    Call<DanhSach<PhanAnh>> dsPhanAnh(@Query("trangThai") String trangThai,
+    Call<DataList<IssueReport>> dsPhanAnh(@Query("trangThai") String trangThai,
                                       @Query("trang") int trang,
                                       @Query("kichThuoc") int kichThuoc);
 
     @GET("quan-tri/bao-cao-vi-pham/{id}")
-    Call<PhanAnh> chiTietPhanAnh(@Path("id") int id);
+    Call<IssueReport> chiTietPhanAnh(@Path("id") int id);
 
     @PATCH("quan-tri/bao-cao-vi-pham/{id}")
-    Call<PhanAnh> xuLyPhanAnh(@Path("id") int id, @Body YeuCauXuLyPhanAnh body);
+    Call<IssueReport> xuLyPhanAnh(@Path("id") int id, @Body ResolveIssueReportRequest body);
 
     // ---- Báo cáo ----
     /** tu, den dạng yyyy-MM-dd hoặc null (không lọc). Chỉ QUAN_TRI, NHAN_VIEN nhận 403. */
     @GET("bao-cao/doanh-so")
-    Call<BaoCaoDoanhSo> baoCaoDoanhSo(@Query("tu") String tu, @Query("den") String den);
+    Call<SalesReport> baoCaoDoanhSo(@Query("tu") String tu, @Query("den") String den);
 
     // ---- Tài khoản nhân sự (chỉ QUAN_TRI) ----
     @GET("quan-tri/tai-khoan")
-    Call<DanhSach<NguoiDung>> dsTaiKhoanQuanTri(@Query("trang") int trang, @Query("kichThuoc") int kichThuoc);
+    Call<DataList<User>> dsTaiKhoanQuanTri(@Query("trang") int trang, @Query("kichThuoc") int kichThuoc);
 
     @POST("quan-tri/tai-khoan")
-    Call<NguoiDung> taoNhanVien(@Body YeuCauTaoNhanVien body);
+    Call<User> taoNhanVien(@Body CreateStaffRequest body);
 
     @PATCH("quan-tri/tai-khoan/{id}")
-    Call<NguoiDung> capNhatTrangThaiTaiKhoan(@Path("id") int id, @Body YeuCauKhoaTaiKhoan body);
+    Call<User> capNhatTrangThaiTaiKhoan(@Path("id") int id, @Body LockAccountRequest body);
 }

@@ -18,12 +18,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import vn.edu.vhu.ltdd.gugugaga.admin.R;
 import vn.edu.vhu.ltdd.gugugaga.admin.data.TokenStore;
-import vn.edu.vhu.ltdd.gugugaga.admin.ui.dangnhap.LoginActivity;
-import vn.edu.vhu.ltdd.gugugaga.admin.ui.donhang.DonHangFragment;
-import vn.edu.vhu.ltdd.gugugaga.admin.ui.lo.LoFragment;
-import vn.edu.vhu.ltdd.gugugaga.admin.ui.phananh.PhanAnhFragment;
-import vn.edu.vhu.ltdd.gugugaga.admin.ui.sanpham.SanPhamFragment;
-import vn.edu.vhu.ltdd.gugugaga.admin.ui.taikhoan.TaiKhoanFragment;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.login.LoginActivity;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.order.OrderListFragment;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.batch.BatchListFragment;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.issuereport.IssueReportListFragment;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.product.ProductListFragment;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.account.AccountFragment;
 
 /**
  * Một Activity chứa nhiều Fragment, chuyển tab bằng BottomNavigationView (Lab A8).
@@ -61,17 +61,17 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
             int id = item.getItemId();
             // if-else thay cho switch: từ AGP 8, R.id không còn là hằng số (Lab A4, A8).
-            if (id == R.id.tab_san_pham) doiTab(new SanPhamFragment(), true);
-            else if (id == R.id.tab_lo) doiTab(new LoFragment(), true);
-            else if (id == R.id.tab_don_hang) doiTab(new DonHangFragment(), true);
-            else if (id == R.id.tab_phan_anh) doiTab(new PhanAnhFragment(), true);
-            else if (id == R.id.tab_tai_khoan) doiTab(new TaiKhoanFragment(), true);
+            if (id == R.id.tab_products) doiTab(new ProductListFragment(), true);
+            else if (id == R.id.tab_batches) doiTab(new BatchListFragment(), true);
+            else if (id == R.id.tab_orders) doiTab(new OrderListFragment(), true);
+            else if (id == R.id.tab_issue_reports) doiTab(new IssueReportListFragment(), true);
+            else if (id == R.id.tab_accounts) doiTab(new AccountFragment(), true);
             return true; // true = tô sáng tab vừa chọn
         });
 
         // Chỉ nạp Fragment mặc định lần đầu; khi xoay, FragmentManager tự khôi phục (Lab A8).
         if (savedInstanceState == null) {
-            doiTab(new SanPhamFragment(), false);
+            doiTab(new ProductListFragment(), false);
         }
     }
 
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         androidx.fragment.app.FragmentTransaction tx = fm.beginTransaction();
         if (coHieuUng) {
-            tx.setCustomAnimations(R.anim.tab_vao, R.anim.tab_ra);
+            tx.setCustomAnimations(R.anim.tab_enter, R.anim.tab_exit);
         }
         tx.replace(R.id.fragmentContainer, f)
                 .setReorderingAllowed(true)
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
     public void moManHinh(Fragment f) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .setCustomAnimations(R.anim.man_vao, R.anim.man_ra, R.anim.man_quay_vao, R.anim.man_quay_ra)
+                .setCustomAnimations(R.anim.screen_enter, R.anim.screen_exit, R.anim.screen_pop_enter, R.anim.screen_pop_exit)
                 .replace(R.id.fragmentContainer, f)
                 .setReorderingAllowed(true)
                 .addToBackStack(null)
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
     private void capNhatNutQuayLai() {
         boolean coManHinhTruoc = getSupportFragmentManager().getBackStackEntryCount() > 0;
         if (coManHinhTruoc) {
-            toolbar.setNavigationIcon(R.drawable.ic_quay_lai);
+            toolbar.setNavigationIcon(R.drawable.ic_back);
             toolbar.setNavigationContentDescription(R.string.quay_lai);
         } else {
             toolbar.setNavigationIcon(null);

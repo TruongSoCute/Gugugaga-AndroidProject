@@ -5,16 +5,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:ocop_client/data/api_client.dart';
-import 'package:ocop_client/data/san_pham_repository.dart';
-import 'package:ocop_client/screens/san_pham_screen.dart';
-import 'package:ocop_client/screens/tra_cuu_screen.dart';
+import 'package:ocop_client/data/product_repository.dart';
+import 'package:ocop_client/screens/product_list_screen.dart';
+import 'package:ocop_client/screens/traceability_lookup_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
   testWidgets('Form tra cứu chặn gửi khi mã trống hoặc sai định dạng', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: TraCuuScreen()));
+    await tester.pumpWidget(const MaterialApp(home: TraceabilityLookupScreen()));
 
     await tester.tap(find.text('Xem hành trình lô'));
     await tester.pump();
@@ -41,7 +41,7 @@ void main() {
         );
       }),
     );
-    await tester.pumpWidget(MaterialApp(home: SanPhamScreen(repository: SanPhamRepository(api))));
+    await tester.pumpWidget(MaterialApp(home: ProductListScreen(repository: ProductRepository(api))));
     expect(find.byType(CircularProgressIndicator), findsOneWidget); // trạng thái đang tải
     await tester.pumpAndSettle();
     expect(find.text('Khô cá dứa 500 g'), findsOneWidget);
@@ -53,7 +53,7 @@ void main() {
       baseUrl: 'http://may-chu',
       client: MockClient((req) async => throw http.ClientException('mất mạng')),
     );
-    await tester.pumpWidget(MaterialApp(home: SanPhamScreen(repository: SanPhamRepository(api))));
+    await tester.pumpWidget(MaterialApp(home: ProductListScreen(repository: ProductRepository(api))));
     await tester.pumpAndSettle();
     expect(find.textContaining('Không kết nối được máy chủ'), findsOneWidget);
     expect(find.text('Thử lại'), findsOneWidget);

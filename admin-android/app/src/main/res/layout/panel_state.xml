@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Ba trạng thái khi gọi API (C.1 #8): đang tải / trống / lỗi + Thử lại.
+  Dùng <merge> để include thẳng vào FrameLayout của màn hình (các lớp chồng nhau, Lab A3).
+-->
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/xanh_ocop"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/khungTrong"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/khoang_xl"
+        android:visibility="gone">
+
+        <FrameLayout
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@drawable/bg_card_icon">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_empty" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvTrong"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_md"
+            android:gravity="center"
+            android:text="@string/danh_sach_trong_chung"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="@color/chu_phu" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/khungLoi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/khoang_xl"
+        android:visibility="gone">
+
+        <FrameLayout
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@drawable/bg_card_icon"
+            android:backgroundTint="@color/nen_tu_choi">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_network_error" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvLoi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_md"
+            android:gravity="center"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="@color/do_tu_choi" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnThuLai"
+            style="@style/NutPhuOcop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/khoang_md"
+            android:text="@string/nut_thu_lai" />
+    </LinearLayout>
+</merge>

@@ -15,25 +15,25 @@ import java.util.List;
 import java.util.Map;
 
 import vn.edu.vhu.ltdd.gugugaga.admin.data.ApiService;
-import vn.edu.vhu.ltdd.gugugaga.admin.data.GoiApi;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.BaoCaoDoanhSo;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.BuocTruyXuat;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.DanhSach;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.DonHang;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.KetQuaDangNhap;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.LoSanXuat;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.NhaCungCap;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.PhanAnh;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.SanPham;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauDangNhap;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauDoiTrangThai;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauDuyet;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauTaoLo;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauThemBuoc;
-import vn.edu.vhu.ltdd.gugugaga.admin.model.YeuCauXuLyPhanAnh;
-import vn.edu.vhu.ltdd.gugugaga.admin.util.DinhDang;
-import vn.edu.vhu.ltdd.gugugaga.admin.util.PhanQuyen;
-import vn.edu.vhu.ltdd.gugugaga.admin.util.QuyTacTrangThai;
+import vn.edu.vhu.ltdd.gugugaga.admin.data.ApiCall;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.SalesReport;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.TraceabilityStep;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.DataList;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.Order;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.LoginResult;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.ProductionBatch;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.Supplier;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.IssueReport;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.Product;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.LoginRequest;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.ChangeStatusRequest;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.ReviewRequest;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.CreateBatchRequest;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.AddTraceabilityStepRequest;
+import vn.edu.vhu.ltdd.gugugaga.admin.model.ResolveIssueReportRequest;
+import vn.edu.vhu.ltdd.gugugaga.admin.util.Formatting;
+import vn.edu.vhu.ltdd.gugugaga.admin.util.RolePermissions;
+import vn.edu.vhu.ltdd.gugugaga.admin.util.StatusTransitions;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Response;
@@ -64,14 +64,14 @@ public class ApiContractTest {
     }
 
     private String dangNhap(String email) throws IOException {
-        Response<KetQuaDangNhap> r = api(null).dangNhap(new YeuCauDangNhap(email, "Demo@12345")).execute();
+        Response<LoginResult> r = api(null).dangNhap(new LoginRequest(email, "Demo@12345")).execute();
         assertTrue(r.isSuccessful());
         return r.body().token;
     }
 
     @Test
     public void dangNhapDocDungVaiTro() throws IOException {
-        KetQuaDangNhap kq = api(null).dangNhap(new YeuCauDangNhap("quantri@ocop.example", "Demo@12345")).execute().body();
+        LoginResult kq = api(null).dangNhap(new LoginRequest("quantri@ocop.example", "Demo@12345")).execute().body();
         assertNotNull(kq.token);
         assertEquals(AppConfig.VAI_TRO_QUAN_TRI, kq.nguoiDung.vaiTro);
         assertEquals("quantri@ocop.example", kq.nguoiDung.email);
@@ -79,18 +79,18 @@ public class ApiContractTest {
 
     @Test
     public void saiMatKhauTra401KemThongDiep() throws IOException {
-        Response<KetQuaDangNhap> r = api(null).dangNhap(new YeuCauDangNhap("quantri@ocop.example", "sai-mat-khau")).execute();
+        Response<LoginResult> r = api(null).dangNhap(new LoginRequest("quantri@ocop.example", "sai-mat-khau")).execute();
         assertEquals(401, r.code());
-        assertEquals("Email hoặc mật khẩu không đúng.", GoiApi.thongDiepTuJson(r.errorBody().string()));
+        assertEquals("Email hoặc mật khẩu không đúng.", ApiCall.thongDiepTuJson(r.errorBody().string()));
     }
 
     @Test
     public void danhSachChoDuyetDocDuocModel() throws IOException {
-        DanhSach<SanPham> ds = api(dangNhap("nhanvien@ocop.example"))
+        DataList<Product> ds = api(dangNhap("nhanvien@ocop.example"))
                 .dsSanPhamQuanTri(AppConfig.TRANG_THAI_CHO_DUYET, 1, 100).execute().body();
         assertNotNull(ds);
         assertFalse(ds.duLieu.isEmpty());
-        for (SanPham sp : ds.duLieu) {
+        for (Product sp : ds.duLieu) {
             assertEquals(AppConfig.TRANG_THAI_CHO_DUYET, sp.trangThaiDuyet);
             assertNotNull(sp.ten);
             assertNotNull(sp.tenNhaCungCap);
@@ -103,10 +103,10 @@ public class ApiContractTest {
     @Test
     public void nhanVienKhongDuocDuyet_quanTriDuyetDuoc() throws IOException {
         // Sản phẩm 45 (seed) đang chờ duyệt và thuộc nhà cung cấp đã duyệt.
-        Response<SanPham> nv = api(dangNhap("nhanvien@ocop.example")).duyetSanPham(45, YeuCauDuyet.duyet(4)).execute();
+        Response<Product> nv = api(dangNhap("nhanvien@ocop.example")).duyetSanPham(45, ReviewRequest.duyet(4)).execute();
         assertEquals(403, nv.code());
 
-        Response<SanPham> qt = api(dangNhap("quantri@ocop.example")).duyetSanPham(45, YeuCauDuyet.duyet(4)).execute();
+        Response<Product> qt = api(dangNhap("quantri@ocop.example")).duyetSanPham(45, ReviewRequest.duyet(4)).execute();
         assertEquals(200, qt.code());
         assertEquals(AppConfig.TRANG_THAI_DA_DUYET, qt.body().trangThaiDuyet);
         assertEquals(Integer.valueOf(4), qt.body().hangSao);
@@ -122,13 +122,13 @@ public class ApiContractTest {
     @Test
     public void khachVaNhaCungCapBiAppTuChoi() throws IOException {
         for (String email : new String[]{"khach1@ocop.example", "ncc1@ocop.example"}) {
-            KetQuaDangNhap kq = api(null).dangNhap(new YeuCauDangNhap(email, "Demo@12345")).execute().body();
+            LoginResult kq = api(null).dangNhap(new LoginRequest(email, "Demo@12345")).execute().body();
             assertNotNull(kq);
-            assertFalse(email, PhanQuyen.duocDungAppAdmin(kq.nguoiDung.vaiTro));
+            assertFalse(email, RolePermissions.duocDungAppAdmin(kq.nguoiDung.vaiTro));
         }
-        String vaiTroNv = api(null).dangNhap(new YeuCauDangNhap("nhanvien@ocop.example", "Demo@12345"))
+        String vaiTroNv = api(null).dangNhap(new LoginRequest("nhanvien@ocop.example", "Demo@12345"))
                 .execute().body().nguoiDung.vaiTro;
-        assertTrue(PhanQuyen.duocDungAppAdmin(vaiTroNv));
+        assertTrue(RolePermissions.duocDungAppAdmin(vaiTroNv));
     }
 
     // ---- Đơn hàng ----
@@ -136,22 +136,22 @@ public class ApiContractTest {
     @Test
     public void donHang_danhSachVaChiTietDocDuocModel() throws IOException {
         ApiService nv = api(dangNhap("nhanvien@ocop.example"));
-        DanhSach<DonHang> ds = nv.dsDonHangQuanTri(null, 1, 100).execute().body();
+        DataList<Order> ds = nv.dsDonHangQuanTri(null, 1, 100).execute().body();
         assertNotNull(ds);
         assertFalse(ds.duLieu.isEmpty());
-        DonHang dau = ds.duLieu.get(0);
+        Order dau = ds.duLieu.get(0);
         assertTrue(dau.id > 0);
         assertTrue(dau.tongTien > 0);
         assertNotNull(dau.trangThai);
         assertNotNull(dau.tenSanPhamDau);
 
-        DonHang ct = nv.chiTietDonHang(dau.id).execute().body();
+        Order ct = nv.chiTietDonHang(dau.id).execute().body();
         assertNotNull(ct);
         assertNotNull(ct.tenNguoiNhan);
         assertNotNull(ct.diaChiGiao);
         assertEquals(ct.tienHang + ct.phiGiao, ct.tongTien);
         assertFalse(ct.chiTiet.isEmpty());
-        for (DonHang.DongDon d : ct.chiTiet) {
+        for (Order.DongDon d : ct.chiTiet) {
             assertEquals(20, d.maTruyXuat.length()); // mỗi dòng gắn đúng một lô đã giao
             assertEquals(d.soLuong * d.donGia, d.thanhTien);
         }
@@ -161,36 +161,36 @@ public class ApiContractTest {
 
     @Test
     public void donHang_locTheoTrangThai() throws IOException {
-        DanhSach<DonHang> ds = api(dangNhap("nhanvien@ocop.example"))
-                .dsDonHangQuanTri(QuyTacTrangThai.DON_DA_HUY, 1, 100).execute().body();
+        DataList<Order> ds = api(dangNhap("nhanvien@ocop.example"))
+                .dsDonHangQuanTri(StatusTransitions.DON_DA_HUY, 1, 100).execute().body();
         assertNotNull(ds);
-        for (DonHang d : ds.duLieu) assertEquals(QuyTacTrangThai.DON_DA_HUY, d.trangThai);
+        for (Order d : ds.duLieu) assertEquals(StatusTransitions.DON_DA_HUY, d.trangThai);
     }
 
     @Test
     public void donHang_huyKhongLyDoBi400_nhayCocBi409() throws IOException {
         ApiService nv = api(dangNhap("nhanvien@ocop.example"));
-        List<DonHang> cho = nv.dsDonHangQuanTri(QuyTacTrangThai.DON_CHO_XAC_NHAN, 1, 100).execute().body().duLieu;
+        List<Order> cho = nv.dsDonHangQuanTri(StatusTransitions.DON_CHO_XAC_NHAN, 1, 100).execute().body().duLieu;
         assumeTrue("Không còn đơn CHO_XAC_NHAN (cần db:reset)", !cho.isEmpty());
         int id = cho.get(0).id;
 
-        Response<DonHang> thieuLyDo = nv.doiTrangThaiDon(id, new YeuCauDoiTrangThai("DA_HUY", null)).execute();
+        Response<Order> thieuLyDo = nv.doiTrangThaiDon(id, new ChangeStatusRequest("DA_HUY", null)).execute();
         assertEquals(400, thieuLyDo.code());
-        assertTrue(GoiApi.loiTheoTruong(thieuLyDo.errorBody().string()).containsKey("ghiChu"));
+        assertTrue(ApiCall.loiTheoTruong(thieuLyDo.errorBody().string()).containsKey("ghiChu"));
 
-        Response<DonHang> nhayCoc = nv.doiTrangThaiDon(id, new YeuCauDoiTrangThai("DA_GIAO", null)).execute();
+        Response<Order> nhayCoc = nv.doiTrangThaiDon(id, new ChangeStatusRequest("DA_GIAO", null)).execute();
         assertEquals(409, nhayCoc.code());
     }
 
     @Test
     public void donHang_buocHopLeTheoQuyTacCuaAppThanhCong() throws IOException {
         ApiService nv = api(dangNhap("nhanvien@ocop.example"));
-        List<DonHang> cho = nv.dsDonHangQuanTri(QuyTacTrangThai.DON_DA_XAC_NHAN, 1, 100).execute().body().duLieu;
+        List<Order> cho = nv.dsDonHangQuanTri(StatusTransitions.DON_DA_XAC_NHAN, 1, 100).execute().body().duLieu;
         assumeTrue("Không còn đơn DA_XAC_NHAN (cần db:reset)", !cho.isEmpty());
-        DonHang don = cho.get(0);
+        Order don = cho.get(0);
         // Nút đầu tiên app hiện cho đơn DA_XAC_NHAN là DANG_GIAO: backend phải chấp nhận.
-        String buoc = QuyTacTrangThai.buocTiepDonHang(don.trangThai).get(0);
-        Response<DonHang> r = nv.doiTrangThaiDon(don.id, new YeuCauDoiTrangThai(buoc, null)).execute();
+        String buoc = StatusTransitions.buocTiepDonHang(don.trangThai).get(0);
+        Response<Order> r = nv.doiTrangThaiDon(don.id, new ChangeStatusRequest(buoc, null)).execute();
         assertEquals(200, r.code());
         assertEquals(buoc, r.body().trangThai);
         assertEquals(buoc, r.body().lichSu.get(r.body().lichSu.size() - 1).trangThai);
@@ -201,17 +201,17 @@ public class ApiContractTest {
     @Test
     public void nhaCungCap_danhSachCoCoTuGui_chiTietCoChungNhan() throws IOException {
         ApiService nv = api(dangNhap("nhanvien@ocop.example"));
-        DanhSach<NhaCungCap> ds = nv.dsNhaCungCapQuanTri(null, 1, 100).execute().body();
+        DataList<Supplier> ds = nv.dsNhaCungCapQuanTri(null, 1, 100).execute().body();
         assertNotNull(ds);
         boolean coTuGui = false;
-        for (NhaCungCap n : ds.duLieu) {
+        for (Supplier n : ds.duLieu) {
             assertNotNull(n.ten);
             assertNotNull(n.trangThaiDuyet);
             coTuGui |= n.tuGui;
         }
         assertTrue("seed có hồ sơ do nhà cung cấp tự gửi", coTuGui);
 
-        NhaCungCap ct = nv.chiTietNhaCungCap(1).execute().body();
+        Supplier ct = nv.chiTietNhaCungCap(1).execute().body();
         assertNotNull(ct);
         assertNotNull(ct.anhCoSoUrl);
         assertFalse(ct.chungNhan.isEmpty());
@@ -221,14 +221,14 @@ public class ApiContractTest {
 
     @Test
     public void nhaCungCap_nhanVienDuyetBi403_duyetLaiBi409() throws IOException {
-        Response<NhaCungCap> nv = api(dangNhap("nhanvien@ocop.example"))
-                .duyetNhaCungCap(11, YeuCauDuyet.duyetHoSo()).execute();
+        Response<Supplier> nv = api(dangNhap("nhanvien@ocop.example"))
+                .duyetNhaCungCap(11, ReviewRequest.duyetHoSo()).execute();
         assertEquals(403, nv.code());
         // Hồ sơ 1 đã duyệt: duyệt lần nữa bị 409, dữ liệu không đổi.
-        Response<NhaCungCap> qt = api(dangNhap("quantri@ocop.example"))
-                .duyetNhaCungCap(1, YeuCauDuyet.duyetHoSo()).execute();
+        Response<Supplier> qt = api(dangNhap("quantri@ocop.example"))
+                .duyetNhaCungCap(1, ReviewRequest.duyetHoSo()).execute();
         assertEquals(409, qt.code());
-        assertNotNull(GoiApi.thongDiepTuJson(qt.errorBody().string()));
+        assertNotNull(ApiCall.thongDiepTuJson(qt.errorBody().string()));
     }
 
     // ---- Lô và QR ----
@@ -236,14 +236,14 @@ public class ApiContractTest {
     @Test
     public void lo_danhSachVaChiTietCoDuongDanQr() throws IOException {
         ApiService nv = api(dangNhap("nhanvien@ocop.example"));
-        DanhSach<LoSanXuat> ds = nv.dsLo(1, 100).execute().body();
+        DataList<ProductionBatch> ds = nv.dsLo(1, 100).execute().body();
         assertNotNull(ds);
         assertFalse(ds.duLieu.isEmpty());
-        LoSanXuat dau = ds.duLieu.get(0);
+        ProductionBatch dau = ds.duLieu.get(0);
         assertEquals(20, dau.maTruyXuat.length());
         assertNotNull(dau.tenSanPham);
 
-        LoSanXuat ct = nv.chiTietLo(dau.id).execute().body();
+        ProductionBatch ct = nv.chiTietLo(dau.id).execute().body();
         assertNotNull(ct);
         assertTrue(ct.duongDanTruyXuat.endsWith("/truy-xuat/" + ct.maTruyXuat));
         assertEquals(dau.soBuoc, ct.cacBuoc.size());
@@ -252,15 +252,15 @@ public class ApiContractTest {
     @Test
     public void lo_taoLoRoiThemBuoc_thoiDiemCoMuiGioDuocChapNhan() throws IOException {
         ApiService nv = api(dangNhap("nhanvien@ocop.example"));
-        Response<LoSanXuat> tao = nv.taoLo(new YeuCauTaoLo(1, "2026-10-01", "2027-10-01", 50,
+        Response<ProductionBatch> tao = nv.taoLo(new CreateBatchRequest(1, "2026-10-01", "2027-10-01", 50,
                 "Tổ kiểm thử app Admin", null, null)).execute();
         assertEquals(201, tao.code());
-        LoSanXuat lo = tao.body();
+        ProductionBatch lo = tao.body();
         assertEquals(20, lo.maTruyXuat.length()); // server sinh mã
         assertNotNull(lo.duongDanTruyXuat);
 
-        Response<BuocTruyXuat> buoc = nv.themBuoc(lo.id, new YeuCauThemBuoc("Thu hoạch",
-                DinhDang.thoiDiemIso(2026, 9, 30, 7, 0), "Kiểm thử", null)).execute();
+        Response<TraceabilityStep> buoc = nv.themBuoc(lo.id, new AddTraceabilityStepRequest("Thu hoạch",
+                Formatting.thoiDiemIso(2026, 9, 30, 7, 0), "Kiểm thử", null)).execute();
         assertEquals(201, buoc.code());
         assertEquals(1, buoc.body().thuTu);
         assertEquals("2026-09-30T00:00:00.000Z", buoc.body().thoiDiem); // 07:00 +07:00 = 00:00 UTC
@@ -268,10 +268,10 @@ public class ApiContractTest {
 
     @Test
     public void lo_hanTruocNgaySanXuatBi400DungO() throws IOException {
-        Response<LoSanXuat> r = api(dangNhap("nhanvien@ocop.example")).taoLo(new YeuCauTaoLo(1,
+        Response<ProductionBatch> r = api(dangNhap("nhanvien@ocop.example")).taoLo(new CreateBatchRequest(1,
                 "2026-10-01", "2026-09-01", 50, "Tổ A", null, null)).execute();
         assertEquals(400, r.code());
-        Map<String, String> loi = GoiApi.loiTheoTruong(r.errorBody().string());
+        Map<String, String> loi = ApiCall.loiTheoTruong(r.errorBody().string());
         assertTrue(loi.containsKey("hanSuDung"));
     }
 
@@ -280,40 +280,40 @@ public class ApiContractTest {
     @Test
     public void phanAnh_danhSachVaChiTiet() throws IOException {
         ApiService nv = api(dangNhap("nhanvien@ocop.example"));
-        DanhSach<PhanAnh> ds = nv.dsPhanAnh(null, 1, 100).execute().body();
+        DataList<IssueReport> ds = nv.dsPhanAnh(null, 1, 100).execute().body();
         assertNotNull(ds);
         assertFalse(ds.duLieu.isEmpty());
-        PhanAnh dau = ds.duLieu.get(0);
+        IssueReport dau = ds.duLieu.get(0);
         assertNotNull(dau.tenSanPham);
         assertNotNull(dau.loai);
-        PhanAnh ct = nv.chiTietPhanAnh(dau.id).execute().body();
+        IssueReport ct = nv.chiTietPhanAnh(dau.id).execute().body();
         assertNotNull(ct);
         assertNotNull(ct.emailNguoiBao);
 
-        for (PhanAnh p : nv.dsPhanAnh(QuyTacTrangThai.PA_MOI, 1, 100).execute().body().duLieu) {
-            assertEquals(QuyTacTrangThai.PA_MOI, p.trangThai);
+        for (IssueReport p : nv.dsPhanAnh(StatusTransitions.PA_MOI, 1, 100).execute().body().duLieu) {
+            assertEquals(StatusTransitions.PA_MOI, p.trangThai);
         }
     }
 
     @Test
     public void phanAnh_ketThucKhongGhiKetQuaBi400() throws IOException {
         ApiService nv = api(dangNhap("nhanvien@ocop.example"));
-        List<PhanAnh> moi = nv.dsPhanAnh(QuyTacTrangThai.PA_MOI, 1, 100).execute().body().duLieu;
+        List<IssueReport> moi = nv.dsPhanAnh(StatusTransitions.PA_MOI, 1, 100).execute().body().duLieu;
         assumeTrue("Không còn phản ánh MOI", !moi.isEmpty());
-        Response<PhanAnh> r = nv.xuLyPhanAnh(moi.get(0).id,
-                new YeuCauXuLyPhanAnh(QuyTacTrangThai.PA_DA_XU_LY, null)).execute();
+        Response<IssueReport> r = nv.xuLyPhanAnh(moi.get(0).id,
+                new ResolveIssueReportRequest(StatusTransitions.PA_DA_XU_LY, null)).execute();
         assertEquals(400, r.code());
-        assertTrue(GoiApi.loiTheoTruong(r.errorBody().string()).containsKey("ketQuaXuLy"));
+        assertTrue(ApiCall.loiTheoTruong(r.errorBody().string()).containsKey("ketQuaXuLy"));
     }
 
     @Test
     public void phanAnh_daKetThucKhongQuayLaiDuoc() throws IOException {
         ApiService nv = api(dangNhap("nhanvien@ocop.example"));
-        List<PhanAnh> xong = nv.dsPhanAnh(QuyTacTrangThai.PA_DA_XU_LY, 1, 100).execute().body().duLieu;
+        List<IssueReport> xong = nv.dsPhanAnh(StatusTransitions.PA_DA_XU_LY, 1, 100).execute().body().duLieu;
         assumeTrue(!xong.isEmpty());
-        assertTrue(QuyTacTrangThai.buocTiepPhanAnh(QuyTacTrangThai.PA_DA_XU_LY).isEmpty());
-        Response<PhanAnh> r = nv.xuLyPhanAnh(xong.get(0).id,
-                new YeuCauXuLyPhanAnh(QuyTacTrangThai.PA_DANG_XU_LY, null)).execute();
+        assertTrue(StatusTransitions.buocTiepPhanAnh(StatusTransitions.PA_DA_XU_LY).isEmpty());
+        Response<IssueReport> r = nv.xuLyPhanAnh(xong.get(0).id,
+                new ResolveIssueReportRequest(StatusTransitions.PA_DANG_XU_LY, null)).execute();
         assertEquals(409, r.code());
     }
 
@@ -323,20 +323,20 @@ public class ApiContractTest {
     public void baoCao_chiQuanTriXemDuoc() throws IOException {
         assertEquals(403, api(dangNhap("nhanvien@ocop.example")).baoCaoDoanhSo(null, null).execute().code());
 
-        BaoCaoDoanhSo bc = api(dangNhap("quantri@ocop.example")).baoCaoDoanhSo(null, null).execute().body();
+        SalesReport bc = api(dangNhap("quantri@ocop.example")).baoCaoDoanhSo(null, null).execute().body();
         assertNotNull(bc);
         assertTrue(bc.tong.doanhSo > 0);
         assertEquals(3, bc.theoHangSao.size()); // luôn đủ 3, 4, 5 sao
         assertFalse(bc.theoVung.isEmpty());
         assertTrue(bc.nhaCungCapBanChay.size() <= 5);
         long cong = 0;
-        for (BaoCaoDoanhSo.TheoVung v : bc.theoVung) cong += v.doanhSo;
+        for (SalesReport.TheoVung v : bc.theoVung) cong += v.doanhSo;
         assertEquals(bc.tong.doanhSo, cong);
     }
 
     @Test
     public void baoCao_tuSauDenBi400() throws IOException {
-        Response<BaoCaoDoanhSo> r = api(dangNhap("quantri@ocop.example"))
+        Response<SalesReport> r = api(dangNhap("quantri@ocop.example"))
                 .baoCaoDoanhSo("2026-12-31", "2026-01-01").execute();
         assertEquals(400, r.code());
     }

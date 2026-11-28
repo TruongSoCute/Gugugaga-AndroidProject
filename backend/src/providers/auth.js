@@ -37,14 +37,14 @@ function createAuth({ db, config }) {
       }
       const id = Number(payload.sub);
       const { rows } = await db.query(
-        'SELECT id, email, ho_ten, vai_tro, dang_hoat_dong FROM nguoi_dung WHERE id = $1',
+        'SELECT id, email, full_name, role, is_active FROM users WHERE id = $1',
         [Number.isSafeInteger(id) ? id : 0],
       );
       const user = rows[0];
-      if (!user || !user.dang_hoat_dong) {
+      if (!user || !user.is_active) {
         throw new HttpError(401, 'TOKEN_KHONG_HOP_LE', 'Tài khoản không tồn tại hoặc đã bị khóa.');
       }
-      req.user = { id: user.id, email: user.email, hoTen: user.ho_ten, vaiTro: user.vai_tro };
+      req.user = { id: user.id, email: user.email, hoTen: user.full_name, vaiTro: user.role };
       next();
     } catch (err) {
       next(err);

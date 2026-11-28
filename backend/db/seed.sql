@@ -8,7 +8,7 @@
 -- 100 lô x 4 bước truy xuất, 50 đơn hàng.
 --
 -- Mã truy xuất được sinh ngẫu nhiên mỗi lần chạy, nên không ghi cố định trong tài liệu.
--- Xem mã bằng API quản trị GET /lo-san-xuat hoặc truy vấn bảng lo_san_xuat.
+-- Xem mã bằng API quản trị GET /lo-san-xuat hoặc truy vấn bảng production_batches.
 --
 -- Tài khoản thử nghiệm (mật khẩu chung Demo@12345, đổi khi triển khai thật):
 --   quantri@ocop.example   QUAN_TRI
@@ -20,15 +20,15 @@
 BEGIN;
 
 TRUNCATE
-  lich_su_trang_thai_don, anh_danh_gia, danh_gia, bao_cao_vi_pham, chi_tiet_don,
-  don_hang, gio_hang, yeu_thich, theo_doi_nha_cung_cap, buoc_truy_xuat, lo_san_xuat,
-  san_pham, chung_nhan, nha_cung_cap, nguoi_dung, vung_nguyen_lieu
+  order_status_history, review_images, reviews, issue_reports, order_items,
+  orders, cart_items, product_favorites, supplier_follows, traceability_steps, production_batches,
+  products, certificates, suppliers, users, sourcing_regions
 RESTART IDENTITY CASCADE;
 
 -- ---------------------------------------------------------------------------
 -- Vùng nguyên liệu (tọa độ gần đúng trung tâm khu vực)
 -- ---------------------------------------------------------------------------
-INSERT INTO vung_nguyen_lieu (ten, mo_ta, vi_do, kinh_do) VALUES
+INSERT INTO sourcing_regions (name, description, latitude, longitude) VALUES
   ('Cần Giờ',          'Vùng ven biển rừng ngập mặn: hải sản khô, muối, yến.', 10.411400, 106.953900),
   ('Củ Chi',           'Vùng nông nghiệp ngoại thành: rau, bò sữa, bánh tráng.', 11.000000, 106.500000),
   ('Bà Rịa – Vũng Tàu','Vùng hạt điều, hồ tiêu và hải sản.',                   10.541700, 107.242900),
@@ -38,7 +38,7 @@ INSERT INTO vung_nguyen_lieu (ten, mo_ta, vi_do, kinh_do) VALUES
 -- ---------------------------------------------------------------------------
 -- Người dùng. Mật khẩu: Demo@12345 (bcrypt, cost 10)
 -- ---------------------------------------------------------------------------
-INSERT INTO nguoi_dung (email, mat_khau_hash, ho_ten, so_dien_thoai, vai_tro) VALUES
+INSERT INTO users (email, password_hash, full_name, phone_number, role) VALUES
   ('quantri@ocop.example',  '$2b$10$WE2BlejJLkb/aMvR9DcAFetiSsx5EzCD34Xs1qhpy14jwx3av97rq', 'Quản trị viên mẫu', '0900000001', 'QUAN_TRI'),
   ('nhanvien@ocop.example', '$2b$10$WE2BlejJLkb/aMvR9DcAFetiSsx5EzCD34Xs1qhpy14jwx3av97rq', 'Nhân viên mẫu',     '0900000002', 'NHAN_VIEN'),
   ('khach1@ocop.example',   '$2b$10$WE2BlejJLkb/aMvR9DcAFetiSsx5EzCD34Xs1qhpy14jwx3av97rq', 'Khách mẫu 1',       '0911000001', 'KHACH'),
@@ -52,9 +52,9 @@ INSERT INTO nguoi_dung (email, mat_khau_hash, ho_ten, so_dien_thoai, vai_tro) VA
 -- ---------------------------------------------------------------------------
 -- Nhà cung cấp: 1–10 đã duyệt, 11 chờ duyệt, 12 bị từ chối.
 -- ---------------------------------------------------------------------------
-INSERT INTO nha_cung_cap
-  (ten, nguoi_dai_dien, so_dien_thoai, dia_chi, vung_id, anh_co_so_url,
-   trang_thai_duyet, ly_do_tu_choi, nguoi_duyet_id, duyet_luc, nguoi_tao_id, tao_luc)
+INSERT INTO suppliers
+  (name, representative_name, phone_number, address, sourcing_region_id, facility_image_url,
+   approval_status, rejection_reason, reviewed_by_user_id, reviewed_at, created_by_user_id, created_at)
 VALUES
   ('HTX Hải sản khô Cần Giờ (mẫu)',  'Nguyễn Văn An',  '0281000001', 'Xã Long Hòa, huyện Cần Giờ',          1, 'https://picsum.photos/seed/ocop-ncc-1/800/500',  'DA_DUYET', NULL, 1, '2026-02-01 09:00+07', 2, '2026-01-20 09:00+07'),
   ('Cơ sở Muối sạch Cần Giờ (mẫu)',  'Trần Thị Bình',  '0281000002', 'Xã Lý Nhơn, huyện Cần Giờ',           1, 'https://picsum.photos/seed/ocop-ncc-2/800/500',  'DA_DUYET', NULL, 1, '2026-02-01 09:30+07', 2, '2026-01-20 10:00+07'),
@@ -70,13 +70,13 @@ VALUES
   ('Cơ sở Gạo Bình Chánh (mẫu)',     'Mai Thị Ngọc',   '0281000012', 'Xã Tân Nhựt, huyện Bình Chánh',       5, 'https://picsum.photos/seed/ocop-ncc-12/800/500', 'TU_CHOI', 'Ảnh giấy chứng nhận OCOP không đọc được, cần nộp lại bản rõ nét.', 1, '2026-09-25 09:00+07', 2, '2026-09-21 09:00+07');
 
 -- Gắn hồ sơ với tài khoản nhà cung cấp (đăng nhập app Client).
-UPDATE nha_cung_cap SET tai_khoan_id = nd.id
-FROM nguoi_dung nd
-WHERE (nha_cung_cap.id, nd.email) IN ((1, 'ncc1@ocop.example'), (11, 'ncc11@ocop.example'));
+UPDATE suppliers SET account_id = nd.id
+FROM users nd
+WHERE (suppliers.id, nd.email) IN ((1, 'ncc1@ocop.example'), (11, 'ncc11@ocop.example'));
 
 -- Mỗi nhà cung cấp có một chứng nhận OCOP và một chứng nhận an toàn thực phẩm.
 -- Chứng nhận OCOP của nhà cung cấp 10 đã hết hạn (dùng để thử chức năng mở rộng).
-INSERT INTO chung_nhan (nha_cung_cap_id, loai, so_hieu, ngay_cap, ngay_het_han, anh_url)
+INSERT INTO certificates (supplier_id, certificate_type, certificate_number, issued_on, expires_on, image_url)
 SELECT n,
        'OCOP',
        'MAU-OCOP-' || lpad(n::text, 3, '0'),
@@ -98,11 +98,11 @@ FROM generate_series(1, 12) AS n;
 -- Sản phẩm của NCC 1–10 phần lớn đã duyệt; 3 sản phẩm chờ duyệt/bị từ chối;
 -- sản phẩm của NCC 11–12 chưa được duyệt.
 -- ---------------------------------------------------------------------------
-CREATE TEMP TABLE tmp_san_pham (
-  stt INTEGER, ncc INTEGER, ten TEXT, don_vi TEXT, gia BIGINT, hang_sao SMALLINT, mo_ta TEXT
+CREATE TEMP TABLE sample_products (
+  stt INTEGER, ncc INTEGER, name TEXT, don_vi TEXT, price_vnd BIGINT, ocop_rating SMALLINT, description TEXT
 ) ON COMMIT DROP;
 
-INSERT INTO tmp_san_pham VALUES
+INSERT INTO sample_products VALUES
   ( 1,  1, 'Khô cá dứa 500 g',                    'gói',  320000, 4, 'Cá dứa làm sạch, phơi nắng tự nhiên.'),
   ( 2,  1, 'Khô cá dứa một nắng 250 g',           'gói',  180000, 4, 'Cá dứa phơi một nắng, giữ độ mềm.'),
   ( 3,  1, 'Khô cá đù 500 g',                     'gói',  150000, 3, 'Cá đù phơi khô, đóng gói hút chân không.'),
@@ -164,11 +164,11 @@ INSERT INTO tmp_san_pham VALUES
   (59, 12, 'Bột gạo lứt 500 g',                   'gói',   60000, NULL, 'Bột gạo lứt rang.'),
   (60, 12, 'Cốm gạo 300 g',                       'gói',   45000, NULL, 'Cốm gạo rang.');
 
-INSERT INTO san_pham
-  (nha_cung_cap_id, ten, mo_ta, don_vi_tinh, gia, hang_sao, anh_url,
-   trang_thai_duyet, ly_do_tu_choi, nguoi_duyet_id, duyet_luc, nguoi_tao_id, tao_luc)
-SELECT ncc, ten, mo_ta, don_vi, gia,
-       CASE WHEN stt IN (45, 50) OR ncc > 10 THEN NULL ELSE hang_sao END,
+INSERT INTO products
+  (supplier_id, name, description, unit, price_vnd, ocop_rating, image_url,
+   approval_status, rejection_reason, reviewed_by_user_id, reviewed_at, created_by_user_id, created_at)
+SELECT ncc, name, description, don_vi, price_vnd,
+       CASE WHEN stt IN (45, 50) OR ncc > 10 THEN NULL ELSE ocop_rating END,
        'https://picsum.photos/seed/ocop-sp-' || stt || '/600/600',
        CASE
          WHEN stt = 50 THEN 'TU_CHOI'
@@ -180,23 +180,23 @@ SELECT ncc, ten, mo_ta, don_vi, gia,
        CASE WHEN stt = 45 OR ncc > 10 THEN NULL ELSE TIMESTAMPTZ '2026-02-10 09:00+07' + (stt || ' hours')::interval END,
        2,
        TIMESTAMPTZ '2026-02-06 09:00+07' + (stt || ' hours')::interval
-FROM tmp_san_pham
+FROM sample_products
 ORDER BY stt;
 
 -- ---------------------------------------------------------------------------
 -- 100 lô cho 48 sản phẩm đã duyệt (mỗi sản phẩm 2–3 lô), mỗi lô 4 bước.
 -- Mã truy xuất: 20 ký tự hex in hoa, sinh ngẫu nhiên.
 -- ---------------------------------------------------------------------------
-CREATE TEMP TABLE tmp_sp_duyet ON COMMIT DROP AS
-SELECT sp.id, sp.nha_cung_cap_id, ncc.vung_id,
+CREATE TEMP TABLE approved_products ON COMMIT DROP AS
+SELECT sp.id, sp.supplier_id, ncc.sourcing_region_id,
        row_number() OVER (ORDER BY sp.id) - 1 AS chi_so
-FROM san_pham sp
-JOIN nha_cung_cap ncc ON ncc.id = sp.nha_cung_cap_id
-WHERE sp.trang_thai_duyet = 'DA_DUYET' AND ncc.trang_thai_duyet = 'DA_DUYET';
+FROM products sp
+JOIN suppliers ncc ON ncc.id = sp.supplier_id
+WHERE sp.approval_status = 'DA_DUYET' AND ncc.approval_status = 'DA_DUYET';
 
-INSERT INTO lo_san_xuat
-  (san_pham_id, ma_truy_xuat, ngay_san_xuat, han_su_dung, so_luong, so_luong_con,
-   vung_nguyen_lieu_id, nguoi_san_xuat, anh_hien_truong_url, ghi_chu, nguoi_tao_id, tao_luc)
+INSERT INTO production_batches
+  (product_id, traceability_code, produced_on, expires_on, quantity, available_quantity,
+   sourcing_region_id, producer_name, site_image_url, notes, created_by_user_id, created_at)
 SELECT sp.id,
        upper(substr(md5(gen_random_uuid()::text), 1, 20)),
        DATE '2026-03-01' + i,
@@ -204,37 +204,37 @@ SELECT sp.id,
        100 + (i * 37) % 200,
        100 + (i * 37) % 200,
        -- Lô 7, 27, 47... lấy nguyên liệu từ vùng khác để minh họa doanh số theo vùng của lô.
-       CASE WHEN i % 20 = 7 THEN (sp.vung_id % 4) + 1 ELSE sp.vung_id END,
+       CASE WHEN i % 20 = 7 THEN (sp.sourcing_region_id % 4) + 1 ELSE sp.sourcing_region_id END,
        'Tổ sản xuất ' || chr(65 + (i % 5)) || ' (mẫu)',
        'https://picsum.photos/seed/ocop-lo-' || i || '/800/500',
        'Lô mẫu số ' || i,
        2,
        TIMESTAMPTZ '2026-03-01 08:00+07' + (i || ' days')::interval
 FROM generate_series(1, 100) AS i
-JOIN tmp_sp_duyet sp ON sp.chi_so = (i - 1) % (SELECT count(*) FROM tmp_sp_duyet)
+JOIN approved_products sp ON sp.chi_so = (i - 1) % (SELECT count(*) FROM approved_products)
 ORDER BY i;
 
-INSERT INTO buoc_truy_xuat (lo_id, thu_tu, ten_buoc, mo_ta, thoi_diem, anh_url)
-SELECT lo.id, b.thu_tu, b.ten_buoc,
-       b.ten_buoc || ' cho ' || sp.ten || ' – ' || lo.ghi_chu || ' (dữ liệu mẫu).',
-       lo.ngay_san_xuat::timestamp AT TIME ZONE 'Asia/Ho_Chi_Minh' + b.lech,
-       'https://picsum.photos/seed/ocop-lo-' || lo.id || '-b' || b.thu_tu || '/800/500'
-FROM lo_san_xuat lo
-JOIN san_pham sp ON sp.id = lo.san_pham_id
+INSERT INTO traceability_steps (batch_id, position, name, description, occurred_at, image_url)
+SELECT lo.id, b.position, b.name,
+       b.name || ' cho ' || sp.name || ' – ' || lo.notes || ' (dữ liệu mẫu).',
+       lo.produced_on::timestamp AT TIME ZONE 'Asia/Ho_Chi_Minh' + b.lech,
+       'https://picsum.photos/seed/ocop-lo-' || lo.id || '-b' || b.position || '/800/500'
+FROM production_batches lo
+JOIN products sp ON sp.id = lo.product_id
 CROSS JOIN (VALUES
   (1, 'Thu hoạch',  INTERVAL '-3 days 7 hours'),
   (2, 'Sơ chế',     INTERVAL '-2 days 8 hours'),
   (3, 'Đóng gói',   INTERVAL '9 hours'),
   (4, 'Kiểm nghiệm',INTERVAL '2 days 10 hours')
-) AS b (thu_tu, ten_buoc, lech)
-ORDER BY lo.id, b.thu_tu;
+) AS b (position, name, lech)
+ORDER BY lo.id, b.position;
 
 -- ---------------------------------------------------------------------------
 -- 50 đơn hàng của 5 khách, mỗi đơn 1–3 dòng; mỗi dòng ghi lô thực tế đã giao.
 -- ---------------------------------------------------------------------------
-INSERT INTO don_hang
-  (khach_id, trang_thai, hinh_thuc_giao, phi_giao, tien_hang, tong_tien,
-   ten_nguoi_nhan, sdt_nguoi_nhan, dia_chi_giao, tao_luc, cap_nhat_luc)
+INSERT INTO orders
+  (customer_id, status, delivery_method, delivery_fee_vnd, subtotal_vnd, total_vnd,
+   recipient_name, recipient_phone, delivery_address, created_at, updated_at)
 SELECT 3 + (n % 5),
        (ARRAY['DA_NHAN','DA_NHAN','DA_NHAN','DA_NHAN','DA_GIAO','DA_GIAO',
               'DANG_GIAO','DA_XAC_NHAN','CHO_XAC_NHAN','DA_HUY'])[(n % 10) + 1],
@@ -251,72 +251,72 @@ SELECT 3 + (n % 5),
 FROM generate_series(1, 50) AS n
 ORDER BY n;
 
-INSERT INTO chi_tiet_don (don_hang_id, san_pham_id, lo_id, so_luong, don_gia)
-SELECT dh.id, lo.san_pham_id, lo.id, 1 + (dh.id + k) % 3, sp.gia
-FROM don_hang dh
+INSERT INTO order_items (order_id, product_id, batch_id, quantity, unit_price_vnd)
+SELECT dh.id, lo.product_id, lo.id, 1 + (dh.id + k) % 3, sp.price_vnd
+FROM orders dh
 CROSS JOIN generate_series(1, 3) AS k
-JOIN lo_san_xuat lo ON lo.id = ((dh.id * 7 + k * 13) % 100) + 1
-JOIN san_pham sp ON sp.id = lo.san_pham_id
+JOIN production_batches lo ON lo.id = ((dh.id * 7 + k * 13) % 100) + 1
+JOIN products sp ON sp.id = lo.product_id
 WHERE k <= 1 + dh.id % 3
 ORDER BY dh.id, k;
 
-UPDATE don_hang dh
-SET tien_hang = t.tien_hang,
-    tong_tien = t.tien_hang + dh.phi_giao
+UPDATE orders dh
+SET subtotal_vnd = t.subtotal_vnd,
+    total_vnd = t.subtotal_vnd + dh.delivery_fee_vnd
 FROM (
-  SELECT don_hang_id, sum(so_luong * don_gia) AS tien_hang
-  FROM chi_tiet_don GROUP BY don_hang_id
+  SELECT order_id, sum(quantity * unit_price_vnd) AS subtotal_vnd
+  FROM order_items GROUP BY order_id
 ) t
-WHERE t.don_hang_id = dh.id;
+WHERE t.order_id = dh.id;
 
 -- Trừ tồn của lô theo các đơn chưa hủy.
-UPDATE lo_san_xuat lo
-SET so_luong_con = lo.so_luong - t.da_ban
+UPDATE production_batches lo
+SET available_quantity = lo.quantity - t.da_ban
 FROM (
-  SELECT ct.lo_id, sum(ct.so_luong) AS da_ban
-  FROM chi_tiet_don ct
-  JOIN don_hang dh ON dh.id = ct.don_hang_id
-  WHERE dh.trang_thai <> 'DA_HUY'
-  GROUP BY ct.lo_id
+  SELECT ct.batch_id, sum(ct.quantity) AS da_ban
+  FROM order_items ct
+  JOIN orders dh ON dh.id = ct.order_id
+  WHERE dh.status <> 'DA_HUY'
+  GROUP BY ct.batch_id
 ) t
-WHERE t.lo_id = lo.id;
+WHERE t.batch_id = lo.id;
 
 -- Lịch sử trạng thái: đi lần lượt từ CHO_XAC_NHAN tới trạng thái hiện tại.
-INSERT INTO lich_su_trang_thai_don (don_hang_id, trang_thai, ghi_chu, nguoi_thuc_hien_id, thoi_diem)
-SELECT dh.id, s.trang_thai, 'Dữ liệu mẫu',
-       CASE WHEN s.trang_thai IN ('CHO_XAC_NHAN', 'DA_NHAN') THEN dh.khach_id ELSE 2 END,
-       dh.tao_luc + ((s.buoc - 1) * 6 || ' hours')::interval
-FROM don_hang dh
+INSERT INTO order_status_history (order_id, status, notes, changed_by_user_id, changed_at)
+SELECT dh.id, s.status, 'Dữ liệu mẫu',
+       CASE WHEN s.status IN ('CHO_XAC_NHAN', 'DA_NHAN') THEN dh.customer_id ELSE 2 END,
+       dh.created_at + ((s.buoc - 1) * 6 || ' hours')::interval
+FROM orders dh
 CROSS JOIN LATERAL unnest(
-  CASE dh.trang_thai
+  CASE dh.status
     WHEN 'DA_HUY' THEN ARRAY['CHO_XAC_NHAN', 'DA_HUY']
     ELSE (ARRAY['CHO_XAC_NHAN','DA_XAC_NHAN','DANG_GIAO','DA_GIAO','DA_NHAN'])[1:
-           array_position(ARRAY['CHO_XAC_NHAN','DA_XAC_NHAN','DANG_GIAO','DA_GIAO','DA_NHAN'], dh.trang_thai)]
+           array_position(ARRAY['CHO_XAC_NHAN','DA_XAC_NHAN','DANG_GIAO','DA_GIAO','DA_NHAN'], dh.status)]
   END
-) WITH ORDINALITY AS s (trang_thai, buoc)
+) WITH ORDINALITY AS s (status, buoc)
 ORDER BY dh.id, s.buoc;
 
 -- ---------------------------------------------------------------------------
 -- Tương tác: đánh giá cho đơn đã nhận, báo cáo vi phạm, yêu thích, theo dõi, giỏ.
 -- ---------------------------------------------------------------------------
-INSERT INTO danh_gia (khach_id, san_pham_id, don_hang_id, so_sao, noi_dung, tao_luc)
+INSERT INTO reviews (customer_id, product_id, order_id, rating, comment, created_at)
 SELECT DISTINCT ON (dh.id)
-       dh.khach_id, ct.san_pham_id, dh.id, 3 + dh.id % 3,
+       dh.customer_id, ct.product_id, dh.id, 3 + dh.id % 3,
        (ARRAY['Đúng mô tả, đóng gói cẩn thận.', 'Hàng tốt, giao hơi chậm.', 'Rất hài lòng, sẽ mua lại.'])[(dh.id % 3) + 1],
-       dh.cap_nhat_luc + INTERVAL '1 day'
-FROM don_hang dh
-JOIN chi_tiet_don ct ON ct.don_hang_id = dh.id
-WHERE dh.trang_thai = 'DA_NHAN'
+       dh.updated_at + INTERVAL '1 day'
+FROM orders dh
+JOIN order_items ct ON ct.order_id = dh.id
+WHERE dh.status = 'DA_NHAN'
 ORDER BY dh.id, ct.id;
 
-INSERT INTO anh_danh_gia (danh_gia_id, anh_url)
+INSERT INTO review_images (review_id, image_url)
 SELECT id, 'https://picsum.photos/seed/ocop-dg-' || id || '/600/600'
-FROM danh_gia WHERE id % 2 = 1;
+FROM reviews WHERE id % 2 = 1;
 
-INSERT INTO bao_cao_vi_pham
-  (nguoi_bao_id, san_pham_id, lo_id, loai, noi_dung, anh_url, trang_thai,
-   ket_qua_xu_ly, nguoi_xu_ly_id, xu_ly_luc, tao_luc)
-SELECT dh.khach_id, ct.san_pham_id, ct.lo_id,
+INSERT INTO issue_reports
+  (reporter_id, product_id, batch_id, report_type, description, image_url, status,
+   resolution, handled_by_user_id, handled_at, created_at)
+SELECT dh.customer_id, ct.product_id, ct.batch_id,
        (ARRAY['SAI_MO_TA', 'HANG_GIA', 'SAI_MO_TA', 'KHAC', 'HANG_GIA'])[r.stt],
        (ARRAY['Trọng lượng thực tế thấp hơn trên nhãn.',
               'Tem QR trên bao bì bị dán đè, nghi hàng giả.',
@@ -328,26 +328,26 @@ SELECT dh.khach_id, ct.san_pham_id, ct.lo_id,
        (ARRAY[NULL, NULL, 'Đã yêu cầu nhà cung cấp cập nhật ảnh mô tả.',
               'Lỗi do vận chuyển, không phải hàng giả.', NULL])[r.stt],
        CASE WHEN r.stt IN (2, 3, 4) THEN 2 END,
-       CASE WHEN r.stt IN (3, 4) THEN dh.cap_nhat_luc + INTERVAL '3 days' END,
-       dh.cap_nhat_luc + INTERVAL '2 days'
-FROM (VALUES (1, 1), (2, 2), (3, 3), (4, 4), (5, 11)) AS r (stt, don_hang_id)
-JOIN don_hang dh ON dh.id = r.don_hang_id
+       CASE WHEN r.stt IN (3, 4) THEN dh.updated_at + INTERVAL '3 days' END,
+       dh.updated_at + INTERVAL '2 days'
+FROM (VALUES (1, 1), (2, 2), (3, 3), (4, 4), (5, 11)) AS r (stt, order_id)
+JOIN orders dh ON dh.id = r.order_id
 JOIN LATERAL (
-  SELECT san_pham_id, lo_id FROM chi_tiet_don WHERE don_hang_id = dh.id ORDER BY id LIMIT 1
+  SELECT product_id, batch_id FROM order_items WHERE order_id = dh.id ORDER BY id LIMIT 1
 ) ct ON TRUE
 ORDER BY r.stt;
 
-INSERT INTO yeu_thich (nguoi_dung_id, san_pham_id)
+INSERT INTO product_favorites (user_id, product_id)
 SELECT u, sp FROM generate_series(3, 7) AS u
 CROSS JOIN LATERAL (VALUES (1 + (u * 7) % 44), (1 + (u * 11) % 44), (11)) AS v (sp)
 ON CONFLICT DO NOTHING;
 
-INSERT INTO theo_doi_nha_cung_cap (nguoi_dung_id, nha_cung_cap_id)
+INSERT INTO supplier_follows (user_id, supplier_id)
 SELECT u, n FROM generate_series(3, 7) AS u
 CROSS JOIN LATERAL (VALUES (1 + u % 10), (3)) AS v (n)
 ON CONFLICT DO NOTHING;
 
-INSERT INTO gio_hang (nguoi_dung_id, san_pham_id, so_luong) VALUES
+INSERT INTO cart_items (user_id, product_id, quantity) VALUES
   (3, 1, 2), (3, 31, 1), (4, 12, 1);
 
 COMMIT;

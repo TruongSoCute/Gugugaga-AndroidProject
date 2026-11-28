@@ -10,261 +10,261 @@ SET client_min_messages = warning;
 BEGIN;
 
 DROP TABLE IF EXISTS
-  lich_su_trang_thai_don,
-  anh_danh_gia,
-  danh_gia,
-  bao_cao_vi_pham,
-  chi_tiet_don,
-  don_hang,
-  gio_hang,
-  yeu_thich,
-  theo_doi_nha_cung_cap,
-  buoc_truy_xuat,
-  lo_san_xuat,
-  san_pham,
-  chung_nhan,
-  nha_cung_cap,
-  nguoi_dung,
-  vung_nguyen_lieu
+  order_status_history,
+  review_images,
+  reviews,
+  issue_reports,
+  order_items,
+  orders,
+  cart_items,
+  product_favorites,
+  supplier_follows,
+  traceability_steps,
+  production_batches,
+  products,
+  certificates,
+  suppliers,
+  users,
+  sourcing_regions
 CASCADE;
 
 -- ---------------------------------------------------------------------------
 -- Danh mục
 -- ---------------------------------------------------------------------------
 
-CREATE TABLE vung_nguyen_lieu (
+CREATE TABLE sourcing_regions (
   id          SERIAL PRIMARY KEY,
-  ten         VARCHAR(120) NOT NULL UNIQUE,
-  mo_ta       TEXT,
-  vi_do       NUMERIC(9, 6) CHECK (vi_do BETWEEN -90 AND 90),
-  kinh_do     NUMERIC(9, 6) CHECK (kinh_do BETWEEN -180 AND 180)
+  name         VARCHAR(120) NOT NULL UNIQUE,
+  description       TEXT,
+  latitude       NUMERIC(9, 6) CHECK (latitude BETWEEN -90 AND 90),
+  longitude     NUMERIC(9, 6) CHECK (longitude BETWEEN -180 AND 180)
 );
 
-CREATE TABLE nguoi_dung (
+CREATE TABLE users (
   id              SERIAL PRIMARY KEY,
   email           VARCHAR(255) NOT NULL UNIQUE CHECK (email = lower(email)),
-  mat_khau_hash   VARCHAR(100) NOT NULL,
-  ho_ten          VARCHAR(120) NOT NULL,
-  so_dien_thoai   VARCHAR(20),
-  vai_tro         VARCHAR(20)  NOT NULL DEFAULT 'KHACH'
-                  CHECK (vai_tro IN ('QUAN_TRI', 'NHAN_VIEN', 'KHACH', 'NHA_CUNG_CAP')),
-  dang_hoat_dong  BOOLEAN      NOT NULL DEFAULT TRUE,
-  tao_luc         TIMESTAMPTZ  NOT NULL DEFAULT now()
+  password_hash   VARCHAR(100) NOT NULL,
+  full_name          VARCHAR(120) NOT NULL,
+  phone_number   VARCHAR(20),
+  role         VARCHAR(20)  NOT NULL DEFAULT 'KHACH'
+                  CHECK (role IN ('QUAN_TRI', 'NHAN_VIEN', 'KHACH', 'NHA_CUNG_CAP')),
+  is_active  BOOLEAN      NOT NULL DEFAULT TRUE,
+  created_at         TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 
-CREATE TABLE nha_cung_cap (
+CREATE TABLE suppliers (
   id                SERIAL PRIMARY KEY,
-  ten               VARCHAR(200) NOT NULL,
-  nguoi_dai_dien    VARCHAR(120) NOT NULL,
-  so_dien_thoai     VARCHAR(20)  NOT NULL,
-  dia_chi           TEXT         NOT NULL,
-  vung_id           INTEGER      NOT NULL REFERENCES vung_nguyen_lieu (id),
-  anh_co_so_url     TEXT,
-  trang_thai_duyet  VARCHAR(20)  NOT NULL DEFAULT 'CHO_DUYET'
-                    CHECK (trang_thai_duyet IN ('CHO_DUYET', 'DA_DUYET', 'TU_CHOI')),
-  ly_do_tu_choi     TEXT,
-  nguoi_duyet_id    INTEGER REFERENCES nguoi_dung (id),
-  duyet_luc         TIMESTAMPTZ,
-  nguoi_tao_id      INTEGER REFERENCES nguoi_dung (id),
+  name               VARCHAR(200) NOT NULL,
+  representative_name    VARCHAR(120) NOT NULL,
+  phone_number     VARCHAR(20)  NOT NULL,
+  address           TEXT         NOT NULL,
+  sourcing_region_id           INTEGER      NOT NULL REFERENCES sourcing_regions (id),
+  facility_image_url     TEXT,
+  approval_status  VARCHAR(20)  NOT NULL DEFAULT 'CHO_DUYET'
+                    CHECK (approval_status IN ('CHO_DUYET', 'DA_DUYET', 'TU_CHOI')),
+  rejection_reason     TEXT,
+  reviewed_by_user_id    INTEGER REFERENCES users (id),
+  reviewed_at         TIMESTAMPTZ,
+  created_by_user_id      INTEGER REFERENCES users (id),
   -- Tài khoản NHA_CUNG_CAP sở hữu hồ sơ (gửi hồ sơ, sản phẩm từ app Client). NULL nếu nhân sự nhập.
   -- UNIQUE: mỗi tài khoản nhà cung cấp chỉ có một hồ sơ.
-  tai_khoan_id      INTEGER UNIQUE REFERENCES nguoi_dung (id),
-  tao_luc           TIMESTAMPTZ  NOT NULL DEFAULT now(),
-  CONSTRAINT nha_cung_cap_tu_choi_co_ly_do
-    CHECK (trang_thai_duyet <> 'TU_CHOI' OR ly_do_tu_choi IS NOT NULL)
+  account_id      INTEGER UNIQUE REFERENCES users (id),
+  created_at           TIMESTAMPTZ  NOT NULL DEFAULT now(),
+  CONSTRAINT suppliers_rejection_reason_check
+    CHECK (approval_status <> 'TU_CHOI' OR rejection_reason IS NOT NULL)
 );
-CREATE INDEX nha_cung_cap_vung_idx ON nha_cung_cap (vung_id);
+CREATE INDEX suppliers_sourcing_region_id_idx ON suppliers (sourcing_region_id);
 
-CREATE TABLE chung_nhan (
+CREATE TABLE certificates (
   id               SERIAL PRIMARY KEY,
-  nha_cung_cap_id  INTEGER     NOT NULL REFERENCES nha_cung_cap (id) ON DELETE CASCADE,
-  loai             VARCHAR(60) NOT NULL,
-  so_hieu          VARCHAR(80) NOT NULL,
-  ngay_cap         DATE        NOT NULL,
-  ngay_het_han     DATE,
-  anh_url          TEXT,
-  UNIQUE (loai, so_hieu),
-  CHECK (ngay_het_han IS NULL OR ngay_het_han > ngay_cap)
+  supplier_id  INTEGER     NOT NULL REFERENCES suppliers (id) ON DELETE CASCADE,
+  certificate_type             VARCHAR(60) NOT NULL,
+  certificate_number          VARCHAR(80) NOT NULL,
+  issued_on         DATE        NOT NULL,
+  expires_on     DATE,
+  image_url          TEXT,
+  UNIQUE (certificate_type, certificate_number),
+  CHECK (expires_on IS NULL OR expires_on > issued_on)
 );
-CREATE INDEX chung_nhan_ncc_idx ON chung_nhan (nha_cung_cap_id);
+CREATE INDEX certificates_supplier_id_idx ON certificates (supplier_id);
 
-CREATE TABLE san_pham (
+CREATE TABLE products (
   id                SERIAL PRIMARY KEY,
-  nha_cung_cap_id   INTEGER      NOT NULL REFERENCES nha_cung_cap (id),
-  ten               VARCHAR(200) NOT NULL,
-  mo_ta             TEXT,
-  don_vi_tinh       VARCHAR(40)  NOT NULL DEFAULT 'gói',
+  supplier_id   INTEGER      NOT NULL REFERENCES suppliers (id),
+  name               VARCHAR(200) NOT NULL,
+  description             TEXT,
+  unit       VARCHAR(40)  NOT NULL DEFAULT 'gói',
   -- Giá tính bằng đồng (VND), số nguyên.
-  gia               BIGINT       NOT NULL CHECK (gia > 0),
+  price_vnd               BIGINT       NOT NULL CHECK (price_vnd > 0),
   -- Hạng OCOP do quản trị chốt khi duyệt.
-  hang_sao          SMALLINT     CHECK (hang_sao BETWEEN 3 AND 5),
-  anh_url           TEXT,
-  trang_thai_duyet  VARCHAR(20)  NOT NULL DEFAULT 'CHO_DUYET'
-                    CHECK (trang_thai_duyet IN ('CHO_DUYET', 'DA_DUYET', 'TU_CHOI')),
-  ly_do_tu_choi     TEXT,
-  nguoi_duyet_id    INTEGER REFERENCES nguoi_dung (id),
-  duyet_luc         TIMESTAMPTZ,
-  nguoi_tao_id      INTEGER REFERENCES nguoi_dung (id),
-  tao_luc           TIMESTAMPTZ  NOT NULL DEFAULT now(),
-  CONSTRAINT san_pham_da_duyet_co_hang_sao
-    CHECK (trang_thai_duyet <> 'DA_DUYET' OR hang_sao IS NOT NULL),
-  CONSTRAINT san_pham_tu_choi_co_ly_do
-    CHECK (trang_thai_duyet <> 'TU_CHOI' OR ly_do_tu_choi IS NOT NULL)
+  ocop_rating          SMALLINT     CHECK (ocop_rating BETWEEN 3 AND 5),
+  image_url           TEXT,
+  approval_status  VARCHAR(20)  NOT NULL DEFAULT 'CHO_DUYET'
+                    CHECK (approval_status IN ('CHO_DUYET', 'DA_DUYET', 'TU_CHOI')),
+  rejection_reason     TEXT,
+  reviewed_by_user_id    INTEGER REFERENCES users (id),
+  reviewed_at         TIMESTAMPTZ,
+  created_by_user_id      INTEGER REFERENCES users (id),
+  created_at           TIMESTAMPTZ  NOT NULL DEFAULT now(),
+  CONSTRAINT products_approved_rating_check
+    CHECK (approval_status <> 'DA_DUYET' OR ocop_rating IS NOT NULL),
+  CONSTRAINT products_rejection_reason_check
+    CHECK (approval_status <> 'TU_CHOI' OR rejection_reason IS NOT NULL)
 );
-CREATE INDEX san_pham_ncc_idx ON san_pham (nha_cung_cap_id);
-CREATE INDEX san_pham_trang_thai_idx ON san_pham (trang_thai_duyet, hang_sao);
+CREATE INDEX products_supplier_id_idx ON products (supplier_id);
+CREATE INDEX products_approval_status_ocop_rating_idx ON products (approval_status, ocop_rating);
 
 -- ---------------------------------------------------------------------------
 -- Truy xuất nguồn gốc theo lô
 -- ---------------------------------------------------------------------------
 
-CREATE TABLE lo_san_xuat (
+CREATE TABLE production_batches (
   id                  SERIAL PRIMARY KEY,
-  san_pham_id         INTEGER     NOT NULL REFERENCES san_pham (id),
+  product_id         INTEGER     NOT NULL REFERENCES products (id),
   -- Mã in trên QR: 20 ký tự hex in hoa (80 bit ngẫu nhiên), do backend sinh.
-  ma_truy_xuat        CHAR(20)    NOT NULL UNIQUE CHECK (ma_truy_xuat ~ '^[0-9A-F]{20}$'),
-  ngay_san_xuat       DATE        NOT NULL,
-  han_su_dung         DATE        NOT NULL,
-  so_luong            INTEGER     NOT NULL CHECK (so_luong > 0),
+  traceability_code        CHAR(20)    NOT NULL UNIQUE CHECK (traceability_code ~ '^[0-9A-F]{20}$'),
+  produced_on       DATE        NOT NULL,
+  expires_on         DATE        NOT NULL,
+  quantity            INTEGER     NOT NULL CHECK (quantity > 0),
   -- Số lượng còn có thể bán; giảm khi đặt đơn, tăng lại khi hủy đơn.
-  so_luong_con        INTEGER     NOT NULL CHECK (so_luong_con >= 0),
-  vung_nguyen_lieu_id INTEGER     NOT NULL REFERENCES vung_nguyen_lieu (id),
-  nguoi_san_xuat      VARCHAR(120) NOT NULL,
-  anh_hien_truong_url TEXT,
-  ghi_chu             TEXT,
-  nguoi_tao_id        INTEGER REFERENCES nguoi_dung (id),
-  tao_luc             TIMESTAMPTZ NOT NULL DEFAULT now(),
-  CHECK (han_su_dung > ngay_san_xuat),
-  CHECK (so_luong_con <= so_luong),
-  -- Cho phép chi_tiet_don tham chiếu (id, san_pham_id) để bảo đảm lô thuộc đúng sản phẩm.
-  UNIQUE (id, san_pham_id)
+  available_quantity        INTEGER     NOT NULL CHECK (available_quantity >= 0),
+  sourcing_region_id INTEGER     NOT NULL REFERENCES sourcing_regions (id),
+  producer_name      VARCHAR(120) NOT NULL,
+  site_image_url TEXT,
+  notes             TEXT,
+  created_by_user_id        INTEGER REFERENCES users (id),
+  created_at             TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CHECK (expires_on > produced_on),
+  CHECK (available_quantity <= quantity),
+  -- Cho phép order_items tham chiếu (id, san_pham_id) để bảo đảm lô thuộc đúng sản phẩm.
+  UNIQUE (id, product_id)
 );
-CREATE INDEX lo_san_xuat_san_pham_idx ON lo_san_xuat (san_pham_id);
-CREATE INDEX lo_san_xuat_vung_idx ON lo_san_xuat (vung_nguyen_lieu_id);
+CREATE INDEX production_batches_product_id_idx ON production_batches (product_id);
+CREATE INDEX production_batches_sourcing_region_id_idx ON production_batches (sourcing_region_id);
 
-CREATE TABLE buoc_truy_xuat (
+CREATE TABLE traceability_steps (
   id         SERIAL PRIMARY KEY,
-  lo_id      INTEGER      NOT NULL REFERENCES lo_san_xuat (id) ON DELETE CASCADE,
-  thu_tu     SMALLINT     NOT NULL CHECK (thu_tu > 0),
-  ten_buoc   VARCHAR(120) NOT NULL,
-  mo_ta      TEXT,
-  thoi_diem  TIMESTAMPTZ  NOT NULL,
-  anh_url    TEXT,
-  UNIQUE (lo_id, thu_tu)
+  batch_id      INTEGER      NOT NULL REFERENCES production_batches (id) ON DELETE CASCADE,
+  position     SMALLINT     NOT NULL CHECK (position > 0),
+  name   VARCHAR(120) NOT NULL,
+  description      TEXT,
+  occurred_at  TIMESTAMPTZ  NOT NULL,
+  image_url    TEXT,
+  UNIQUE (batch_id, position)
 );
 
 -- ---------------------------------------------------------------------------
 -- Mua hàng
 -- ---------------------------------------------------------------------------
 
-CREATE TABLE gio_hang (
-  nguoi_dung_id  INTEGER NOT NULL REFERENCES nguoi_dung (id) ON DELETE CASCADE,
-  san_pham_id    INTEGER NOT NULL REFERENCES san_pham (id) ON DELETE CASCADE,
-  so_luong       INTEGER NOT NULL CHECK (so_luong > 0),
-  them_luc       TIMESTAMPTZ NOT NULL DEFAULT now(),
-  PRIMARY KEY (nguoi_dung_id, san_pham_id)
+CREATE TABLE cart_items (
+  user_id  INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  product_id    INTEGER NOT NULL REFERENCES products (id) ON DELETE CASCADE,
+  quantity       INTEGER NOT NULL CHECK (quantity > 0),
+  added_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, product_id)
 );
 
-CREATE TABLE don_hang (
+CREATE TABLE orders (
   id               SERIAL PRIMARY KEY,
-  khach_id         INTEGER      NOT NULL REFERENCES nguoi_dung (id),
-  trang_thai       VARCHAR(20)  NOT NULL DEFAULT 'CHO_XAC_NHAN'
-                   CHECK (trang_thai IN ('CHO_XAC_NHAN', 'DA_XAC_NHAN', 'DANG_GIAO',
+  customer_id         INTEGER      NOT NULL REFERENCES users (id),
+  status       VARCHAR(20)  NOT NULL DEFAULT 'CHO_XAC_NHAN'
+                   CHECK (status IN ('CHO_XAC_NHAN', 'DA_XAC_NHAN', 'DANG_GIAO',
                                          'DA_GIAO', 'DA_NHAN', 'DA_HUY')),
-  hinh_thuc_giao   VARCHAR(20)  NOT NULL
-                   CHECK (hinh_thuc_giao IN ('TIEU_CHUAN', 'NHANH', 'NHAN_TAI_CHO')),
-  phi_giao         BIGINT       NOT NULL DEFAULT 0 CHECK (phi_giao >= 0),
-  tien_hang        BIGINT       NOT NULL CHECK (tien_hang >= 0),
-  tong_tien        BIGINT       NOT NULL CHECK (tong_tien >= 0),
-  ten_nguoi_nhan   VARCHAR(120) NOT NULL,
-  sdt_nguoi_nhan   VARCHAR(20)  NOT NULL,
-  dia_chi_giao     TEXT         NOT NULL,
-  ghi_chu          TEXT,
-  tao_luc          TIMESTAMPTZ  NOT NULL DEFAULT now(),
-  cap_nhat_luc     TIMESTAMPTZ  NOT NULL DEFAULT now(),
-  CHECK (tong_tien = tien_hang + phi_giao)
+  delivery_method   VARCHAR(20)  NOT NULL
+                   CHECK (delivery_method IN ('TIEU_CHUAN', 'NHANH', 'NHAN_TAI_CHO')),
+  delivery_fee_vnd         BIGINT       NOT NULL DEFAULT 0 CHECK (delivery_fee_vnd >= 0),
+  subtotal_vnd        BIGINT       NOT NULL CHECK (subtotal_vnd >= 0),
+  total_vnd        BIGINT       NOT NULL CHECK (total_vnd >= 0),
+  recipient_name   VARCHAR(120) NOT NULL,
+  recipient_phone   VARCHAR(20)  NOT NULL,
+  delivery_address     TEXT         NOT NULL,
+  notes          TEXT,
+  created_at          TIMESTAMPTZ  NOT NULL DEFAULT now(),
+  updated_at     TIMESTAMPTZ  NOT NULL DEFAULT now(),
+  CHECK (total_vnd = subtotal_vnd + delivery_fee_vnd)
 );
-CREATE INDEX don_hang_khach_idx ON don_hang (khach_id);
-CREATE INDEX don_hang_trang_thai_idx ON don_hang (trang_thai);
+CREATE INDEX orders_customer_id_idx ON orders (customer_id);
+CREATE INDEX orders_status_idx ON orders (status);
 
 -- Một dòng sản phẩm có thể được giao từ nhiều lô: mỗi lô là một dòng chi tiết.
-CREATE TABLE chi_tiet_don (
+CREATE TABLE order_items (
   id           SERIAL PRIMARY KEY,
-  don_hang_id  INTEGER NOT NULL REFERENCES don_hang (id) ON DELETE CASCADE,
-  san_pham_id  INTEGER NOT NULL,
-  lo_id        INTEGER NOT NULL,
-  so_luong     INTEGER NOT NULL CHECK (so_luong > 0),
+  order_id  INTEGER NOT NULL REFERENCES orders (id) ON DELETE CASCADE,
+  product_id  INTEGER NOT NULL,
+  batch_id        INTEGER NOT NULL,
+  quantity     INTEGER NOT NULL CHECK (quantity > 0),
   -- Giá tại thời điểm đặt, lấy từ CSDL chứ không lấy từ client.
-  don_gia      BIGINT  NOT NULL CHECK (don_gia > 0),
-  UNIQUE (don_hang_id, lo_id),
-  FOREIGN KEY (lo_id, san_pham_id) REFERENCES lo_san_xuat (id, san_pham_id)
+  unit_price_vnd      BIGINT  NOT NULL CHECK (unit_price_vnd > 0),
+  UNIQUE (order_id, batch_id),
+  FOREIGN KEY (batch_id, product_id) REFERENCES production_batches (id, product_id)
 );
-CREATE INDEX chi_tiet_don_lo_idx ON chi_tiet_don (lo_id);
-CREATE INDEX chi_tiet_don_san_pham_idx ON chi_tiet_don (san_pham_id);
+CREATE INDEX order_items_batch_id_idx ON order_items (batch_id);
+CREATE INDEX order_items_product_id_idx ON order_items (product_id);
 
-CREATE TABLE lich_su_trang_thai_don (
+CREATE TABLE order_status_history (
   id            SERIAL PRIMARY KEY,
-  don_hang_id   INTEGER     NOT NULL REFERENCES don_hang (id) ON DELETE CASCADE,
-  trang_thai    VARCHAR(20) NOT NULL,
-  ghi_chu       TEXT,
-  nguoi_thuc_hien_id INTEGER REFERENCES nguoi_dung (id),
-  thoi_diem     TIMESTAMPTZ NOT NULL DEFAULT now()
+  order_id   INTEGER     NOT NULL REFERENCES orders (id) ON DELETE CASCADE,
+  status    VARCHAR(20) NOT NULL,
+  notes       TEXT,
+  changed_by_user_id INTEGER REFERENCES users (id),
+  changed_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-CREATE INDEX lich_su_don_idx ON lich_su_trang_thai_don (don_hang_id);
+CREATE INDEX order_status_history_order_id_idx ON order_status_history (order_id);
 
 -- ---------------------------------------------------------------------------
 -- Tương tác của khách
 -- ---------------------------------------------------------------------------
 
-CREATE TABLE danh_gia (
+CREATE TABLE reviews (
   id           SERIAL PRIMARY KEY,
-  khach_id     INTEGER  NOT NULL REFERENCES nguoi_dung (id),
-  san_pham_id  INTEGER  NOT NULL REFERENCES san_pham (id),
-  don_hang_id  INTEGER  NOT NULL REFERENCES don_hang (id),
-  so_sao       SMALLINT NOT NULL CHECK (so_sao BETWEEN 1 AND 5),
-  noi_dung     TEXT,
-  tao_luc      TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE (khach_id, san_pham_id, don_hang_id)
+  customer_id     INTEGER  NOT NULL REFERENCES users (id),
+  product_id  INTEGER  NOT NULL REFERENCES products (id),
+  order_id  INTEGER  NOT NULL REFERENCES orders (id),
+  rating       SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  comment     TEXT,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (customer_id, product_id, order_id)
 );
-CREATE INDEX danh_gia_san_pham_idx ON danh_gia (san_pham_id);
+CREATE INDEX reviews_product_id_idx ON reviews (product_id);
 
-CREATE TABLE anh_danh_gia (
+CREATE TABLE review_images (
   id           SERIAL PRIMARY KEY,
-  danh_gia_id  INTEGER NOT NULL REFERENCES danh_gia (id) ON DELETE CASCADE,
-  anh_url      TEXT    NOT NULL
+  review_id  INTEGER NOT NULL REFERENCES reviews (id) ON DELETE CASCADE,
+  image_url      TEXT    NOT NULL
 );
 
-CREATE TABLE bao_cao_vi_pham (
+CREATE TABLE issue_reports (
   id              SERIAL PRIMARY KEY,
-  nguoi_bao_id    INTEGER     NOT NULL REFERENCES nguoi_dung (id),
-  san_pham_id     INTEGER     NOT NULL,
-  lo_id           INTEGER,
-  loai            VARCHAR(20) NOT NULL CHECK (loai IN ('HANG_GIA', 'SAI_MO_TA', 'KHAC')),
-  noi_dung        TEXT        NOT NULL,
-  anh_url         TEXT,
-  trang_thai      VARCHAR(20) NOT NULL DEFAULT 'MOI'
-                  CHECK (trang_thai IN ('MOI', 'DANG_XU_LY', 'DA_XU_LY', 'BAC_BO')),
-  ket_qua_xu_ly   TEXT,
-  nguoi_xu_ly_id  INTEGER REFERENCES nguoi_dung (id),
-  xu_ly_luc       TIMESTAMPTZ,
-  tao_luc         TIMESTAMPTZ NOT NULL DEFAULT now(),
-  FOREIGN KEY (san_pham_id) REFERENCES san_pham (id),
-  FOREIGN KEY (lo_id, san_pham_id) REFERENCES lo_san_xuat (id, san_pham_id)
+  reporter_id    INTEGER     NOT NULL REFERENCES users (id),
+  product_id     INTEGER     NOT NULL,
+  batch_id           INTEGER,
+  report_type            VARCHAR(20) NOT NULL CHECK (report_type IN ('HANG_GIA', 'SAI_MO_TA', 'KHAC')),
+  description        TEXT        NOT NULL,
+  image_url         TEXT,
+  status      VARCHAR(20) NOT NULL DEFAULT 'MOI'
+                  CHECK (status IN ('MOI', 'DANG_XU_LY', 'DA_XU_LY', 'BAC_BO')),
+  resolution   TEXT,
+  handled_by_user_id  INTEGER REFERENCES users (id),
+  handled_at       TIMESTAMPTZ,
+  created_at         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  FOREIGN KEY (product_id) REFERENCES products (id),
+  FOREIGN KEY (batch_id, product_id) REFERENCES production_batches (id, product_id)
 );
-CREATE INDEX bao_cao_trang_thai_idx ON bao_cao_vi_pham (trang_thai);
+CREATE INDEX issue_reports_status_idx ON issue_reports (status);
 
-CREATE TABLE yeu_thich (
-  nguoi_dung_id  INTEGER NOT NULL REFERENCES nguoi_dung (id) ON DELETE CASCADE,
-  san_pham_id    INTEGER NOT NULL REFERENCES san_pham (id) ON DELETE CASCADE,
-  tao_luc        TIMESTAMPTZ NOT NULL DEFAULT now(),
-  PRIMARY KEY (nguoi_dung_id, san_pham_id)
+CREATE TABLE product_favorites (
+  user_id  INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  product_id    INTEGER NOT NULL REFERENCES products (id) ON DELETE CASCADE,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, product_id)
 );
 
-CREATE TABLE theo_doi_nha_cung_cap (
-  nguoi_dung_id    INTEGER NOT NULL REFERENCES nguoi_dung (id) ON DELETE CASCADE,
-  nha_cung_cap_id  INTEGER NOT NULL REFERENCES nha_cung_cap (id) ON DELETE CASCADE,
-  tao_luc          TIMESTAMPTZ NOT NULL DEFAULT now(),
-  PRIMARY KEY (nguoi_dung_id, nha_cung_cap_id)
+CREATE TABLE supplier_follows (
+  user_id    INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  supplier_id  INTEGER NOT NULL REFERENCES suppliers (id) ON DELETE CASCADE,
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, supplier_id)
 );
 
 -- ---------------------------------------------------------------------------
@@ -277,13 +277,159 @@ DO $$
 DECLARE t TEXT;
 BEGIN
   FOREACH t IN ARRAY ARRAY[
-    'vung_nguyen_lieu', 'nguoi_dung', 'nha_cung_cap', 'chung_nhan', 'san_pham',
-    'lo_san_xuat', 'buoc_truy_xuat', 'gio_hang', 'don_hang', 'chi_tiet_don',
-    'lich_su_trang_thai_don', 'danh_gia', 'anh_danh_gia', 'bao_cao_vi_pham',
-    'yeu_thich', 'theo_doi_nha_cung_cap'
+    'sourcing_regions', 'users', 'suppliers', 'certificates', 'products',
+    'production_batches', 'traceability_steps', 'cart_items', 'orders', 'order_items',
+    'order_status_history', 'reviews', 'review_images', 'issue_reports',
+    'product_favorites', 'supplier_follows'
   ] LOOP
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
   END LOOP;
 END $$;
+
+-- The deployed backend can use the old names during the rollout.
+-- These views write through to the same tables and use the caller’s RLS permissions.
+
+CREATE VIEW public.vung_nguyen_lieu WITH (security_invoker = true) AS
+SELECT id, name AS ten, description AS mo_ta,
+       latitude AS vi_do, longitude AS kinh_do
+FROM public.sourcing_regions;
+
+CREATE VIEW public.nguoi_dung WITH (security_invoker = true) AS
+SELECT id, email, password_hash AS mat_khau_hash,
+       full_name AS ho_ten, phone_number AS so_dien_thoai, role AS vai_tro,
+       is_active AS dang_hoat_dong, created_at AS tao_luc
+FROM public.users;
+
+CREATE VIEW public.nha_cung_cap WITH (security_invoker = true) AS
+SELECT id, name AS ten, representative_name AS nguoi_dai_dien,
+       phone_number AS so_dien_thoai, address AS dia_chi, sourcing_region_id AS vung_id,
+       facility_image_url AS anh_co_so_url, approval_status AS trang_thai_duyet, rejection_reason AS ly_do_tu_choi,
+       reviewed_by_user_id AS nguoi_duyet_id, reviewed_at AS duyet_luc, created_by_user_id AS nguoi_tao_id,
+       account_id AS tai_khoan_id, created_at AS tao_luc
+FROM public.suppliers;
+
+CREATE VIEW public.chung_nhan WITH (security_invoker = true) AS
+SELECT id, supplier_id AS nha_cung_cap_id, certificate_type AS loai,
+       certificate_number AS so_hieu, issued_on AS ngay_cap, expires_on AS ngay_het_han,
+       image_url AS anh_url
+FROM public.certificates;
+
+CREATE VIEW public.san_pham WITH (security_invoker = true) AS
+SELECT id, supplier_id AS nha_cung_cap_id, name AS ten,
+       description AS mo_ta, unit AS don_vi_tinh, price_vnd AS gia,
+       ocop_rating AS hang_sao, image_url AS anh_url, approval_status AS trang_thai_duyet,
+       rejection_reason AS ly_do_tu_choi, reviewed_by_user_id AS nguoi_duyet_id, reviewed_at AS duyet_luc,
+       created_by_user_id AS nguoi_tao_id, created_at AS tao_luc
+FROM public.products;
+
+CREATE VIEW public.lo_san_xuat WITH (security_invoker = true) AS
+SELECT id, product_id AS san_pham_id, traceability_code AS ma_truy_xuat,
+       produced_on AS ngay_san_xuat, expires_on AS han_su_dung, quantity AS so_luong,
+       available_quantity AS so_luong_con, sourcing_region_id AS vung_nguyen_lieu_id, producer_name AS nguoi_san_xuat,
+       site_image_url AS anh_hien_truong_url, notes AS ghi_chu, created_by_user_id AS nguoi_tao_id,
+       created_at AS tao_luc
+FROM public.production_batches;
+
+CREATE VIEW public.buoc_truy_xuat WITH (security_invoker = true) AS
+SELECT id, batch_id AS lo_id, position AS thu_tu,
+       name AS ten_buoc, description AS mo_ta, occurred_at AS thoi_diem,
+       image_url AS anh_url
+FROM public.traceability_steps;
+
+CREATE VIEW public.gio_hang WITH (security_invoker = true) AS
+SELECT user_id AS nguoi_dung_id, product_id AS san_pham_id, quantity AS so_luong,
+       added_at AS them_luc
+FROM public.cart_items;
+
+CREATE VIEW public.don_hang WITH (security_invoker = true) AS
+SELECT id, customer_id AS khach_id, status AS trang_thai,
+       delivery_method AS hinh_thuc_giao, delivery_fee_vnd AS phi_giao, subtotal_vnd AS tien_hang,
+       total_vnd AS tong_tien, recipient_name AS ten_nguoi_nhan, recipient_phone AS sdt_nguoi_nhan,
+       delivery_address AS dia_chi_giao, notes AS ghi_chu, created_at AS tao_luc,
+       updated_at AS cap_nhat_luc
+FROM public.orders;
+
+CREATE VIEW public.chi_tiet_don WITH (security_invoker = true) AS
+SELECT id, order_id AS don_hang_id, product_id AS san_pham_id,
+       batch_id AS lo_id, quantity AS so_luong, unit_price_vnd AS don_gia
+FROM public.order_items;
+
+CREATE VIEW public.lich_su_trang_thai_don WITH (security_invoker = true) AS
+SELECT id, order_id AS don_hang_id, status AS trang_thai,
+       notes AS ghi_chu, changed_by_user_id AS nguoi_thuc_hien_id, changed_at AS thoi_diem
+FROM public.order_status_history;
+
+CREATE VIEW public.danh_gia WITH (security_invoker = true) AS
+SELECT id, customer_id AS khach_id, product_id AS san_pham_id,
+       order_id AS don_hang_id, rating AS so_sao, comment AS noi_dung,
+       created_at AS tao_luc
+FROM public.reviews;
+
+CREATE VIEW public.anh_danh_gia WITH (security_invoker = true) AS
+SELECT id, review_id AS danh_gia_id, image_url AS anh_url
+FROM public.review_images;
+
+CREATE VIEW public.bao_cao_vi_pham WITH (security_invoker = true) AS
+SELECT id, reporter_id AS nguoi_bao_id, product_id AS san_pham_id,
+       batch_id AS lo_id, report_type AS loai, description AS noi_dung,
+       image_url AS anh_url, status AS trang_thai, resolution AS ket_qua_xu_ly,
+       handled_by_user_id AS nguoi_xu_ly_id, handled_at AS xu_ly_luc, created_at AS tao_luc
+FROM public.issue_reports;
+
+CREATE VIEW public.yeu_thich WITH (security_invoker = true) AS
+SELECT user_id AS nguoi_dung_id, product_id AS san_pham_id, created_at AS tao_luc
+FROM public.product_favorites;
+
+CREATE VIEW public.theo_doi_nha_cung_cap WITH (security_invoker = true) AS
+SELECT user_id AS nguoi_dung_id, supplier_id AS nha_cung_cap_id, created_at AS tao_luc
+FROM public.supplier_follows;
+
+REVOKE ALL ON TABLE
+  public.vung_nguyen_lieu,
+  public.nguoi_dung,
+  public.nha_cung_cap,
+  public.chung_nhan,
+  public.san_pham,
+  public.lo_san_xuat,
+  public.buoc_truy_xuat,
+  public.gio_hang,
+  public.don_hang,
+  public.chi_tiet_don,
+  public.lich_su_trang_thai_don,
+  public.danh_gia,
+  public.anh_danh_gia,
+  public.bao_cao_vi_pham,
+  public.yeu_thich,
+  public.theo_doi_nha_cung_cap
+FROM PUBLIC;
+
+DO $revoke_view_access$
+DECLARE
+  role_name text;
+BEGIN
+  FOREACH role_name IN ARRAY ARRAY['anon', 'authenticated', 'service_role'] LOOP
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
+      EXECUTE format('REVOKE ALL ON TABLE
+  public.vung_nguyen_lieu,
+  public.nguoi_dung,
+  public.nha_cung_cap,
+  public.chung_nhan,
+  public.san_pham,
+  public.lo_san_xuat,
+  public.buoc_truy_xuat,
+  public.gio_hang,
+  public.don_hang,
+  public.chi_tiet_don,
+  public.lich_su_trang_thai_don,
+  public.danh_gia,
+  public.anh_danh_gia,
+  public.bao_cao_vi_pham,
+  public.yeu_thich,
+  public.theo_doi_nha_cung_cap
+FROM %I', role_name);
+    END IF;
+  END LOOP;
+END
+$revoke_view_access$;
 
 COMMIT;

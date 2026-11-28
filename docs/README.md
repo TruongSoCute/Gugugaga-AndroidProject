@@ -32,6 +32,7 @@ Thư mục [development](development/) dành cho việc xác định và xây d�
 | [Design decisions](development/Design_decisions.md) | Các phương án đề xuất backend đang áp dụng (vai trò, duyệt, mã truy xuất, gán lô), chưa xác nhận. |
 | [Labs Android](development/Labs_Android.md) | Kiến thức Lab A1–A9 và Phụ lục 2 (Retrofit) áp dụng cho app Admin, đối chiếu từng yêu cầu C.1. |
 | [Architecture](development/Architecture.md) | Tổng quan hệ thống (app, backend, CSDL, nơi deploy), kiến trúc mã nguồn phân tầng theo miền, quy tắc phụ thuộc được kiểm tra bằng máy. Đọc trước khi sửa code. |
+| [Naming conventions](development/Naming_conventions.md) | Đề xuất chuyển tên kỹ thuật sang tiếng Anh và cách triển khai tương thích với APK và QR hiện tại. |
 | [Setup](development/Setup.md) | Cài đặt môi trường, chạy backend và hai app, kiểm thử, build APK, triển khai, lỗi thường gặp. |
 | [Contributing](development/Contributing.md) | Quy trình làm việc nhóm: chia việc theo miền, Git, thêm chức năng xuyên suốt, kiểm tra trước khi push, bảo mật. |
 

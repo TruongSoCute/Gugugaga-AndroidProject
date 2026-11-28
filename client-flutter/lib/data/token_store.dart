@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/nguoi_dung.dart';
+import '../models/user.dart';
 
 /// Lưu token đăng nhập bằng shared_preferences (yêu cầu C.2 #1).
 /// Đây là nơi DUY NHẤT đọc/ghi shared_preferences (test kiến trúc kiểm tra).
@@ -19,14 +19,14 @@ class TokenStore {
   static Future<void> luuToken(String token) async =>
       (await SharedPreferences.getInstance()).setString(_keyToken, token);
 
-  static Future<void> luuNguoiDung(NguoiDung nguoiDung) async =>
+  static Future<void> luuNguoiDung(User nguoiDung) async =>
       (await SharedPreferences.getInstance()).setString(_keyNguoiDung, jsonEncode(nguoiDung.toJson()));
 
-  static Future<NguoiDung?> layNguoiDung() async {
+  static Future<User?> layNguoiDung() async {
     final chuoi = (await SharedPreferences.getInstance()).getString(_keyNguoiDung);
     if (chuoi == null) return null;
     try {
-      return NguoiDung.fromJson(jsonDecode(chuoi) as Map<String, dynamic>);
+      return User.fromJson(jsonDecode(chuoi) as Map<String, dynamic>);
     } on Object {
       return null; // dữ liệu cũ hỏng thì coi như chưa đăng nhập
     }

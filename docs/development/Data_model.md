@@ -32,17 +32,17 @@ Thông tin vùng nguyên liệu, người sản xuất và ảnh hiện trườn
 
 ## Schema đang triển khai
 
-`backend/db/schema.sql` hiện có 16 bảng: `vung_nguyen_lieu`, `nguoi_dung`, `nha_cung_cap`, `chung_nhan`, `san_pham`, `lo_san_xuat`, `buoc_truy_xuat`, `gio_hang`, `don_hang`, `chi_tiet_don`, `lich_su_trang_thai_don`, `danh_gia`, `anh_danh_gia`, `bao_cao_vi_pham`, `yeu_thich`, `theo_doi_nha_cung_cap`. Ngoài các cột đề gợi ý, lô có thêm `so_luong_con`, `vung_nguyen_lieu_id`, `nguoi_san_xuat` và `anh_hien_truong_url`. `chi_tiet_don` và `bao_cao_vi_pham` tham chiếu `(lo_id, san_pham_id)` để bảo đảm lô thuộc đúng sản phẩm. Lý do và các quy tắc đề xuất: [Design decisions](Design_decisions.md).
+`backend/db/schema.sql` hiện có 16 bảng: `sourcing_regions`, `users`, `suppliers`, `certificates`, `products`, `production_batches`, `traceability_steps`, `cart_items`, `orders`, `order_items`, `order_status_history`, `reviews`, `review_images`, `issue_reports`, `product_favorites`, `supplier_follows`. Ngoài các cột đề gợi ý, lô có thêm `available_quantity`, `sourcing_region_id`, `producer_name` và `site_image_url`. `order_items` và `issue_reports` tham chiếu `(batch_id, product_id)` để bảo đảm lô thuộc đúng sản phẩm. Lý do và các quy tắc đề xuất: [Design decisions](Design_decisions.md).
 
 **Khác biệt giữa schema đang chạy và sơ đồ ERD đề xuất bên dưới (cần nhóm chốt một phương án):**
 
 | Điểm | Schema đang chạy (`backend/db/schema.sql`) | Sơ đồ ERD đề xuất |
 | --- | --- | --- |
-| Vai trò | `QUAN_TRI`, `NHAN_VIEN`, `KHACH`; nhân viên nhập hồ sơ nhà cung cấp (`nguoi_tao_id`) | Thêm `NHA_CUNG_CAP` có tài khoản riêng (`nha_cung_cap.tai_khoan_id` `UNIQUE`), tự gửi hồ sơ qua app Client |
-| Hạng sao | Chỉ `hang_sao` do Quản trị chốt khi duyệt | Thêm `hang_sao_de_nghi` do nhà cung cấp gửi |
+| Vai trò | `QUAN_TRI`, `NHAN_VIEN`, `KHACH`; nhân viên nhập hồ sơ nhà cung cấp (`created_by_user_id`) | Thêm `NHA_CUNG_CAP` có tài khoản riêng (`suppliers.tai_khoan_id` `UNIQUE`), tự gửi hồ sơ qua app Client |
+| Hạng sao | Chỉ `ocop_rating` do Quản trị chốt khi duyệt | Thêm `hang_sao_de_nghi` do nhà cung cấp gửi |
 | Mã truy xuất | 20 ký tự hex (80 bit ngẫu nhiên), `CHECK` định dạng | Ví dụ 16 ký tự từ `crypto.randomBytes` |
-| Lô của dòng đơn | `chi_tiet_don.lo_id` `NOT NULL`, gán lô lúc đặt (FIFO) | `lo_id` có thể `NULL`, gán khi chuẩn bị giao |
-| Giỏ hàng | Có bảng `gio_hang` | Lưu trên máy bằng `shared_preferences` |
+| Lô của dòng đơn | `order_items.batch_id` `NOT NULL`, gán lô lúc đặt (FIFO) | `batch_id` có thể `NULL`, gán khi chuẩn bị giao |
+| Giỏ hàng | Có bảng `cart_items` | Lưu trên máy bằng `shared_preferences` |
 | Số bảng | 16 | 17 |
 
 Khi nhóm chọn phương án, cập nhật cùng lúc `schema.sql`, `seed.sql`, code backend, [API](API.md), [Design decisions](Design_decisions.md) và sơ đồ này.

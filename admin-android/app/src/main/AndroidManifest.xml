@@ -13,7 +13,7 @@
         android:theme="@style/Theme.GugugagaAdmin">
 
         <activity
-            android:name=".ui.dangnhap.LoginActivity"
+            android:name=".ui.login.LoginActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

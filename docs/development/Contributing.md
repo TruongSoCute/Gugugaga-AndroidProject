@@ -30,11 +30,11 @@ Mỗi người nhận trọn một **miền nghiệp vụ**, từ backend tới 
 
 | Miền | Backend (`backend/src/domains/`) | App Admin (`ui/…`) | App Client (`screens/`) |
 | --- | --- | --- | --- |
-| Đơn hàng | `don-hang` | Danh sách đơn, chi tiết và xử lý trạng thái | Giỏ hàng, đặt đơn, theo dõi đơn |
-| Đánh giá và phản ánh | `danh-gia`, `phan-anh` | Xử lý phản ánh | Đánh giá kèm ảnh, báo hàng giả |
-| Báo cáo | `bao-cao` | Màn hình biểu đồ doanh số | — |
-| Lô và truy xuất | `truy-xuat` | Danh sách lô, tạo lô, thêm bước, hiển thị QR | Quét QR bằng camera |
-| Nhà cung cấp | `nha-cung-cap`, `tuong-tac` | Duyệt hồ sơ nhà cung cấp | Trang nhà cung cấp, theo dõi; hồ sơ và sản phẩm của nhà cung cấp |
+| Đơn hàng | `orders` | Danh sách đơn, chi tiết và xử lý trạng thái | Giỏ hàng, đặt đơn, theo dõi đơn |
+| Đánh giá và phản ánh | `reviews`, `issue-reports` | Xử lý phản ánh | Đánh giá kèm ảnh, báo hàng giả |
+| Báo cáo | `sales-reports` | Màn hình biểu đồ doanh số | — |
+| Lô và truy xuất | `traceability` | Danh sách lô, tạo lô, thêm bước, hiển thị QR | Quét QR bằng camera |
+| Nhà cung cấp | `suppliers`, `customer-interactions` | Duyệt hồ sơ nhà cung cấp | Trang nhà cung cấp, theo dõi; hồ sơ và sản phẩm của nhà cung cấp |
 
 Ghi tên người nhận việc vào bảng phân công của nhóm trước khi bắt đầu, để tránh hai người làm trùng.
 
@@ -119,8 +119,8 @@ Theo [Architecture](Architecture.md#cách-thêm-hoặc-sửa-chức-năng-backen
 ### 5.3. App Admin (Java/XML)
 
 1. `model/`: lớp dữ liệu khớp JSON, tiền dùng `int`/`long`.
-2. `data/ApiService.java`: khai báo endpoint. Thêm `data/<Ten>Repository.java` bọc `ApiService` và gọi qua `GoiApi` để có đủ các nhánh thành công / lỗi / hết phiên.
-3. `ui/<man-hinh>/`: Fragment + ViewModel (giữ danh sách khi xoay) + Adapter RecyclerView. Thể hiện đủ trạng thái đang tải / thành công / lỗi + nút *Thử lại* bằng `ui/chung/TrangThai`.
+2. `data/ApiService.java`: khai báo endpoint. Thêm `data/<Ten>Repository.java` bọc `ApiService` và gọi qua `ApiCall` để có đủ các nhánh thành công / lỗi / hết phiên.
+3. `ui/<man-hinh>/`: Fragment + ViewModel (giữ danh sách khi xoay) + Adapter RecyclerView. Thể hiện đủ trạng thái đang tải / thành công / lỗi + nút *Thử lại* bằng `ui/common/UiState`.
 4. Chuỗi hiển thị đặt trong `res/values/strings.xml`, không viết cứng trong layout.
 5. Dùng đúng kỹ thuật trong [Labs Android](Labs_Android.md).
 
@@ -144,7 +144,7 @@ Theo [Architecture](Architecture.md#cách-thêm-hoặc-sửa-chức-năng-backen
 | `admin-android/` | `.\gradlew.bat testDebugUnitTest lintDebug` | ArchUnit xanh, lint 0 lỗi |
 | `client-flutter/` | `flutter analyze` rồi `flutter test` | Không lỗi analyze; mọi test đạt |
 
-**Khi kiểm tra kiến trúc báo đỏ: sửa code cho đúng tầng.** Không nới quy tắc, không sửa `scripts/check-architecture.js`, `KienTrucTest.java`, `kien_truc_test.dart`, và không thêm ngoại lệ để vượt qua. Muốn đổi quy tắc thì cả nhóm phải thống nhất trước, rồi cập nhật cùng lúc [Architecture](Architecture.md) và file kiểm tra.
+**Khi kiểm tra kiến trúc báo đỏ: sửa code cho đúng tầng.** Không nới quy tắc, không sửa `scripts/check-architecture.js`, `ArchitectureTest.java`, `architecture_test.dart`, và không thêm ngoại lệ để vượt qua. Muốn đổi quy tắc thì cả nhóm phải thống nhất trước, rồi cập nhật cùng lúc [Architecture](Architecture.md) và file kiểm tra.
 
 ## 7. Bảo mật: những điều không được làm
 

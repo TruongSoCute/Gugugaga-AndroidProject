@@ -6,18 +6,18 @@
 const express = require('express');
 const cors = require('cors');
 const { createProviders } = require('./providers');
-const createHeThong = require('./domains/he-thong');
-const createTaiKhoan = require('./domains/tai-khoan');
-const createDanhMuc = require('./domains/danh-muc');
-const createNhaCungCap = require('./domains/nha-cung-cap');
-const createSanPham = require('./domains/san-pham');
-const createTruyXuat = require('./domains/truy-xuat');
-const createDonHang = require('./domains/don-hang');
-const createDanhGia = require('./domains/danh-gia');
-const createPhanAnh = require('./domains/phan-anh');
-const createTuongTac = require('./domains/tuong-tac');
-const createBaoCao = require('./domains/bao-cao');
-const createTaiLen = require('./domains/tai-len');
+const createHeThong = require('./domains/health');
+const createTaiKhoan = require('./domains/accounts');
+const createDanhMuc = require('./domains/sourcing-regions');
+const createNhaCungCap = require('./domains/suppliers');
+const createSanPham = require('./domains/products');
+const createTruyXuat = require('./domains/traceability');
+const createDonHang = require('./domains/orders');
+const createDanhGia = require('./domains/reviews');
+const createPhanAnh = require('./domains/issue-reports');
+const createTuongTac = require('./domains/customer-interactions');
+const createBaoCao = require('./domains/sales-reports');
+const createTaiLen = require('./domains/uploads');
 
 // storage (tùy chọn): giả lập Supabase Storage khi kiểm thử.
 function createApp({ pool, config, storage }) {

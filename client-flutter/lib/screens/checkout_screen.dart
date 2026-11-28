@@ -1,0 +1,230 @@
+import 'package:flutter/material.dart';
+
+import '../data/api_client.dart';
+import '../data/order_repository.dart';
+import '../data/auth_session.dart';
+import '../models/order.dart';
+import '../utils/formatting.dart';
+import '../utils/validation.dart';
+import '../widgets/theme_widgets.dart';
+import '../widgets/dialogs.dart';
+import '../widgets/error_state.dart';
+
+/// Đặt hàng toàn bộ giỏ: chọn hình thức giao (GET /don-hang/hinh-thuc-giao), nhập người nhận.
+class CheckoutScreen extends StatefulWidget {
+  const CheckoutScreen({super.key, required this.tamTinh, this.repository});
+
+  final int tamTinh;
+  final OrderRepository? repository;
+
+  @override
+  State<CheckoutScreen> createState() => _CheckoutScreenState();
+}
+
+class _CheckoutScreenState extends State<CheckoutScreen> {
+  late final OrderRepository _repo = widget.repository ?? OrderRepository(ApiClient.macDinh);
+  final _formKey = GlobalKey<FormState>();
+  late final _ten = TextEditingController(text: AuthSession.hienTai?.hoTen ?? '');
+  late final _sdt = TextEditingController(text: AuthSession.hienTai?.soDienThoai ?? '');
+  final _diaChi = TextEditingController();
+  final _ghiChu = TextEditingController();
+
+  bool _dangTai = true;
+  String? _loi;
+  List<DeliveryMethod> _dsHinhThuc = const [];
+  String? _hinhThuc;
+  bool _dangGui = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _taiHinhThuc();
+  }
+
+  @override
+  void dispose() {
+    for (final c in [_ten, _sdt, _diaChi, _ghiChu]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> _taiHinhThuc() async {
+    setState(() {
+      _dangTai = true;
+      _loi = null;
+    });
+    try {
+      final ds = await _repo.dsHinhThucGiao();
+      if (!mounted) return;
+      setState(() {
+        _dsHinhThuc = ds;
+        _dangTai = false;
+      });
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loi = e.thongDiep;
+        _dangTai = false;
+      });
+    }
+  }
+
+  DeliveryMethod? get _daChon {
+    for (final h in _dsHinhThuc) {
+      if (h.ma == _hinhThuc) return h;
+    }
+    return null;
+  }
+
+  Future<void> _gui() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _dangGui = true);
+    try {
+      final don = await _repo.datHang(
+        hinhThucGiao: _hinhThuc!,
+        tenNguoiNhan: _ten.text,
+        sdtNguoiNhan: _sdt.text,
+        diaChiGiao: _diaChi.text,
+        ghiChu: _ghiChu.text,
+      );
+      if (!mounted) return;
+      Navigator.pop(context, don);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _dangGui = false);
+      thongBao(context, e.thongDiepDayDu);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Đặt hàng')),
+      body: _noiDung(),
+    );
+  }
+
+  Widget _noiDung() {
+    if (_dangTai) return const Center(child: CircularProgressIndicator());
+    if (_loi != null) return ErrorState(thongDiep: _loi!, onThuLai: _taiHinhThuc);
+    final theme = Theme.of(context);
+    final phi = _daChon?.phiGiao ?? 0;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text('Thông tin giao hàng', style: theme.textTheme.titleMedium),
+                    const SizedBox(height: 14),
+                    DropdownButtonFormField<String>(
+                      key: const Key('oHinhThucGiao'),
+                      initialValue: _hinhThuc,
+                      decoration: const InputDecoration(
+                        labelText: 'Hình thức giao',
+                        prefixIcon: Icon(Icons.local_shipping_outlined),
+                      ),
+                      items: [
+                        for (final h in _dsHinhThuc)
+                          DropdownMenuItem(value: h.ma, child: Text('${h.ten} · ${Formatting.tien(h.phiGiao)}')),
+                      ],
+                      onChanged: (v) => setState(() => _hinhThuc = v),
+                      validator: (v) => v == null ? 'Vui lòng chọn hình thức giao' : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      key: const Key('oTenNguoiNhan'),
+                      controller: _ten,
+                      decoration: const InputDecoration(
+                        labelText: 'Tên người nhận',
+                        prefixIcon: Icon(Icons.person_outline_rounded),
+                      ),
+                      validator: (v) => Validation.batBuoc(v, 'tên người nhận') ?? Validation.doDaiToiDa(v, 120),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      key: const Key('oSdtNguoiNhan'),
+                      controller: _sdt,
+                      keyboardType: TextInputType.phone,
+                      decoration: const InputDecoration(
+                        labelText: 'Số điện thoại người nhận',
+                        prefixIcon: Icon(Icons.phone_outlined),
+                      ),
+                      validator: Validation.soDienThoai,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      key: const Key('oDiaChi'),
+                      controller: _diaChi,
+                      maxLines: 2,
+                      decoration: const InputDecoration(
+                        labelText: 'Địa chỉ giao (hoặc ghi "Nhận tại điểm bán")',
+                        prefixIcon: Icon(Icons.location_on_outlined),
+                      ),
+                      validator: (v) => Validation.batBuoc(v, 'địa chỉ giao') ?? Validation.doDaiToiDa(v, 500),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _ghiChu,
+                      maxLines: 2,
+                      decoration: const InputDecoration(
+                        labelText: 'Ghi chú (không bắt buộc)',
+                        prefixIcon: Icon(Icons.note_alt_outlined),
+                      ),
+                      validator: (v) => Validation.doDaiToiDa(v, 1000),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _dongTien('Tạm tính', widget.tamTinh),
+                    const SizedBox(height: 6),
+                    _dongTien('Phí giao', phi),
+                    const Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Divider()),
+                    _dongTien('Tổng (ước tính)', widget.tamTinh + phi, dam: true),
+                    const SizedBox(height: 6),
+                    Text('Giá và tổng tiền cuối cùng do hệ thống tính khi đặt.', style: theme.textTheme.bodySmall),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+            FilledButton(
+              key: const Key('nutXacNhanDat'),
+              onPressed: _dangGui ? null : _gui,
+              child: _dangGui
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Text('Xác nhận đặt hàng'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _dongTien(String nhan, int tien, {bool dam = false}) {
+    final style = dam
+        ? Theme.of(context).textTheme.titleMedium?.copyWith(color: OcopColors.xanhOcop, fontWeight: FontWeight.w800)
+        : Theme.of(context).textTheme.bodyMedium;
+    return Row(children: [Text(nhan, style: style), const Spacer(), Text(Formatting.tien(tien), style: style)]);
+  }
+}

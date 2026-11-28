@@ -99,8 +99,8 @@
         <item name="android:background">@android:color/transparent</item>
         <item name="android:minHeight">64dp</item>
         <item name="itemActiveIndicatorStyle">@style/ChiBaoTabOcop</item>
-        <item name="itemIconTint">@color/mau_tab_bottom</item>
-        <item name="itemTextColor">@color/mau_tab_bottom</item>
+        <item name="itemIconTint">@color/bottom_tab_tint</item>
+        <item name="itemTextColor">@color/bottom_tab_tint</item>
         <item name="itemIconSize">22dp</item>
         <item name="itemPaddingTop">10dp</item>
         <item name="itemPaddingBottom">10dp</item>
@@ -129,15 +129,15 @@
     <style name="ChipLocOcop" parent="Widget.Material3.Chip.Filter">
         <item name="chipCornerRadius">@dimen/bo_goc_vien</item>
         <item name="chipStrokeWidth">0dp</item>
-        <item name="chipBackgroundColor">@color/mau_nen_chip_loc</item>
-        <item name="android:textColor">@color/mau_chu_chip_loc</item>
+        <item name="chipBackgroundColor">@color/filter_chip_background</item>
+        <item name="android:textColor">@color/filter_chip_text</item>
         <item name="checkedIconVisible">false</item>
         <item name="chipMinTouchTargetSize">38dp</item>
     </style>
 
     <!-- Nhãn trạng thái dạng pill không viền -->
-    <style name="NhanTrangThai">
-        <item name="android:background">@drawable/nen_nhan_trang_thai</item>
+    <style name="StatusBadge">
+        <item name="android:background">@drawable/bg_status_badge</item>
         <item name="android:textSize">@dimen/chu_nho</item>
         <item name="android:textStyle">bold</item>
         <item name="android:paddingStart">10dp</item>

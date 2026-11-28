@@ -131,7 +131,7 @@ Mở http://localhost:3000/health. Kết quả mong đợi là `{"trangThai":"ok
 Mã truy xuất của 100 lô mẫu được sinh ngẫu nhiên mỗi lần seed. Để lấy vài mã thử quét QR:
 
 ```powershell
-psql "postgresql://postgres:<mật-khẩu>@localhost:5432/ocop_dev" -c "SELECT ma_truy_xuat FROM lo_san_xuat LIMIT 5;"
+psql "postgresql://postgres:<mật-khẩu>@localhost:5432/ocop_dev" -c "SELECT traceability_code FROM production_batches LIMIT 5;"
 ```
 
 ### 4.4. Kiểm thử backend
@@ -185,7 +185,7 @@ cd admin-android
 .\gradlew.bat testDebugUnitTest lintDebug
 ```
 
-Trên macOS/Linux dùng `./gradlew`. Lệnh này chạy kiểm tra kiến trúc ArchUnit (`KienTrucTest`), test định dạng và lint. `ApiContractTest` gọi backend thật và tự bỏ qua nếu chưa đặt biến môi trường. Muốn chạy:
+Trên macOS/Linux dùng `./gradlew`. Lệnh này chạy kiểm tra kiến trúc ArchUnit (`ArchitectureTest`), test định dạng và lint. `ApiContractTest` gọi backend thật và tự bỏ qua nếu chưa đặt biến môi trường. Muốn chạy:
 
 ```powershell
 $env:OCOP_API_TEST_URL = "http://localhost:3000/"; .\gradlew.bat testDebugUnitTest
@@ -257,7 +257,7 @@ flutter analyze
 flutter test
 ```
 
-`test/kien_truc_test.dart` kiểm tra kiến trúc. `test/api_backend_test.dart` gọi backend thật và tự bỏ qua nếu chưa đặt biến:
+`test/architecture_test.dart` kiểm tra kiến trúc. `test/api_backend_test.dart` gọi backend thật và tự bỏ qua nếu chưa đặt biến:
 
 ```powershell
 $env:OCOP_API_TEST_URL = "http://localhost:3000"; $env:OCOP_MA_LO_TEST = "<mã lô>"; flutter test test/api_backend_test.dart
@@ -379,4 +379,4 @@ Sau khi bật, đẩy thẳng (`git push origin ...:release`) sẽ bị từ ch�
 | Lần gọi đầu tới Render rất lâu | Render gói Free đang ngủ | Bình thường; chờ tới một phút |
 | Workflow phát hành đỏ ở *Kiểm tra cấu hình* | Thiếu GitHub Secrets | Thêm đủ 5 secret ở [mục 8.1](#81-cấu-hình-một-lần) |
 | Workflow đỏ ở *Chờ Render chạy đúng commit này* | Render đang trỏ nhánh khác, deploy lỗi, hoặc hook sai | Kiểm tra Render: *Branch* = `release`, tab *Events/Logs*; tạo lại Deploy Hook |
-| `./gradlew testDebugUnitTest` đỏ ở `KienTrucTest` | Code vi phạm quy tắc tầng | Sửa code cho đúng tầng, **không** sửa quy tắc. Xem [Architecture](Architecture.md#kiểm-tra-kiến-trúc-hai-app-bằng-máy) |
+| `./gradlew testDebugUnitTest` đỏ ở `ArchitectureTest` | Code vi phạm quy tắc tầng | Sửa code cho đúng tầng, **không** sửa quy tắc. Xem [Architecture](Architecture.md#kiểm-tra-kiến-trúc-hai-app-bằng-máy) |

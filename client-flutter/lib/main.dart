@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'screens/khung_chinh.dart';
+import 'screens/app_shell.dart';
 
 void main() {
   GoogleFonts.config.allowRuntimeFetching = false;
@@ -19,7 +19,7 @@ class OcopClientApp extends StatelessWidget {
       title: 'OCOP Gugugaga',
       debugShowCheckedModeBanner: false,
       theme: _xayDungGiaoDienOcop(),
-      home: const KhungChinh(),
+      home: const AppShell(),
     );
   }
 }
@@ -222,16 +222,16 @@ ThemeData _xayDungGiaoDienOcop() {
     ),
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
-        TargetPlatform.android: _ChuyenTrangMuotBuilder(),
-        TargetPlatform.iOS: _ChuyenTrangMuotBuilder(),
+        TargetPlatform.android: _SmoothTransitionsBuilder(),
+        TargetPlatform.iOS: _SmoothTransitionsBuilder(),
       },
     ),
   );
 }
 
 /// Hiệu ứng chuyển màn hình trượt nhẹ + mờ dần kiểu Material 3 Shared-Axis.
-class _ChuyenTrangMuotBuilder extends PageTransitionsBuilder {
-  const _ChuyenTrangMuotBuilder();
+class _SmoothTransitionsBuilder extends PageTransitionsBuilder {
+  const _SmoothTransitionsBuilder();
 
   @override
   Widget buildTransitions<T>(

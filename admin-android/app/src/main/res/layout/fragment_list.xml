@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/nen_man_hinh"
+    android:orientation="vertical">
+
+    <HorizontalScrollView
+        android:id="@+id/khungLoc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:paddingStart="@dimen/khoang_md"
+        android:paddingTop="@dimen/khoang_xs"
+        android:paddingEnd="@dimen/khoang_md"
+        android:paddingBottom="@dimen/khoang_sm"
+        android:scrollbars="none">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/cgLoc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipSpacingHorizontal="@dimen/khoang_sm"
+            app:selectionRequired="true"
+            app:singleLine="true"
+            app:singleSelection="true" />
+    </HorizontalScrollView>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvDanhSach"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:layoutAnimation="@anim/list_fade_in"
+                android:paddingTop="4dp"
+                android:paddingBottom="@dimen/dem_duoi_danh_sach" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <include layout="@layout/panel_state" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fabThem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/khoang_md"
+            android:textColor="@color/nen_icon"
+            android:visibility="gone"
+            app:backgroundTint="@color/xanh_ocop"
+            app:elevation="2dp"
+            app:icon="@drawable/ic_add"
+            app:iconTint="@color/nen_icon" />
+    </FrameLayout>
+
+    <include layout="@layout/footer_load_more" />
+</LinearLayout>

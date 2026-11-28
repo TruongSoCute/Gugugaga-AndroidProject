@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Dòng dưới danh sách khi tải trang tiếp theo (phân trang): ProgressBar + "Đang tải thêm…",
+  hoặc thông báo lỗi + nút Thử lại. Ẩn khi không tải. Lớp điều khiển: ui/chung/LoadMoreFooter.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/khungTaiThem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/khoang_md"
+    android:paddingTop="@dimen/khoang_sm"
+    android:paddingEnd="@dimen/khoang_md"
+    android:paddingBottom="@dimen/khoang_sm"
+    android:visibility="gone">
+
+    <ProgressBar
+        android:id="@+id/pbTaiThem"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="24dp"
+        android:layout_height="24dp" />
+
+    <TextView
+        android:id="@+id/tvTaiThem"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/khoang_sm"
+        android:layout_weight="1"
+        android:text="@string/dang_tai_them"
+        android:textSize="@dimen/chu_nho" />
+
+    <Button
+        android:id="@+id/btnThuLaiTaiThem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/nut_thu_lai"
+        android:visibility="gone" />
+</LinearLayout>

@@ -1,0 +1,84 @@
+package vn.edu.vhu.ltdd.gugugaga.admin.ui.account;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import vn.edu.vhu.ltdd.gugugaga.admin.AppConfig;
+import vn.edu.vhu.ltdd.gugugaga.admin.R;
+import vn.edu.vhu.ltdd.gugugaga.admin.data.TokenStore;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.MainActivity;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.sales.SalesReportFragment;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.common.Animations;
+import vn.edu.vhu.ltdd.gugugaga.admin.ui.supplier.SupplierListFragment;
+
+/**
+ * Tab Tài khoản: thông tin người đang đăng nhập, lối vào "Nhà cung cấp" và "Báo cáo doanh số"
+ * (Báo cáo chỉ hiện với QUAN_TRI — C.1 #2), nút đăng xuất có xác nhận.
+ */
+public class AccountFragment extends Fragment {
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        // onCreateView chỉ inflate; ánh xạ View làm trong onViewCreated (Lab A8).
+        return inflater.inflate(R.layout.fragment_account, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        MainActivity main = (MainActivity) requireActivity();
+        main.datTieuDe(R.string.tab_tai_khoan);
+        String vaiTro = TokenStore.layVaiTro(requireContext());
+        boolean quanTri = AppConfig.VAI_TRO_QUAN_TRI.equals(vaiTro);
+
+        String hoTen = TokenStore.layHoTen(requireContext());
+        ((TextView) view.findViewById(R.id.tvHoTen)).setText(hoTen);
+        String chuDau = (hoTen != null && !hoTen.trim().isEmpty())
+                ? hoTen.trim().substring(0, 1).toUpperCase(java.util.Locale.ROOT)
+                : "?";
+        TextView tvAvatar = view.findViewById(R.id.tvAvatar);
+        if (tvAvatar != null) tvAvatar.setText(chuDau);
+        ((TextView) view.findViewById(R.id.tvEmail)).setText(TokenStore.layEmail(requireContext()));
+        ((TextView) view.findViewById(R.id.tvVaiTro)).setText(
+                quanTri ? R.string.vai_tro_quan_tri : R.string.vai_tro_nhan_vien);
+        ((TextView) view.findViewById(R.id.tvMayChu)).setText(AppConfig.API_BASE_URL.replaceFirst("^https?://", "").replaceAll("/$", ""));
+        view.findViewById(R.id.tvGhiChuNhanVien).setVisibility(quanTri ? View.GONE : View.VISIBLE);
+
+        // Mở màn hình con bằng replace + addToBackStack (Lab A8), Back quay lại tab này.
+        View btnNhaCungCap = view.findViewById(R.id.btnNhaCungCap);
+        btnNhaCungCap.setOnClickListener(v -> main.moManHinh(new SupplierListFragment()));
+        Animations.ganNhanNhe(btnNhaCungCap);
+        View btnBaoCao = view.findViewById(R.id.btnBaoCao);
+        btnBaoCao.setVisibility(quanTri ? View.VISIBLE : View.GONE); // backend vẫn trả 403 cho NHAN_VIEN
+        btnBaoCao.setOnClickListener(v -> main.moManHinh(new SalesReportFragment()));
+        Animations.ganNhanNhe(btnBaoCao);
+        View vachBaoCao = view.findViewById(R.id.vachBaoCao);
+        if (vachBaoCao != null) vachBaoCao.setVisibility(quanTri ? View.VISIBLE : View.GONE);
+
+        View btnQuanLyTaiKhoan = view.findViewById(R.id.btnQuanLyTaiKhoan);
+        btnQuanLyTaiKhoan.setVisibility(quanTri ? View.VISIBLE : View.GONE);
+        btnQuanLyTaiKhoan.setOnClickListener(v -> main.moManHinh(new AccountManagementFragment()));
+        Animations.ganNhanNhe(btnQuanLyTaiKhoan);
+        View vachTaiKhoan = view.findViewById(R.id.vachTaiKhoan);
+        if (vachTaiKhoan != null) vachTaiKhoan.setVisibility(quanTri ? View.VISIBLE : View.GONE);
+
+        View btnDangXuat = view.findViewById(R.id.btnDangXuat);
+        Animations.ganNhanNhe(btnDangXuat);
+        btnDangXuat.setOnClickListener(v ->
+                new MaterialAlertDialogBuilder(requireContext())
+                        .setMessage(R.string.xac_nhan_dang_xuat)
+                        .setPositiveButton(R.string.nut_dang_xuat, (d, w) -> main.dangXuat(false))
+                        .setNegativeButton(R.string.nut_huy, null)
+                        .show());
+    }
+}

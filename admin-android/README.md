@@ -12,34 +12,34 @@ App quản trị cho người quản lý sàn OCOP (đề 05), viết bằng **J
 | Màn hình (lớp) | API | Ghi chú |
 | --- | --- | --- |
 | Đăng nhập (`LoginActivity`) | `POST /auth/dang-nhap` | Kiểm tra form, lưu token bằng `SharedPreferences`; chỉ nhận `QUAN_TRI`, `NHAN_VIEN` (từ chối `KHACH`, `NHA_CUNG_CAP` và không lưu token); tự vào màn hình chính nếu đã có token |
-| Sản phẩm (`SanPhamFragment`) | `GET /quan-tri/san-pham?trangThai=`, `PATCH /san-pham/:id/duyet` | RecyclerView, Spinner lọc; `QUAN_TRI` duyệt (chọn 3/4/5 sao) hoặc từ chối (bắt buộc lý do); `NHAN_VIEN` chỉ xem |
-| Lô (`lo/LoFragment`) | `GET /lo-san-xuat` | RecyclerView lô mới nhất, phân trang 20 lô mỗi lần; nút nổi "Tạo lô" |
-| Chi tiết lô và QR (`lo/ChiTietLoFragment`) | `GET /lo-san-xuat/:id`, `POST /lo-san-xuat/:id/buoc`, `POST /tai-len/anh` | Ảnh QR vẽ từ `duongDanTruyXuat` bằng zxing core; các bước kèm ảnh; thêm bước (`ThemBuocDialog`, thời điểm `+07:00`, chọn ảnh từ máy hoặc nhập URL); chia sẻ đường dẫn (`ACTION_SEND`) |
-| Tạo lô (`lo/TaoLoFragment`) | `GET /quan-tri/san-pham`, `GET /vung-nguyen-lieu`, `POST /tai-len/anh`, `POST /lo-san-xuat` | Spinner sản phẩm và vùng nguyên liệu, `DatePickerDialog`, chọn ảnh hiện trường từ thiết bị hoặc nhập URL, kiểm tra 4 lớp báo lỗi đúng ô (cả lỗi 400 `chiTiet[].truong` của backend); giữ dữ liệu khi xoay bằng `onSaveInstanceState` |
-| Đơn hàng (`donhang/DonHangFragment`) | `GET /quan-tri/don-hang?trangThai=` | RecyclerView, Spinner lọc 7 trạng thái |
-| Chi tiết đơn (`donhang/ChiTietDonHangFragment`) | `GET /quan-tri/don-hang/:id`, `PATCH /don-hang/:id/trang-thai` | Người nhận (bấm số mở `ACTION_DIAL`), tổng tiền, dòng hàng kèm mã truy xuất lô đã giao, lịch sử; chỉ hiện bước hợp lệ; xác nhận trước mỗi bước, hủy bắt buộc lý do |
-| Phản ánh (`phananh/PhanAnhFragment`) | `GET /quan-tri/bao-cao-vi-pham?trangThai=` | RecyclerView, Spinner lọc |
-| Chi tiết phản ánh (`phananh/ChiTietPhanAnhFragment`) | `GET`/`PATCH /quan-tri/bao-cao-vi-pham/:id` | Chỉ đi tới; kết quả bắt buộc khi Đã xử lý/Bác bỏ |
-| Nhà cung cấp (`nhacungcap/NhaCungCapFragment`) | `GET /quan-tri/nha-cung-cap?trangThai=` | Mở từ tab Tài khoản; nhãn "tự gửi từ app Client" (`tuGui`) |
-| Hồ sơ nhà cung cấp (`nhacungcap/ChiTietNhaCungCapFragment`) | `GET /quan-tri/nha-cung-cap/:id`, `PATCH /nha-cung-cap/:id/duyet` | Ảnh cơ sở, chứng nhận (ảnh, hạn, còn hiệu lực), lý do từ chối; `QUAN_TRI` duyệt/từ chối/thu hồi, `NHAN_VIEN` chỉ xem |
-| Báo cáo doanh số (`baocao/BaoCaoFragment`) | `GET /bao-cao/doanh-so?tu=&den=` | Chỉ `QUAN_TRI` thấy lối vào; biểu đồ cột **tự vẽ** bằng Canvas (`BieuDoCotView`) theo vùng và theo hạng sao; top 5 nhà cung cấp; lọc ngày bằng `DatePickerDialog` |
-| Tài khoản (`TaiKhoanFragment`) | — | Thông tin phiên, lối vào Nhà cung cấp và Báo cáo, đăng xuất có xác nhận |
+| Sản phẩm (`ProductListFragment`) | `GET /quan-tri/san-pham?trangThai=`, `PATCH /san-pham/:id/duyet` | RecyclerView, Spinner lọc; `QUAN_TRI` duyệt (chọn 3/4/5 sao) hoặc từ chối (bắt buộc lý do); `NHAN_VIEN` chỉ xem |
+| Lô (`lo/BatchListFragment`) | `GET /lo-san-xuat` | RecyclerView lô mới nhất, phân trang 20 lô mỗi lần; nút nổi "Tạo lô" |
+| Chi tiết lô và QR (`lo/BatchDetailsFragment`) | `GET /lo-san-xuat/:id`, `POST /lo-san-xuat/:id/buoc`, `POST /tai-len/anh` | Ảnh QR vẽ từ `duongDanTruyXuat` bằng zxing core; các bước kèm ảnh; thêm bước (`AddStepDialog`, thời điểm `+07:00`, chọn ảnh từ máy hoặc nhập URL); chia sẻ đường dẫn (`ACTION_SEND`) |
+| Tạo lô (`lo/CreateBatchFragment`) | `GET /quan-tri/san-pham`, `GET /vung-nguyen-lieu`, `POST /tai-len/anh`, `POST /lo-san-xuat` | Spinner sản phẩm và vùng nguyên liệu, `DatePickerDialog`, chọn ảnh hiện trường từ thiết bị hoặc nhập URL, kiểm tra 4 lớp báo lỗi đúng ô (cả lỗi 400 `chiTiet[].truong` của backend); giữ dữ liệu khi xoay bằng `onSaveInstanceState` |
+| Đơn hàng (`donhang/OrderListFragment`) | `GET /quan-tri/don-hang?trangThai=` | RecyclerView, Spinner lọc 7 trạng thái |
+| Chi tiết đơn (`donhang/OrderDetailsFragment`) | `GET /quan-tri/don-hang/:id`, `PATCH /don-hang/:id/trang-thai` | Người nhận (bấm số mở `ACTION_DIAL`), tổng tiền, dòng hàng kèm mã truy xuất lô đã giao, lịch sử; chỉ hiện bước hợp lệ; xác nhận trước mỗi bước, hủy bắt buộc lý do |
+| Phản ánh (`phananh/IssueReportListFragment`) | `GET /quan-tri/bao-cao-vi-pham?trangThai=` | RecyclerView, Spinner lọc |
+| Chi tiết phản ánh (`phananh/IssueReportDetailsFragment`) | `GET`/`PATCH /quan-tri/bao-cao-vi-pham/:id` | Chỉ đi tới; kết quả bắt buộc khi Đã xử lý/Bác bỏ |
+| Nhà cung cấp (`nhacungcap/SupplierListFragment`) | `GET /quan-tri/nha-cung-cap?trangThai=` | Mở từ tab Tài khoản; nhãn "tự gửi từ app Client" (`tuGui`) |
+| Hồ sơ nhà cung cấp (`nhacungcap/SupplierDetailsFragment`) | `GET /quan-tri/nha-cung-cap/:id`, `PATCH /nha-cung-cap/:id/duyet` | Ảnh cơ sở, chứng nhận (ảnh, hạn, còn hiệu lực), lý do từ chối; `QUAN_TRI` duyệt/từ chối/thu hồi, `NHAN_VIEN` chỉ xem |
+| Báo cáo doanh số (`baocao/SalesReportFragment`) | `GET /bao-cao/doanh-so?tu=&den=` | Chỉ `QUAN_TRI` thấy lối vào; biểu đồ cột **tự vẽ** bằng Canvas (`BarChartView`) theo vùng và theo hạng sao; top 5 nhà cung cấp; lọc ngày bằng `DatePickerDialog` |
+| Tài khoản (`AccountFragment`) | — | Thông tin phiên, lối vào Nhà cung cấp và Báo cáo, đăng xuất có xác nhận |
 
-Điều hướng: `BottomNavigationView` 5 tab (Sản phẩm, Lô, Đơn hàng, Phản ánh, Tài khoản). Chi tiết mở bằng `newInstance` + arguments + `addToBackStack`; chi tiết báo kết quả về danh sách bằng Fragment Result API để tải lại. Ảnh (cơ sở, chứng nhận, hiện trường, phản ánh) tải bằng `data/AnhRepository` qua một OkHttp riêng **không gắn token**.
+Điều hướng: `BottomNavigationView` 5 tab (Sản phẩm, Lô, Đơn hàng, Phản ánh, Tài khoản). Chi tiết mở bằng `newInstance` + arguments + `addToBackStack`; chi tiết báo kết quả về danh sách bằng Fragment Result API để tải lại. Ảnh (cơ sở, chứng nhận, hiện trường, phản ánh) tải bằng `data/ImageRepository` qua một OkHttp riêng **không gắn token**.
 
 ### Đối chiếu yêu cầu C.1
 
 | # | Yêu cầu | Cách đáp ứng |
 | --- | --- | --- |
-| 1 | Đăng nhập, lưu token, tự đăng xuất khi hết hạn | `LoginActivity` + `TokenStore`; mọi API trả 401 thì `GoiApi` xóa token, màn hình gọi `MainActivity.dangXuat(true)` |
+| 1 | Đăng nhập, lưu token, tự đăng xuất khi hết hạn | `LoginActivity` + `TokenStore`; mọi API trả 401 thì `ApiCall` xóa token, màn hình gọi `MainActivity.dangXuat(true)` |
 | 2 | ≥ 2 vai trò thấy chức năng khác nhau | `QUAN_TRI`: nút duyệt/từ chối sản phẩm và hồ sơ, lối vào Báo cáo. `NHAN_VIEN`: chỉ xem các mục đó. Backend vẫn chặn bằng 403 |
-| 3 | ≥ 2 RecyclerView + Adapter + ViewHolder | 5 danh sách: sản phẩm, lô, đơn hàng, phản ánh, nhà cung cấp. Cả 5 phân trang 20 dòng: cuộn gần cuối thì tải trang sau (`ui/chung/LocDanhSachViewModel`, `CuonTaiThem`, `ChanTaiThem`) |
+| 3 | ≥ 2 RecyclerView + Adapter + ViewHolder | 5 danh sách: sản phẩm, lô, đơn hàng, phản ánh, nhà cung cấp. Cả 5 phân trang 20 dòng: cuộn gần cuối thì tải trang sau (`ui/common/FilteredListViewModel`, `LoadMoreScrollListener`, `LoadMoreFooter`) |
 | 4 | Nhiều màn hình bằng Fragment | 1 `MainActivity` + 12 Fragment, back stack cho màn hình chi tiết |
 | 5 | Form kiểm tra hợp lệ, báo lỗi đúng chỗ | Tạo lô, thêm bước, lý do hủy/từ chối, kết quả xử lý phản ánh, khoảng ngày báo cáo |
-| 6 | Hộp thoại xác nhận, Toast/Snackbar | `XacNhanDialog` trước mỗi chuyển trạng thái đơn, xử lý phản ánh, duyệt/từ chối hồ sơ, đăng xuất; Snackbar báo kết quả (Toast khi chưa chọn sản phẩm) |
-| 7 | ≥ 1 màn hình báo cáo có biểu đồ | `BaoCaoFragment` + `BieuDoCotView` tự vẽ (không dùng MPAndroidChart) |
-| 8 | Đủ 3 trạng thái gọi API | `ui/chung/KhungTrangThai` + `layout/khung_trang_thai.xml`: ProgressBar / nội dung hoặc dòng trống / lỗi + Thử lại, ở mọi màn hình gọi API |
-| 9 | Không mất dữ liệu form khi xoay | EditText có id tự khôi phục; `TaoLoFragment`, `ThemBuocDialog`, `BaoCaoFragment` lưu lựa chọn và ngày bằng `onSaveInstanceState`; dữ liệu tải về giữ trong ViewModel |
+| 6 | Hộp thoại xác nhận, Toast/Snackbar | `ConfirmationDialog` trước mỗi chuyển trạng thái đơn, xử lý phản ánh, duyệt/từ chối hồ sơ, đăng xuất; Snackbar báo kết quả (Toast khi chưa chọn sản phẩm) |
+| 7 | ≥ 1 màn hình báo cáo có biểu đồ | `SalesReportFragment` + `BarChartView` tự vẽ (không dùng MPAndroidChart) |
+| 8 | Đủ 3 trạng thái gọi API | `ui/common/StatePanel` + `layout/panel_state.xml`: ProgressBar / nội dung hoặc dòng trống / lỗi + Thử lại, ở mọi màn hình gọi API |
+| 9 | Không mất dữ liệu form khi xoay | EditText có id tự khôi phục; `CreateBatchFragment`, `AddStepDialog`, `SalesReportFragment` lưu lựa chọn và ngày bằng `onSaveInstanceState`; dữ liệu tải về giữ trong ViewModel |
 | 10 | Tên app và TAG chứa mã nhóm | `OCOP Admin Gugugaga`, package `vn.edu.vhu.ltdd.gugugaga.admin`, `TAG = "GUGUGAGA_ADMIN"` |
 
 Chưa làm (không bắt buộc): nhập hồ sơ nhà cung cấp/sản phẩm mới từ app Admin.
@@ -82,8 +82,8 @@ Chưa làm (không bắt buộc): nhập hồ sơ nhà cung cấp/sản phẩm m
 ./gradlew testDebugUnitTest lintDebug
 ```
 
-- **`kientruc/KienTrucTest`:** ArchUnit kiểm tra kiến trúc gồm phân tầng `ui → data → model`, màn hình chỉ gọi API qua repository, Retrofit/Gson chỉ ở data, `SharedPreferences` chỉ ở `TokenStore`, không gọi mạng đồng bộ, Fragment chỉ có constructor rỗng, ViewModel không giữ View. Danh sách đầy đủ trong [Architecture](../docs/development/Architecture.md#kiểm-tra-kiến-trúc-hai-app-bằng-máy). `KienTrucTuKiemTest` chứng minh các quy tắc bắt được vi phạm.
-- **`DinhDangTest`, `QuyTacTrangThaiTest`, `BieuDoTest`, `KiemTraFormTest`:** chạy không cần máy ảo. Kiểm tra định dạng tiền/ngày giờ (UTC → giờ Việt Nam, thời điểm gửi lên có `+07:00`), cách đọc lỗi và lỗi theo ô của backend, body gửi lên không có trường null, nút chuyển trạng thái hợp lệ của đơn/phản ánh/hồ sơ, vai trò được dùng app, tỉ lệ cột biểu đồ (không chia cho 0, doanh số vượt `int`), bốn lớp kiểm tra số lượng và URL ảnh.
+- **`architecture/ArchitectureTest`:** ArchUnit kiểm tra kiến trúc gồm phân tầng `ui → data → model`, màn hình chỉ gọi API qua repository, Retrofit/Gson chỉ ở data, `SharedPreferences` chỉ ở `TokenStore`, không gọi mạng đồng bộ, Fragment chỉ có constructor rỗng, ViewModel không giữ View. Danh sách đầy đủ trong [Architecture](../docs/development/Architecture.md#kiểm-tra-kiến-trúc-hai-app-bằng-máy). `ArchitectureRuleTest` chứng minh các quy tắc bắt được vi phạm.
+- **`FormattingTest`, `StatusTransitionsTest`, `ChartsTest`, `FormValidationTest`:** chạy không cần máy ảo. Kiểm tra định dạng tiền/ngày giờ (UTC → giờ Việt Nam, thời điểm gửi lên có `+07:00`), cách đọc lỗi và lỗi theo ô của backend, body gửi lên không có trường null, nút chuyển trạng thái hợp lệ của đơn/phản ánh/hồ sơ, vai trò được dùng app, tỉ lệ cột biểu đồ (không chia cho 0, doanh số vượt `int`), bốn lớp kiểm tra số lượng và URL ảnh.
 - **`ApiContractTest`:** gọi backend **thật** để kiểm tra model của app đọc đúng JSON của mọi API app dùng (đơn hàng, nhà cung cấp, lô, phản ánh, báo cáo), và backend trả đúng 400/403/409 ở các trường hợp app đã chặn (hủy không lý do, nhảy cóc trạng thái, nhân viên duyệt, nhân viên xem báo cáo, hạn trước ngày sản xuất). Một số test có ghi dữ liệu (duyệt sản phẩm 45, tạo một lô, chuyển một đơn sang Đang giao), nên chạy trên CSDL vừa reset. Test tự bỏ qua nếu chưa đặt biến môi trường. Muốn chạy, khởi động backend sau khi `npm run db:reset -- --yes`, rồi chạy:
 
   ```bash

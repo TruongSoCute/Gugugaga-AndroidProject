@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/nen_man_hinh">
 
-    <vn.edu.vhu.ltdd.gugugaga.admin.ui.dangnhap.NenDiaHinhView
+    <vn.edu.vhu.ltdd.gugugaga.admin.ui.login.TerrainBackgroundView
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
@@ -31,7 +31,7 @@
                 android:id="@+id/thePassAdmin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/nen_the_lenh_ocop"
+                android:background="@drawable/bg_ocop_pass"
                 android:elevation="6dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
@@ -52,7 +52,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:background="@drawable/nen_chip_kpi"
+                            android:background="@drawable/bg_kpi_chip"
                             android:letterSpacing="0.06"
                             android:paddingStart="9dp"
                             android:paddingTop="3dp"
@@ -67,7 +67,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:background="@drawable/nen_chip_kpi"
+                            android:background="@drawable/bg_kpi_chip"
                             android:paddingStart="9dp"
                             android:paddingTop="3dp"
                             android:paddingEnd="9dp"
@@ -103,7 +103,7 @@
                     android:layout_width="52dp"
                     android:layout_height="52dp"
                     android:layout_marginStart="@dimen/khoang_sm_md"
-                    android:background="@drawable/nen_chip_kpi">
+                    android:background="@drawable/bg_kpi_chip">
 
                     <ImageView
                         android:layout_width="36dp"
@@ -155,7 +155,7 @@
                         android:layout_marginTop="@dimen/khoang_sm_md"
                         android:hint="@string/hint_mat_khau"
                         app:endIconMode="password_toggle"
-                        app:startIconDrawable="@drawable/ic_mat_khau">
+                        app:startIconDrawable="@drawable/ic_password">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edtMatKhau"
@@ -170,7 +170,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/khoang_sm_md"
-                        android:background="@drawable/nen_ma_lo"
+                        android:background="@drawable/bg_batch_code"
                         android:backgroundTint="@color/nen_tu_choi"
                         android:paddingStart="@dimen/khoang_sm_md"
                         android:paddingTop="@dimen/khoang_sm"

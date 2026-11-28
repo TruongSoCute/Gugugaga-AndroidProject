@@ -38,7 +38,7 @@ backend/
   test/                         Kiểm thử tự động (node:test)
 ```
 
-Khi thêm miền mới (ví dụ `don-hang`): tạo `domains/don-hang/{types,repo,service,routes,index}.js`, rồi ghép trong `app.js`. Nếu cần dữ liệu của miền khác, truyền service đó vào ở `app.js`; không `require` thẳng thư mục miền khác.
+Khi thêm miền mới (ví dụ `orders`): tạo `domains/orders/{types,repo,service,routes,index}.js`, rồi ghép trong `app.js`. Nếu cần dữ liệu của miền khác, truyền service đó vào ở `app.js`; không `require` thẳng thư mục miền khác.
 
 ## Chạy trên máy cá nhân
 
@@ -97,9 +97,19 @@ Mật khẩu chung `Demo@12345`. Đây là tài khoản demo theo yêu cầu n�
 | `khach1@ocop.example` … `khach5@ocop.example` | `KHACH` |
 | `ncc1@ocop.example` (sở hữu nhà cung cấp 1, đã duyệt), `ncc11@ocop.example` (nhà cung cấp 11, chờ duyệt) | `NHA_CUNG_CAP` |
 
-Mã truy xuất của 100 lô mẫu được sinh ngẫu nhiên mỗi lần chạy seed. Có thể xem mã bằng `GET /lo-san-xuat` với token nhân sự, hoặc bằng `SELECT ma_truy_xuat FROM lo_san_xuat` trong Supabase SQL Editor.
+Mã truy xuất của 100 lô mẫu được sinh ngẫu nhiên mỗi lần chạy seed. Có thể xem mã bằng `GET /lo-san-xuat` với token nhân sự, hoặc bằng `SELECT traceability_code FROM production_batches` trong Supabase SQL Editor.
 
 Toàn bộ dữ liệu mẫu là giả lập: tên cơ sở có hậu tố "(mẫu)", số hiệu chứng nhận có tiền tố `MAU-` và ảnh là ảnh minh họa từ picsum.photos. Không trình bày dữ liệu này như thông tin đã được xác minh.
+
+## Đổi tên định danh PostgreSQL
+
+Dùng [migration](../supabase/migrations) trên DB đang có dữ liệu. Chỉ dùng `schema.sql` và `seed.sql` để tạo lại DB phát triển hoặc kiểm thử.
+
+1. Áp dụng `rename_application_schema` để đổi tên 15 bảng bằng `ALTER TABLE … RENAME`. Backend cũ trên Render tiếp tục dùng các view tương thích. `reviews` là view ghi được trên bảng `danh_gia`. Các view dùng quyền của người gọi và thu hồi quyền truy cập của các vai trò Supabase Data API.
+2. Phát hành backend mới theo [quy trình release](../docs/development/Setup.md#8-phát-hành-tự-động-nhánh-release). Kiểm tra mã commit từ `GET /health`, chi tiết sản phẩm, QR JSON/HTML và ảnh công khai. Backend mới dùng tên tiếng Anh và liệt kê các cột cần gom nhóm trong truy vấn đánh giá. Truy vấn này chạy được với cả view lẫn bảng.
+3. Áp dụng `rename_reviews` sau khi xác nhận Render đã chạy backend mới. `reviews` trở thành tên thật của bảng đánh giá. Hai ràng buộc unique cũng chuyển sang tên tiếng Anh ở bước này. Backend mới xử lý được cả hai bộ tên trong thời gian chuyển tiếp.
+
+Bản Render cũ dùng khóa chính của bảng đánh giá để chạy `GROUP BY`. Để quay lại bản đó sau bước 3, chạy [rollback bảng đánh giá](db/rollback/rename-reviews.sql) trước khi quay lại backend cũ. Sau khi Render chạy lại bản cũ, có thể hoàn tác bước 1 bằng [rollback các bảng còn lại](db/rollback/rename-application-schema.sql).
 
 ## Triển khai (cần thành viên có tài khoản thực hiện)
 
@@ -128,6 +138,6 @@ Không commit `.env`. Khóa `SUPABASE_SERVICE_KEY` chỉ khai báo trên Render,
 - **Phân tầng:** muốn biết SQL ở đâu thì xem `repo.js`; quy tắc nghiệp vụ ở `service.js`; quyền ở `providers/auth.js` và chỗ gắn `auth.nhanSu`/`auth.quanTri` trong `routes.js`.
 - **bcrypt:** CSDL chỉ lưu hash của mật khẩu. Khi đăng nhập, backend so sánh hash và không bao giờ trả hash về app.
 - **JWT:** token ký bằng `JWT_SECRET` và có hạn dùng. Mỗi request, middleware kiểm tra chữ ký và hạn của token, rồi đọc lại vai trò trong CSDL, nên sửa vai trò trong token cũng không có tác dụng.
-- **Không bán vượt tồn:** khi đặt đơn, backend khóa các lô của sản phẩm bằng `SELECT … FOR UPDATE`. Hai khách đặt cùng lúc phần hàng cuối thì người sau phải chờ người trước xong, rồi đọc lại tồn mới, nên chỉ một đơn thành công. Test `don-hang.test.js` gửi hai đơn song song để chứng minh; gỡ `FOR UPDATE` thì test này đỏ.
-- **Gán lô FIFO:** mỗi dòng đơn được chia cho lô sản xuất sớm nhất còn hàng và còn hạn; không đủ thì lấy tiếp lô kế tiếp. Mỗi lô là một dòng `chi_tiet_don`, nên đơn hàng biết chính xác lô nào đã giao và khách tra được mã truy xuất của hàng mình mua.
+- **Không bán vượt tồn:** khi đặt đơn, backend khóa các lô của sản phẩm bằng `SELECT … FOR UPDATE`. Hai khách đặt cùng lúc phần hàng cuối thì người sau phải chờ người trước xong, rồi đọc lại tồn mới, nên chỉ một đơn thành công. Test `orders.test.js` gửi hai đơn song song để chứng minh; gỡ `FOR UPDATE` thì test này đỏ.
+- **Gán lô FIFO:** mỗi dòng đơn được chia cho lô sản xuất sớm nhất còn hàng và còn hạn; không đủ thì lấy tiếp lô kế tiếp. Mỗi lô là một dòng `order_items`, nên đơn hàng biết chính xác lô nào đã giao và khách tra được mã truy xuất của hàng mình mua.
 - **Mã truy xuất khó đoán:** mã có 80 bit ngẫu nhiên từ `crypto.randomBytes`, không phải số tăng dần, nên không ai dò được mã của lô khác.

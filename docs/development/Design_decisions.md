@@ -29,7 +29,7 @@ Tài liệu này ghi các phương án **Đề xuất** mà backend hiện đang
 
 Nhóm đã quyết định (01/11/2026): nhà cung cấp có tài khoản `NHA_CUNG_CAP` và dùng **app Client** để gửi hồ sơ và sản phẩm chờ duyệt. Đề không nói ai gửi hồ sơ, còn slide giới thiệu ghi app Client dành cho khách, nên vẫn nên báo giảng viên khi demo. Tạo lô, sinh QR và nhập bước truy xuất vẫn làm trên app Admin, vì đề ghi đây là chức năng của Admin.
 
-- Mỗi tài khoản sở hữu **đúng một** hồ sơ (`nha_cung_cap.tai_khoan_id UNIQUE`). Hồ sơ nhân sự nhập hộ có `tai_khoan_id = NULL`; app Admin hiển thị cờ `tuGui` để phân biệt.
+- Mỗi tài khoản sở hữu **đúng một** hồ sơ (`suppliers.account_id UNIQUE`). Hồ sơ nhân sự nhập hộ có `account_id = NULL`; app Admin hiển thị cờ `tuGui` để phân biệt.
 - Hồ sơ và sản phẩm mới luôn `CHO_DUYET`. Backend bỏ qua `trangThaiDuyet`, `hangSao`, `nhaCungCapId` do app gửi; sản phẩm luôn gắn với hồ sơ của tài khoản đang đăng nhập.
 - Nhà cung cấp sửa được hồ sơ/sản phẩm khi đang `CHO_DUYET` hoặc `TU_CHOI`; sửa xong quay về `CHO_DUYET` để quản trị duyệt lại (sản phẩm bị xóa hạng sao). Hồ sơ/sản phẩm đã `DA_DUYET` không tự sửa được, vì đang bán công khai; cần liên hệ quản trị.
 - Hồ sơ bị từ chối thì chưa thêm được sản phẩm mới (giống quy tắc khi nhân sự nhập).
@@ -70,10 +70,10 @@ Nhóm đã quyết định (01/11/2026): nhà cung cấp có tài khoản `NHA_C
   Không được nhảy cóc hay quay lui. Hủy đơn hoàn lại `so_luong_con` cho đúng các lô đã trừ, trong cùng transaction với việc đổi trạng thái.
 - Chỉ bán lô còn hạn sử dụng (`han_su_dung` sau ngày hôm nay theo giờ Việt Nam). Khóa lô theo thứ tự `id` để các đơn đặt đồng thời không gây deadlock.
 - Giá, phí giao và tổng tiền do backend tính; `chi_tiet_don.don_gia` lưu giá tại thời điểm đặt. Giỏ hàng chỉ lưu sản phẩm và số lượng, luôn hiển thị giá hiện hành.
-- Phí giao cố định theo hình thức: `TIEU_CHUAN` 30.000 đ, `NHANH` 50.000 đ, `NHAN_TAI_CHO` 0 đ (khai báo ở `backend/src/domains/don-hang/config.js`). Không tích hợp hãng vận chuyển thật; "vận chuyển liên vùng" được quản lý bằng trạng thái đơn và vùng của lô. Cần giảng viên xác nhận (xem [Open questions](Open_questions.md)).
+- Phí giao cố định theo hình thức: `TIEU_CHUAN` 30.000 đ, `NHANH` 50.000 đ, `NHAN_TAI_CHO` 0 đ (khai báo ở `backend/src/domains/orders/config.js`). Không tích hợp hãng vận chuyển thật; "vận chuyển liên vùng" được quản lý bằng trạng thái đơn và vùng của lô. Cần giảng viên xác nhận (xem [Open questions](Open_questions.md)).
 - Doanh số tính trên đơn `DA_GIAO` và `DA_NHAN`, theo vùng của **lô thực tế đã giao**.
 
 ## Bảo mật Supabase
 
-- Mọi bảng bật Row Level Security nhưng không có policy. Như vậy REST API tự động của Supabase (dùng anon key) không đọc hoặc ghi được dữ liệu, kể cả `mat_khau_hash`. Backend kết nối bằng chủ sở hữu bảng qua `DATABASE_URL`, nên RLS không chặn backend.
+- Mọi bảng bật Row Level Security nhưng không có policy. Như vậy REST API tự động của Supabase (dùng anon key) không đọc hoặc ghi được dữ liệu, kể cả `password_hash`. Backend kết nối bằng chủ sở hữu bảng qua `DATABASE_URL`, nên RLS không chặn backend.
 - Hai app chỉ gọi backend Express, không nhúng khóa Supabase nào.

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Một bước truy xuất dạng timeline hiện đại: số thứ tự tròn + thẻ nội dung trắng bo góc. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="48dp"
+    android:orientation="horizontal"
+    android:paddingTop="@dimen/khoang_xs"
+    android:paddingBottom="@dimen/khoang_sm">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvThuTu"
+            android:layout_width="@dimen/vong_thu_tu"
+            android:layout_height="@dimen/vong_thu_tu"
+            android:layout_marginTop="@dimen/khoang_xs"
+            android:background="@drawable/bg_step_number"
+            android:gravity="center"
+            android:textColor="@color/nen_icon"
+            android:textSize="@dimen/chu_nho"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="2dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/khoang_xs"
+            android:layout_weight="1"
+            android:background="@color/xanh_ocop_nhat" />
+    </LinearLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        style="@style/TheChiTiet"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/khoang_sm_md"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/khoang_sm_md">
+
+            <TextView
+                android:id="@+id/tvTenBuoc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?attr/textAppearanceTitleSmall"
+                android:textColor="@color/chu_chinh"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvThoiDiemBuoc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/chu_phu"
+                android:textSize="@dimen/chu_nho" />
+
+            <TextView
+                android:id="@+id/tvMoTaBuoc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/khoang_sm"
+                android:textColor="@color/chu_chinh" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivAnhBuoc"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/anh_lon"
+                android:layout_marginTop="@dimen/khoang_sm"
+                android:background="@color/nen_nhap"
+                android:contentDescription="@string/mo_ta_anh_buoc"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                app:shapeAppearanceOverlay="@style/HinhAnhBoGoc" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>

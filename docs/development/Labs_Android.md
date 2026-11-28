@@ -287,7 +287,7 @@ Lab A10–A15 và F1–F8 chưa có slide trong repo. Các dòng ghi "chưa có 
 
 **Áp dụng cho đề 5 (Đề xuất):**
 - **Màn hình chính:** `MainActivity` + `BottomNavigationView`. Tab hiển thị theo `vaiTro` lấy từ phản hồi đăng nhập; ẩn tab bằng cách ẩn menu item.
-- **Mở chi tiết:** từ danh sách mở `ChiTietLoFragment.newInstance(loId)` và các màn hình chi tiết khác theo cùng mẫu, kèm `addToBackStack`.
+- **Mở chi tiết:** từ danh sách mở `BatchDetailsFragment.newInstance(loId)` và các màn hình chi tiết khác theo cùng mẫu, kèm `addToBackStack`.
 - **Cập nhật danh sách sau thao tác:** sau khi duyệt hoặc từ chối, Fragment chi tiết gửi kết quả qua Fragment Result API để danh sách tải lại.
 
 ## Lab A9: Adapter, ListView và mẫu ViewHolder

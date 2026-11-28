@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import '../config.dart';
-import 'phien_dang_nhap.dart';
+import 'auth_session.dart';
 import 'token_store.dart';
 
 /// Lỗi gọi API đã chuyển thành thông điệp hiển thị được cho người dùng.
@@ -38,7 +38,7 @@ class ApiException implements Exception {
 /// Màn hình không gọi http trực tiếp mà đi qua repository (docs/development/Architecture.md).
 ///
 /// Khi backend trả 401 cho yêu cầu CÓ token (token hết hạn, tài khoản bị khóa): xóa token và
-/// báo [PhienDangNhap.baoHetPhien] để app đưa người dùng về màn hình đăng nhập.
+/// báo [AuthSession.baoHetPhien] để app đưa người dùng về màn hình đăng nhập.
 class ApiClient {
   ApiClient({http.Client? client, String? baseUrl})
       : _client = client ?? http.Client(),
@@ -116,7 +116,7 @@ class ApiClient {
     if (res.statusCode == 401 && token != null) {
       // Token hết hạn/không còn hợp lệ: xóa phiên và báo app quay về đăng nhập.
       await TokenStore.xoa();
-      PhienDangNhap.baoHetPhien();
+      AuthSession.baoHetPhien();
       throw ApiException('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
           maHttp: 401, ma: maLoi(body));
     }

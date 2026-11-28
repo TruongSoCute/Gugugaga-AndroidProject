@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Form tạo lô. Bọc ScrollView để bàn phím không che nút Lưu (Lab A3, A6).
+  Mọi ô nhập có id nên Android tự lưu/khôi phục chữ khi xoay màn hình (Lab A2).
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/nen_man_hinh">
+
+    <ScrollView
+        android:id="@+id/noiDung"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/khoang_md">
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/TheChiTiet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/khoang_md">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/muc_thong_tin_lo"
+                        android:textAppearance="?attr/textAppearanceTitleSmall"
+                        android:textColor="?attr/colorPrimary"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm_md"
+                        android:text="@string/nhan_san_pham"
+                        android:textColor="@color/chu_phu"
+                        android:textSize="@dimen/chu_nho" />
+
+                    <Spinner
+                        android:id="@+id/spSanPham"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="@dimen/khoang_xs"
+                        android:background="@drawable/spinner_background"
+                        android:paddingStart="@dimen/khoang_sm_md"
+                        android:paddingEnd="@dimen/khoang_sm_md" />
+
+                    <TextView
+                        android:id="@+id/tvLoiSanPham"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_xs"
+                        android:text="@string/loi_chua_chon_san_pham"
+                        android:textColor="?attr/colorError"
+                        android:textSize="@dimen/chu_nho"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_md"
+                        android:text="@string/nhan_vung_nguyen_lieu"
+                        android:textColor="@color/chu_phu"
+                        android:textSize="@dimen/chu_nho" />
+
+                    <Spinner
+                        android:id="@+id/spVungNguyenLieu"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="@dimen/khoang_xs"
+                        android:background="@drawable/spinner_background"
+                        android:paddingStart="@dimen/khoang_sm_md"
+                        android:paddingEnd="@dimen/khoang_sm_md" />
+
+                    <TextView
+                        android:id="@+id/tvLoiVungNguyenLieu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_xs"
+                        android:textColor="?attr/colorError"
+                        android:textSize="@dimen/chu_nho"
+                        android:visibility="gone" />
+
+                    <!-- Hai ô ngày không cho gõ tay: bấm vào để mở DatePickerDialog. -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilNgaySanXuat"
+                        style="@style/ONhapOcop"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_md"
+                        android:hint="@string/hint_ngay_san_xuat"
+                        app:startIconDrawable="@drawable/ic_calendar">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtNgaySanXuat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:cursorVisible="false"
+                            android:focusable="false"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilHanSuDung"
+                        style="@style/ONhapOcop"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:hint="@string/hint_han_su_dung"
+                        app:startIconDrawable="@drawable/ic_calendar">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtHanSuDung"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:cursorVisible="false"
+                            android:focusable="false"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilSoLuong"
+                        style="@style/ONhapOcop"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:hint="@string/hint_so_luong">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtSoLuong"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:maxLength="9" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilNguoiSanXuat"
+                        style="@style/ONhapOcop"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:hint="@string/hint_nguoi_san_xuat">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtNguoiSanXuat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapWords"
+                            android:maxLength="120" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/TheChiTiet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/khoang_md">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/khoang_md">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/muc_anh_va_ghi_chu_lo"
+                        android:textAppearance="?attr/textAppearanceTitleSmall"
+                        android:textColor="?attr/colorPrimary"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilAnhHienTruong"
+                        style="@style/ONhapOcop"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:hint="@string/hint_anh_hien_truong">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtAnhHienTruong"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textUri" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnChonAnh"
+                            style="@style/NutPhuOcop"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/nut_chon_anh" />
+
+                        <ProgressBar
+                            android:id="@+id/progressTaiAnh"
+                            style="?android:attr/progressBarStyleSmall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/khoang_sm"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/tvTrangThaiAnh"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/khoang_sm"
+                            android:layout_weight="1"
+                            android:textColor="@color/chu_phu"
+                            android:textSize="@dimen/chu_nho"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivXemTruocAnh"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/anh_lon"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:background="@color/nen_nhap"
+                        android:contentDescription="@string/mo_ta_anh_hien_truong"
+                        android:scaleType="centerCrop"
+                        android:visibility="gone"
+                        app:shapeAppearanceOverlay="@style/HinhAnhBoGoc" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilGhiChu"
+                        style="@style/ONhapOcop"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/khoang_sm"
+                        android:hint="@string/hint_ghi_chu_lo">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtGhiChu"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textMultiLine|textCapSentences"
+                            android:maxLength="2000"
+                            android:minLines="2" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/khoang_sm_md"
+                android:text="@string/ghi_chu_ma_do_may_chu_sinh"
+                android:textColor="@color/chu_phu"
+                android:textSize="@dimen/chu_nho" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLuu"
+                style="@style/NutChinhOcop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/khoang_md"
+                android:text="@string/nut_luu_lo" />
+
+            <ProgressBar
+                android:id="@+id/progressLuu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/khoang_sm"
+                android:layout_marginBottom="@dimen/khoang_lg"
+                android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
+
+    <include layout="@layout/panel_state" />
+</FrameLayout>

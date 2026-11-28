@@ -35,11 +35,11 @@ async function setup({ storage } = {}) {
   const server = await new Promise((resolve) => {
     const s = app.listen(0, () => resolve(s));
   });
-  const base = `http://127.0.0.1:${server.address().port}`;
+  const baseUrl = `http://127.0.0.1:${server.address().port}`;
 
   async function api(method, url, { token, body, headers = {} } = {}) {
     const raw = Buffer.isBuffer(body);
-    const res = await fetch(base + url, {
+    const res = await fetch(baseUrl + url, {
       method,
       headers: {
         ...(body !== undefined && !raw ? { 'content-type': 'application/json' } : {}),
@@ -65,7 +65,7 @@ async function setup({ storage } = {}) {
     await pool.end();
   }
 
-  return { api, login, pool, config, teardown };
+  return { api, baseUrl, login, pool, config, teardown };
 }
 
 module.exports = { setup };
