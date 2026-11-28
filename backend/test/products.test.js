@@ -58,8 +58,8 @@ test('Tham số lọc sai trả 400', async () => {
 });
 
 test('Chi tiết sản phẩm công khai có nhà cung cấp, chứng nhận và đánh giá, không lộ email', async () => {
-  const { rows } = await t.pool.query('SELECT san_pham_id FROM danh_gia ORDER BY id LIMIT 1');
-  const r = await t.api('GET', `/san-pham/${rows[0].san_pham_id}`);
+  const { rows } = await t.pool.query('SELECT product_id FROM reviews ORDER BY id LIMIT 1');
+  const r = await t.api('GET', `/san-pham/${rows[0].product_id}`);
   assert.equal(r.status, 200);
   assert.ok(r.body.tenNhaCungCap);
   assert.ok(r.body.chungNhan.length >= 1);

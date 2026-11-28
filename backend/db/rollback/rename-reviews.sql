@@ -2,8 +2,6 @@
 BEGIN;
 SET LOCAL lock_timeout = '5s';
 
-DROP VIEW public.danh_gia;
-
 ALTER TABLE public.reviews RENAME COLUMN customer_id TO khach_id;
 ALTER TABLE public.reviews RENAME COLUMN product_id TO san_pham_id;
 ALTER TABLE public.reviews RENAME COLUMN order_id TO don_hang_id;

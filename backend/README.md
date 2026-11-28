@@ -107,7 +107,7 @@ Dùng [migration](../supabase/migrations) trên DB đang có dữ liệu. Chỉ 
 
 1. Áp dụng `rename_application_schema` để đổi tên 15 bảng bằng `ALTER TABLE … RENAME`. Backend cũ trên Render tiếp tục dùng các view tương thích. `reviews` là view ghi được trên bảng `danh_gia`. Các view dùng quyền của người gọi và thu hồi quyền truy cập của các vai trò Supabase Data API.
 2. Phát hành backend mới theo [quy trình release](../docs/development/Setup.md#8-phát-hành-tự-động-nhánh-release). Kiểm tra mã commit từ `GET /health`, chi tiết sản phẩm, QR JSON/HTML và ảnh công khai. Backend mới dùng tên tiếng Anh và liệt kê các cột cần gom nhóm trong truy vấn đánh giá. Truy vấn này chạy được với cả view lẫn bảng.
-3. Áp dụng `rename_reviews` sau khi xác nhận Render đã chạy backend mới. `reviews` trở thành tên thật của bảng đánh giá. Hai ràng buộc unique cũng chuyển sang tên tiếng Anh ở bước này. Backend mới xử lý được cả hai bộ tên trong thời gian chuyển tiếp.
+3. Áp dụng `rename_reviews` sau khi xác nhận Render đã chạy backend mới. `reviews` trở thành bảng thật, tên `danh_gia` được gỡ khỏi schema. Hai ràng buộc unique cũng chuyển sang tên tiếng Anh ở bước này. Backend mới xử lý được cả hai bộ tên ràng buộc trong thời gian chuyển tiếp.
 
 Bản Render cũ dùng khóa chính của bảng đánh giá để chạy `GROUP BY`. Để quay lại bản đó sau bước 3, chạy [rollback bảng đánh giá](db/rollback/rename-reviews.sql) trước khi quay lại backend cũ. Sau khi Render chạy lại bản cũ, có thể hoàn tác bước 1 bằng [rollback các bảng còn lại](db/rollback/rename-application-schema.sql).
 

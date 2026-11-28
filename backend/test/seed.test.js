@@ -63,4 +63,9 @@ test('schema.sql và seed.sql chạy lại được', async () => {
     await t.pool.query(fs.readFileSync(path.join(__dirname, '..', 'db', f), 'utf8'));
   }
   assert.equal(await count('SELECT count(*) n FROM production_batches'), 100);
+  const { rows: [schema] } = await t.pool.query(
+    "SELECT to_regclass('public.danh_gia') IS NULL AS legacy_name_absent, " +
+    "(SELECT relkind = 'r' FROM pg_class WHERE oid = 'public.reviews'::regclass) AS reviews_is_table",
+  );
+  assert.deepEqual(schema, { legacy_name_absent: true, reviews_is_table: true });
 });

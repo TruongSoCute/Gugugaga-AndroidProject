@@ -33,7 +33,7 @@ before(async () => {
   s.dongChuaDanhGia = (await t.pool.query(
     `SELECT c.don_hang_id, c.san_pham_id FROM chi_tiet_don c JOIN don_hang dh ON dh.id = c.don_hang_id
      WHERE dh.khach_id = 3 AND dh.trang_thai = 'DA_NHAN'
-       AND NOT EXISTS (SELECT 1 FROM danh_gia dg WHERE dg.don_hang_id = c.don_hang_id AND dg.san_pham_id = c.san_pham_id)
+       AND NOT EXISTS (SELECT 1 FROM reviews r WHERE r.order_id = c.don_hang_id AND r.product_id = c.san_pham_id)
      ORDER BY c.id LIMIT 1`,
   )).rows[0];
   s.donChuaNhan = (await t.pool.query(

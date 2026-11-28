@@ -359,12 +359,6 @@ SELECT id, order_id AS don_hang_id, status AS trang_thai,
        notes AS ghi_chu, changed_by_user_id AS nguoi_thuc_hien_id, changed_at AS thoi_diem
 FROM public.order_status_history;
 
-CREATE VIEW public.danh_gia WITH (security_invoker = true) AS
-SELECT id, customer_id AS khach_id, product_id AS san_pham_id,
-       order_id AS don_hang_id, rating AS so_sao, comment AS noi_dung,
-       created_at AS tao_luc
-FROM public.reviews;
-
 CREATE VIEW public.anh_danh_gia WITH (security_invoker = true) AS
 SELECT id, review_id AS danh_gia_id, image_url AS anh_url
 FROM public.review_images;
@@ -396,7 +390,6 @@ REVOKE ALL ON TABLE
   public.don_hang,
   public.chi_tiet_don,
   public.lich_su_trang_thai_don,
-  public.danh_gia,
   public.anh_danh_gia,
   public.bao_cao_vi_pham,
   public.yeu_thich,
@@ -421,7 +414,6 @@ BEGIN
   public.don_hang,
   public.chi_tiet_don,
   public.lich_su_trang_thai_don,
-  public.danh_gia,
   public.anh_danh_gia,
   public.bao_cao_vi_pham,
   public.yeu_thich,

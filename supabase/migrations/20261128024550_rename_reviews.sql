@@ -27,21 +27,4 @@ ALTER TABLE public.certificates
 ALTER TABLE public.production_batches
   RENAME CONSTRAINT lo_san_xuat_ma_truy_xuat_key TO production_batches_traceability_code_key;
 
-CREATE VIEW public.danh_gia WITH (security_invoker = true) AS
-SELECT id, customer_id AS khach_id, product_id AS san_pham_id,
-       order_id AS don_hang_id, rating AS so_sao, comment AS noi_dung,
-       created_at AS tao_luc
-FROM public.reviews;
-
-REVOKE ALL ON TABLE public.danh_gia FROM PUBLIC;
-DO $$
-DECLARE client_role text;
-BEGIN
-  FOR client_role IN
-    SELECT rolname FROM pg_roles WHERE rolname IN ('anon', 'authenticated', 'service_role')
-  LOOP
-    EXECUTE format('REVOKE ALL ON TABLE public.danh_gia FROM %I', client_role);
-  END LOOP;
-END $$;
-
 COMMIT;
